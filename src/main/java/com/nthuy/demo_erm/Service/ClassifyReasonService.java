@@ -1,5 +1,6 @@
 package com.nthuy.demo_erm.Service;
 
+import com.nthuy.demo_erm.Config.ClassifyReasonSpecification;
 import com.nthuy.demo_erm.DTO.ClassifyReasonDTO;
 import com.nthuy.demo_erm.DTO.IdResponse;
 import com.nthuy.demo_erm.DTO.SystemDTO;
@@ -9,6 +10,7 @@ import com.nthuy.demo_erm.Entity.SystemEntity;
 import com.nthuy.demo_erm.Exception.BadRequestValidationException;
 import com.nthuy.demo_erm.Repository.ClassifyReasonRepository;
 import com.nthuy.demo_erm.Repository.SystemRepository;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -105,4 +107,27 @@ public class ClassifyReasonService {
         this.classifyReasonRepository.deleteById(id);
     }
 
+
+    public List<ClassifyReasonDTO> handleGetClassifyReason(String code, String name, List<Long> systemIds) {
+        Specification<ClassifyReasonEntity> spec = Specification
+                .where(ClassifyReasonSpecification.hasCode(code))
+                .and(ClassifyReasonSpecification.hasName(name))
+                .and(ClassifyReasonSpecification.hasSystemIdIn(systemIds));
+
+        List<ClassifyReasonEntity> entities = classifyReasonRepository.findAll(spec);
+
+        return entities.stream()
+                .map(entity -> new ClassifyReasonDTO(
+                        entity.getId(),
+                        entity.getCode(),
+                        entity.getName(),
+                        entity.getDescription(),
+                        entity.getNote(),
+                        entity.getSystemEntities()
+                                .stream()
+                                .map(se -> new SystemDTO(se.getId(), se.getName()))
+                                .collect(Collectors.toSet())
+                ))
+                .collect(Collectors.toList());
+    }
 }

@@ -2,6 +2,7 @@ package com.nthuy.demo_erm.Controller;
 
 import com.nthuy.demo_erm.DTO.ClassifyReasonDTO;
 import com.nthuy.demo_erm.DTO.IdResponse;
+import com.nthuy.demo_erm.DTO.RestResponse;
 import com.nthuy.demo_erm.Exception.IdInvalidException;
 import com.nthuy.demo_erm.Exception.NameExisted;
 import com.nthuy.demo_erm.Service.ClassifyReasonService;
@@ -42,7 +43,7 @@ public class ClassifyReasonController {
 
 
     @GetMapping(value = "/api/v1/classify-reason", params = "id")
-    @ApiMessage("Lấy thông tin phân loại nguyên nhân")
+    @ApiMessage("Lấy thông tin phân loại nguyên nhân theo id")
     public ResponseEntity<ClassifyReasonDTO> getDetailsClassifyReason(
             @RequestParam Long id
     ) {
@@ -51,12 +52,12 @@ public class ClassifyReasonController {
     }
 
 
-    @GetMapping("/api/v1/classify-reason")
-    @ApiMessage("list phân loại nguyên nhân")
-    public ResponseEntity<List<ClassifyReasonDTO>> getClassifyReason(
-    ) {
-        return ResponseEntity.ok(this.classifyReasonService.handleGetClassifyReason());
-    }
+//    @GetMapping("/api/v1/classify-reason")
+//    @ApiMessage("list phân loại nguyên nhân")
+//    public ResponseEntity<List<ClassifyReasonDTO>> getClassifyReason(
+//    ) {
+//        return ResponseEntity.ok(this.classifyReasonService.handleGetClassifyReason());
+//    }
 
 
     @DeleteMapping(value = "/api/v1/classify-reason", params = "id")
@@ -70,5 +71,15 @@ public class ClassifyReasonController {
         }
         this.classifyReasonService.handleDeleteClassifyReason(id);
         return ResponseEntity.status(HttpStatus.NO_CONTENT).body("Xoá thành công");
+    }
+
+    @GetMapping("/api/v1/classify-reason")
+    public ResponseEntity<List<ClassifyReasonDTO>> getClassifyReasons(
+            @RequestParam(required = false) String code,
+            @RequestParam(required = false) String name,
+            @RequestParam(required = false) List<Long> systemIds
+    ) {
+        List<ClassifyReasonDTO> list = classifyReasonService.handleGetClassifyReason(code, name, systemIds);
+        return ResponseEntity.ok(list);
     }
 }
