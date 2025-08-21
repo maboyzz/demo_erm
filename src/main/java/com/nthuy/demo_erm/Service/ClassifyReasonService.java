@@ -1,6 +1,7 @@
 package com.nthuy.demo_erm.Service;
 
 import com.nthuy.demo_erm.DTO.ClassifyReasonDTO;
+import com.nthuy.demo_erm.DTO.IdResponse;
 import com.nthuy.demo_erm.DTO.SystemDTO;
 import com.nthuy.demo_erm.Entity.ClassifyReasonEntity;
 import com.nthuy.demo_erm.Entity.ClassifyReasonEntity;
@@ -10,6 +11,7 @@ import com.nthuy.demo_erm.Repository.ClassifyReasonRepository;
 import com.nthuy.demo_erm.Repository.SystemRepository;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -30,6 +32,13 @@ public class ClassifyReasonService {
     public boolean nameExists(String userName) {
         return this.classifyReasonRepository.existsByName(userName);
     }
+    public boolean existsById(Long id) {
+        return classifyReasonRepository.existsById(id);
+    }
+
+
+
+
     public Long handleCreateClassifyReason(ClassifyReasonDTO dto) {
         // Tạo entity và gán giá trị thủ công từ DTO
         ClassifyReasonEntity entity = new ClassifyReasonEntity();
@@ -58,7 +67,7 @@ public class ClassifyReasonService {
         return savedEntity.getId();
     }
 
-    public ClassifyReasonDTO handleGetById(Long id){
+    public ClassifyReasonDTO handleGetClassifyReasonById(Long id){
 
         ClassifyReasonEntity classifyReason = this.classifyReasonRepository.findById(id)
                 .orElseThrow(() -> new BadRequestValidationException("Thẻ bảo hiểm với ID " + id + " không tồn tại"));
@@ -75,6 +84,25 @@ public class ClassifyReasonService {
         );
 
     }
+    public List<ClassifyReasonDTO> handleGetClassifyReason() {
+        List<ClassifyReasonEntity> entities = this.classifyReasonRepository.findAll();
 
+        return entities.stream()
+                .map(entity -> new ClassifyReasonDTO(
+                        entity.getId(),
+                        entity.getCode(),
+                        entity.getName(),
+                        entity.getDescription(),
+                        entity.getNote(),
+                        entity.getSystemEntities()
+                                .stream()
+                                .map(se -> new SystemDTO(se.getId(), se.getName()))
+                                .collect(Collectors.toSet())
+                ))
+                .collect(Collectors.toList());
+    }
+    public void handleDeleteClassifyReason(Long id){
+        this.classifyReasonRepository.deleteById(id);
+    }
 
 }
