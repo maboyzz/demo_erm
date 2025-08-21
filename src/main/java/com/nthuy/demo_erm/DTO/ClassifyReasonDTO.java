@@ -1,10 +1,14 @@
 package com.nthuy.demo_erm.DTO;
 
+import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.util.Set;
 
 @Data
+@NoArgsConstructor
+@AllArgsConstructor
 public class ClassifyReasonDTO {
     private long id;
     private String code;
@@ -15,9 +19,6 @@ public class ClassifyReasonDTO {
     // Quan hệ nhiều-nhiều → dùng Set hoặc List
     private Set<SystemDTO> systems;
 
-    @Data
-    public static class SystemDTO {
-        private Long id;
-        private String name;
-    }
+
+
 }

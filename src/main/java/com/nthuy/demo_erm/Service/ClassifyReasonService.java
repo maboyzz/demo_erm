@@ -1,13 +1,16 @@
 package com.nthuy.demo_erm.Service;
 
 import com.nthuy.demo_erm.DTO.ClassifyReasonDTO;
+import com.nthuy.demo_erm.DTO.SystemDTO;
 import com.nthuy.demo_erm.Entity.ClassifyReasonEntity;
 import com.nthuy.demo_erm.Entity.ClassifyReasonEntity;
 import com.nthuy.demo_erm.Entity.SystemEntity;
+import com.nthuy.demo_erm.Exception.BadRequestValidationException;
 import com.nthuy.demo_erm.Repository.ClassifyReasonRepository;
 import com.nthuy.demo_erm.Repository.SystemRepository;
 import org.springframework.stereotype.Service;
 
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -54,5 +57,24 @@ public class ClassifyReasonService {
         // Trả về ID
         return savedEntity.getId();
     }
+
+    public ClassifyReasonDTO handleGetById(Long id){
+
+        ClassifyReasonEntity classifyReason = this.classifyReasonRepository.findById(id)
+                .orElseThrow(() -> new BadRequestValidationException("Thẻ bảo hiểm với ID " + id + " không tồn tại"));
+        return new ClassifyReasonDTO(
+                classifyReason.getId(),
+                classifyReason.getCode(),
+                classifyReason.getName(),
+                classifyReason.getDescription(),
+                classifyReason.getNote(),
+                classifyReason.getSystemEntities()
+                        .stream()
+                        .map(se -> new SystemDTO(se.getId(), se.getName()))
+                        .collect(Collectors.toSet())
+        );
+
+    }
+
 
 }
