@@ -1,12 +1,11 @@
-package com.nthuy.demo_erm.Controller;
+package com.nthuy.demo_erm.controller;
 
-import com.nthuy.demo_erm.DTO.ClassifyReasonDTO;
-import com.nthuy.demo_erm.DTO.IdResponse;
-import com.nthuy.demo_erm.DTO.RestResponse;
-import com.nthuy.demo_erm.Exception.IdInvalidException;
-import com.nthuy.demo_erm.Exception.NameExisted;
-import com.nthuy.demo_erm.Service.ClassifyReasonService;
-import com.nthuy.demo_erm.Until.annotation.ApiMessage;
+import com.nthuy.demo_erm.dto.ClassifyReasonDTO;
+import com.nthuy.demo_erm.dto.IdResponse;
+import com.nthuy.demo_erm.exception.IdInvalidException;
+import com.nthuy.demo_erm.exception.NameExisted;
+import com.nthuy.demo_erm.service.ClassifyReasonService;
+import com.nthuy.demo_erm.until.annotation.ApiMessage;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;

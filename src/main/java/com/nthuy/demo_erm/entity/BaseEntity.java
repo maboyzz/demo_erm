@@ -1,4 +1,4 @@
-package com.nthuy.demo_erm.Entity;
+package com.nthuy.demo_erm.entity;
 
 import jakarta.persistence.MappedSuperclass;
 import jakarta.persistence.PrePersist;

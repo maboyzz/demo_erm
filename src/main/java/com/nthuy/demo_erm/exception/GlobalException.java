@@ -1,12 +1,12 @@
-package com.nthuy.demo_erm.Exception;
+package com.nthuy.demo_erm.exception;
 
 
-import com.nthuy.demo_erm.DTO.RestResponse;
+import com.nthuy.demo_erm.dto.RestResponse;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
-import static com.nthuy.demo_erm.Constant.EnumErrorCode.*;
+import static com.nthuy.demo_erm.constant.EnumErrorCode.*;
 
 
 @RestControllerAdvice

@@ -1,20 +1,18 @@
-package com.nthuy.demo_erm.Service;
+package com.nthuy.demo_erm.service;
 
-import com.nthuy.demo_erm.Config.ClassifyReasonSpecification;
-import com.nthuy.demo_erm.DTO.ClassifyReasonDTO;
-import com.nthuy.demo_erm.DTO.IdResponse;
-import com.nthuy.demo_erm.DTO.SystemDTO;
-import com.nthuy.demo_erm.Entity.ClassifyReasonEntity;
-import com.nthuy.demo_erm.Entity.ClassifyReasonEntity;
-import com.nthuy.demo_erm.Entity.SystemEntity;
-import com.nthuy.demo_erm.Exception.BadRequestValidationException;
-import com.nthuy.demo_erm.Repository.ClassifyReasonRepository;
-import com.nthuy.demo_erm.Repository.SystemRepository;
+import com.nthuy.demo_erm.config.ClassifyReasonSpecification;
+import com.nthuy.demo_erm.dto.ClassifyReasonDTO;
+import com.nthuy.demo_erm.dto.SystemDTO;
+import com.nthuy.demo_erm.entity.ClassifyReasonEntity;
+import com.nthuy.demo_erm.entity.SystemEntity;
+import com.nthuy.demo_erm.exception.BadRequestValidationException;
+import com.nthuy.demo_erm.mapper.ClassifyReasonMapper;
+import com.nthuy.demo_erm.repository.ClassifyReasonRepository;
+import com.nthuy.demo_erm.repository.SystemRepository;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -23,11 +21,12 @@ public class ClassifyReasonService {
 
     private final ClassifyReasonRepository classifyReasonRepository;
     private final SystemRepository systemRepository;
+    private final ClassifyReasonMapper classifyReasonMapper;
 
-    public ClassifyReasonService(ClassifyReasonRepository classifyReasonRepository, SystemRepository systemRepository) {
+    public ClassifyReasonService(ClassifyReasonRepository classifyReasonRepository, SystemRepository systemRepository, ClassifyReasonMapper classifyReasonMapper) {
         this.classifyReasonRepository = classifyReasonRepository;
         this.systemRepository = systemRepository;
-
+        this.classifyReasonMapper = classifyReasonMapper;
     }
 
 
@@ -40,27 +39,22 @@ public class ClassifyReasonService {
 
 
 
-
     public Long handleCreateClassifyReason(ClassifyReasonDTO dto) {
-        // Tạo entity và gán giá trị thủ công từ DTO
-        ClassifyReasonEntity entity = new ClassifyReasonEntity();
-        entity.setCode(dto.getCode());
-        entity.setName(dto.getName());
-        entity.setDescription(dto.getDescription());
-        entity.setNote(dto.getNote());
+        // Dùng mapper để chuyển DTO sang Entity
+        ClassifyReasonEntity entity = classifyReasonMapper.toEntity(dto);
 
-        // Nếu DTO có chứa danh sách hệ thống (systems)
+        // Xử lý ánh xạ hệ thống (systems) từ DTO sang Entity
         if (dto.getSystems() != null && !dto.getSystems().isEmpty()) {
             Set<SystemEntity> systemEntities = dto.getSystems().stream()
-                    .map(s -> systemRepository.findById(s.getId())
-                            .orElseThrow(() -> new RuntimeException("System not found with id: " + s.getId())))
+                    .map(systemDTO -> systemRepository.findById(systemDTO.getId())
+                            .orElseThrow(() -> new RuntimeException("System not found with id: " + systemDTO.getId())))
                     .collect(Collectors.toSet());
 
-            entity.setSystemEntities(systemEntities); // set vào entity
+            entity.setSystemEntities(systemEntities);
         }
 
         // In ra để kiểm tra
-        java.lang.System.out.println("Entity trước khi lưu: " + entity);
+        System.out.println("Entity trước khi lưu: " + entity);
 
         // Lưu xuống DB
         ClassifyReasonEntity savedEntity = classifyReasonRepository.save(entity);
@@ -68,6 +62,7 @@ public class ClassifyReasonService {
         // Trả về ID
         return savedEntity.getId();
     }
+
 
     public ClassifyReasonDTO handleGetClassifyReasonById(Long id){
 

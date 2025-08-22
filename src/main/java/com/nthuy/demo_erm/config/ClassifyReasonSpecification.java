@@ -1,7 +1,7 @@
-package com.nthuy.demo_erm.Config;
+package com.nthuy.demo_erm.config;
 
-import com.nthuy.demo_erm.Entity.ClassifyReasonEntity;
-import com.nthuy.demo_erm.Entity.SystemEntity;
+import com.nthuy.demo_erm.entity.ClassifyReasonEntity;
+import com.nthuy.demo_erm.entity.SystemEntity;
 import jakarta.persistence.criteria.Join;
 import org.springframework.data.jpa.domain.Specification;
 

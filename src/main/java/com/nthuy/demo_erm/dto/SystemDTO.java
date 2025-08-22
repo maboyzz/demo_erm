@@ -1,8 +1,6 @@
-package com.nthuy.demo_erm.DTO;
+package com.nthuy.demo_erm.dto;
 
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 @Data
 @NoArgsConstructor
