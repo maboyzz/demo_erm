@@ -2,12 +2,16 @@ package com.nthuy.demo_erm.controller;
 
 import com.nthuy.demo_erm.dto.ClassifyReasonDTO;
 import com.nthuy.demo_erm.dto.IdResponse;
+import com.nthuy.demo_erm.dto.ResultPaginationDTO;
 import com.nthuy.demo_erm.exception.IdInvalidException;
 import com.nthuy.demo_erm.exception.NameExisted;
 import com.nthuy.demo_erm.service.ClassifyReasonService;
 import com.nthuy.demo_erm.service.ClassifyReasonServiceImpl;
 import com.nthuy.demo_erm.until.annotation.ApiMessage;
 import jakarta.validation.Valid;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -74,12 +78,21 @@ public class ClassifyReasonController {
     }
 
     @GetMapping("/api/v1/classify-reason")
-    public ResponseEntity<List<ClassifyReasonDTO>> getClassifyReasons(
+    public ResponseEntity<ResultPaginationDTO<ClassifyReasonDTO>> getClassifyReasons(
             @RequestParam(required = false) String code,
             @RequestParam(required = false) String name,
-            @RequestParam(required = false) List<Long> systemIds
+            @RequestParam(required = false) List<Long> systemIds,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "20") int size,
+            @RequestParam(defaultValue = "id,desc") String sort
     ) {
-        List<ClassifyReasonDTO> list = classifyReasonService.handleGetClassifyReason(code, name, systemIds);
-        return ResponseEntity.ok(list);
+        // Tạo Pageable từ param sort (vd: id,desc)
+        String[] sortParams = sort.split(",");
+        Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.fromString(sortParams[1]), sortParams[0]));
+
+        ResultPaginationDTO<ClassifyReasonDTO> result =
+                classifyReasonService.handleGetClassifyReason(code, name, systemIds, pageable);
+
+        return ResponseEntity.ok(result);
     }
 }

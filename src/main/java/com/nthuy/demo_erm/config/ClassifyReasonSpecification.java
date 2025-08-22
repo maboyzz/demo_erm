@@ -22,7 +22,14 @@ public class ClassifyReasonSpecification {
     public static Specification<ClassifyReasonEntity> hasSystemIdIn(List<Long> systemIds) {
         return (root, query, cb) -> {
             if (systemIds == null || systemIds.isEmpty()) return null;
+
+            // Join với bảng trung gian
             Join<ClassifyReasonEntity, SystemEntity> systemJoin = root.join("systemEntities");
+
+            // Tránh duplicate khi join
+            query.groupBy(root.get("id"));
+            query.having(cb.equal(cb.countDistinct(systemJoin.get("id")), systemIds.size()));
+
             return systemJoin.get("id").in(systemIds);
         };
     }

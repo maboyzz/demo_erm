@@ -2,6 +2,8 @@ package com.nthuy.demo_erm.service;
 
 import com.nthuy.demo_erm.config.ClassifyReasonSpecification;
 import com.nthuy.demo_erm.dto.ClassifyReasonDTO;
+import com.nthuy.demo_erm.dto.Meta;
+import com.nthuy.demo_erm.dto.ResultPaginationDTO;
 import com.nthuy.demo_erm.dto.SystemDTO;
 import com.nthuy.demo_erm.entity.ClassifyReasonEntity;
 import com.nthuy.demo_erm.entity.SystemEntity;
@@ -9,6 +11,8 @@ import com.nthuy.demo_erm.exception.BadRequestValidationException;
 import com.nthuy.demo_erm.mapper.ClassifyReasonMapper;
 import com.nthuy.demo_erm.repository.ClassifyReasonRepository;
 import com.nthuy.demo_erm.repository.SystemRepository;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
@@ -77,14 +81,30 @@ public class ClassifyReasonServiceImpl implements ClassifyReasonService {
     }
 
 
-    public List<ClassifyReasonDTO> handleGetClassifyReason(String code, String name, List<Long> systemIds) {
+    public ResultPaginationDTO<ClassifyReasonDTO> handleGetClassifyReason(
+            String code, String name, List<Long> systemIds, Pageable pageable) {
+
         Specification<ClassifyReasonEntity> spec = Specification
                 .where(ClassifyReasonSpecification.hasCode(code))
                 .and(ClassifyReasonSpecification.hasName(name))
                 .and(ClassifyReasonSpecification.hasSystemIdIn(systemIds));
 
-        List<ClassifyReasonEntity> entities = classifyReasonRepository.findAll(spec);
+        Page<ClassifyReasonEntity> pageResult = classifyReasonRepository.findAll(spec, pageable);
 
-        return classifyReasonMapper.toDtoList(entities);
+        List<ClassifyReasonDTO> dtoList = classifyReasonMapper.toDtoList(pageResult.getContent());
+
+        Meta meta = new Meta();
+        meta.setPage(pageResult.getNumber());
+        meta.setSize(pageResult.getSize());
+        meta.setTotalElements(pageResult.getTotalElements());
+        meta.setTotalPages(pageResult.getTotalPages());
+        meta.setNumberOfElements(pageResult.getNumberOfElements());
+        meta.setSort(pageable.getSort().toString());
+
+        ResultPaginationDTO<ClassifyReasonDTO> result = new ResultPaginationDTO<>();
+        result.setContent(dtoList);
+        result.setMeta(meta);
+
+        return result;
     }
 }
