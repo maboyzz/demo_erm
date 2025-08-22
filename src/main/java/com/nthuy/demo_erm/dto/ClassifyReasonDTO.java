@@ -3,7 +3,8 @@ package com.nthuy.demo_erm.dto;
 import lombok.*;
 import java.util.Set;
 
-@Data
+@Getter
+@Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder

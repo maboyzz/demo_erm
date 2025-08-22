@@ -56,12 +56,6 @@ public class ClassifyReasonController {
     }
 
 
-//    @GetMapping("/api/v1/classify-reason")
-//    @ApiMessage("list phân loại nguyên nhân")
-//    public ResponseEntity<List<ClassifyReasonDTO>> getClassifyReason(
-//    ) {
-//        return ResponseEntity.ok(this.classifyReasonService.handleGetClassifyReason());
-//    }
 
 
     @DeleteMapping(value = "/api/v1/classify-reason", params = "id")
@@ -94,5 +88,21 @@ public class ClassifyReasonController {
                 classifyReasonService.handleGetClassifyReason(code, name, systemIds, pageable);
 
         return ResponseEntity.ok(result);
+    }
+    @PutMapping("/api/v1/classify-reason")
+    @ApiMessage("Cập Nhật phân loại nguyên nhân")
+    public ResponseEntity<IdResponse> updateClassifyReason(
+            @Valid
+            @RequestBody ClassifyReasonDTO classifyReasonDTO
+    ) throws NameExisted {
+        boolean nameExists = this.classifyReasonService.nameExists(classifyReasonDTO.getName());
+        if (nameExists) {
+            throw new NameExisted("Username " +
+                    classifyReasonDTO.getName() + " đã tồn tại");
+        }
+        long newId = classifyReasonService.handleUpdateClassifyReason(classifyReasonDTO);
+        IdResponse idResponse = new IdResponse(newId);
+
+        return ResponseEntity.status(HttpStatus.CREATED).body(idResponse);
     }
 }

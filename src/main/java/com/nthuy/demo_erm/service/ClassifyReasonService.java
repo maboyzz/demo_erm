@@ -23,5 +23,7 @@ public interface ClassifyReasonService {
     void handleDeleteClassifyReason(Long id);
 
 
+    Long handleUpdateClassifyReason(ClassifyReasonDTO dto);
+
     ResultPaginationDTO handleGetClassifyReason(String code, String name, List<Long> systemIds, Pageable pageable);
 }

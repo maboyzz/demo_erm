@@ -4,6 +4,7 @@ import com.nthuy.demo_erm.dto.ClassifyReasonDTO;
 import com.nthuy.demo_erm.entity.ClassifyReasonEntity;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
+import org.mapstruct.MappingTarget;
 
 
 import java.util.List;
@@ -24,4 +25,5 @@ public interface ClassifyReasonMapper {
         List<ClassifyReasonDTO> toDtoList(List<ClassifyReasonEntity> entities);
         List<ClassifyReasonEntity> toEntityList(List<ClassifyReasonDTO> dtos);
 
+        void updateEntityFromDto(ClassifyReasonDTO dto, @MappingTarget ClassifyReasonEntity entity);
 }

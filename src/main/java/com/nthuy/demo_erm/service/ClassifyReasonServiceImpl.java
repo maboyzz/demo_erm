@@ -16,6 +16,8 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
+import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -41,31 +43,34 @@ public class ClassifyReasonServiceImpl implements ClassifyReasonService {
         return classifyReasonRepository.existsById(id);
     }
 
+public Long handleCreateClassifyReason(ClassifyReasonDTO dto) {
+    // Dùng mapper để chuyển DTO sang Entity
+    ClassifyReasonEntity entity = classifyReasonMapper.toEntity(dto);
 
+    Set<SystemEntity> systemEntities;
 
-    public Long handleCreateClassifyReason(ClassifyReasonDTO dto) {
-        // Dùng mapper để chuyển DTO sang Entity
-        ClassifyReasonEntity entity = classifyReasonMapper.toEntity(dto);
-
-        // Xử lý ánh xạ hệ thống (systems) từ DTO sang Entity
-        if (dto.getSystems() != null && !dto.getSystems().isEmpty()) {
-            Set<SystemEntity> systemEntities = dto.getSystems().stream()
-                    .map(systemDTO -> systemRepository.findById(systemDTO.getId())
-                            .orElseThrow(() -> new RuntimeException("System not found with id: " + systemDTO.getId())))
-                    .collect(Collectors.toSet());
-
-            entity.setSystemEntities(systemEntities);
-        }
-
-        // In ra để kiểm tra
-        System.out.println("Entity trước khi lưu: " + entity);
-
-        // Lưu xuống DB
-        ClassifyReasonEntity savedEntity = classifyReasonRepository.save(entity);
-
-        // Trả về ID
-        return savedEntity.getId();
+    if (dto.getSystems() != null && !dto.getSystems().isEmpty()) {
+        // Nếu DTO có truyền systems thì lấy theo danh sách đó
+        systemEntities = dto.getSystems().stream()
+                .map(systemDTO -> systemRepository.findById(systemDTO.getId())
+                        .orElseThrow(() -> new RuntimeException("System not found with id: " + systemDTO.getId())))
+                .collect(Collectors.toSet());
+    } else {
+        // Nếu không truyền thì mặc định lấy system có id = 1 và id = 2
+        systemEntities = new HashSet<>(systemRepository.findAllById(Arrays.asList(1L, 2L)));
     }
+
+    entity.setSystemEntities(systemEntities);
+
+    // In ra để kiểm tra
+    System.out.println("Entity trước khi lưu: " + entity);
+
+    // Lưu xuống DB
+    ClassifyReasonEntity savedEntity = classifyReasonRepository.save(entity);
+
+    // Trả về ID
+    return savedEntity.getId();
+}
 
 
     public ClassifyReasonDTO handleGetClassifyReasonById(Long id){
@@ -79,6 +84,50 @@ public class ClassifyReasonServiceImpl implements ClassifyReasonService {
     public void handleDeleteClassifyReason(Long id){
         this.classifyReasonRepository.deleteById(id);
     }
+
+//    public Long handleUpdateClassifyReason(ClassifyReasonDTO dto) {
+//        ClassifyReasonEntity classifyReason = this.classifyReasonRepository.findById(dto.getId())
+//                .orElseThrow(() -> new BadRequestValidationException("Thẻ bảo hiểm với ID " + dto.getId() + " không tồn tại"));
+//        classifyReason = classifyReasonMapper.toEntity(dto);
+//
+//        if (dto.getSystems() != null && !dto.getSystems().isEmpty()) {
+//            Set<SystemEntity> systemEntities = dto.getSystems().stream()
+//                    .map(systemDTO -> systemRepository.findById(systemDTO.getId())
+//                            .orElseThrow(() -> new RuntimeException("System not found with id: " + systemDTO.getId())))
+//                    .collect(Collectors.toSet());
+//
+//            classifyReason.setSystemEntities(systemEntities);
+//        }
+//         ClassifyReasonEntity savedEntity = classifyReasonRepository.save(classifyReason);
+//         return savedEntity.getId();
+//
+//    }
+public Long handleUpdateClassifyReason(ClassifyReasonDTO dto) {
+    // Lấy entity cũ từ DB
+    ClassifyReasonEntity classifyReason = classifyReasonRepository.findById(dto.getId())
+            .orElseThrow(() -> new BadRequestValidationException(
+                    "Phân loại nguyên nhân với ID " + dto.getId() + " không tồn tại"));
+
+    // MapStruct copy field từ DTO sang entity (trừ systems, ta xử lý riêng)
+    classifyReasonMapper.updateEntityFromDto(dto, classifyReason);
+
+    Set<SystemEntity> systemEntities;
+
+    if (dto.getSystems() != null && !dto.getSystems().isEmpty()) {
+        // Nếu DTO có truyền systems thì lấy theo danh sách đó
+        systemEntities = dto.getSystems().stream()
+                .map(systemDTO -> systemRepository.findById(systemDTO.getId())
+                        .orElseThrow(() -> new RuntimeException("System not found with id: " + systemDTO.getId())))
+                .collect(Collectors.toSet());
+    } else {
+        // Nếu không truyền thì mặc định lấy system có id = 1 và id = 2
+        systemEntities = new HashSet<>(systemRepository.findAllById(Arrays.asList(1L, 2L)));
+    }
+
+    classifyReason.setSystemEntities(systemEntities);
+
+    return classifyReasonRepository.save(classifyReason).getId();
+}
 
 
     public ResultPaginationDTO<ClassifyReasonDTO> handleGetClassifyReason(

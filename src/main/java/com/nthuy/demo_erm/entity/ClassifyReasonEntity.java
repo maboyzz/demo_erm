@@ -1,5 +1,6 @@
 package com.nthuy.demo_erm.entity;
 
+import com.nthuy.demo_erm.dto.SystemDTO;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -8,14 +9,14 @@ import java.util.Set;
 
 @Entity
 @Table(name = "classify_reason")
-@Data
+@Getter
+@Setter
 @NoArgsConstructor
 @AllArgsConstructor
-
 public class ClassifyReasonEntity extends BaseEntity{
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private long id;
+    private Long id;
     private String code;
     @Column(unique = true, nullable = false)
     private String name;
@@ -28,6 +29,7 @@ public class ClassifyReasonEntity extends BaseEntity{
             joinColumns = @JoinColumn(name = "classify_reason_id"),
             inverseJoinColumns = @JoinColumn(name = "system_id")
     )
-    private Set<SystemEntity> systemEntities = new HashSet<>();
+    private Set<SystemEntity> systemEntities= new HashSet<>();
+
 
 }
