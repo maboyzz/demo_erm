@@ -5,6 +5,7 @@ import com.nthuy.demo_erm.dto.IdResponse;
 import com.nthuy.demo_erm.exception.IdInvalidException;
 import com.nthuy.demo_erm.exception.NameExisted;
 import com.nthuy.demo_erm.service.ClassifyReasonService;
+import com.nthuy.demo_erm.service.ClassifyReasonServiceImpl;
 import com.nthuy.demo_erm.until.annotation.ApiMessage;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
@@ -18,8 +19,8 @@ public class ClassifyReasonController {
 
     private final ClassifyReasonService classifyReasonService;
 
-    public ClassifyReasonController(ClassifyReasonService classifyReasonService) {
-        this.classifyReasonService = classifyReasonService;
+    public ClassifyReasonController(ClassifyReasonServiceImpl classifyReasonServiceImpl) {
+        this.classifyReasonService = classifyReasonServiceImpl;
     }
 
 
