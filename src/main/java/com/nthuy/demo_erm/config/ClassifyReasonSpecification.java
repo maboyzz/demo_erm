@@ -24,7 +24,7 @@ public class ClassifyReasonSpecification {
             if (systemIds == null || systemIds.isEmpty()) return null;
 
             // Join với bảng trung gian
-            Join<ClassifyReasonEntity, SystemEntity> systemJoin = root.join("systemEntities");
+            Join<ClassifyReasonEntity, SystemEntity> systemJoin = root.join("systemEntitiesClassifyReason");
 
             // Tránh duplicate khi join
             query.groupBy(root.get("id"));

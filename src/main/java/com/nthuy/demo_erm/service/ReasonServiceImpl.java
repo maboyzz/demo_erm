@@ -1,7 +1,12 @@
 package com.nthuy.demo_erm.service;
 
+import com.nthuy.demo_erm.config.ClassifyReasonSpecification;
+import com.nthuy.demo_erm.config.ReasonSpecification;
+import com.nthuy.demo_erm.constant.EnumTypeReason;
 import com.nthuy.demo_erm.dto.ClassifyReasonDTO;
+import com.nthuy.demo_erm.dto.Meta;
 import com.nthuy.demo_erm.dto.ReasonDTO;
+import com.nthuy.demo_erm.dto.ResultPaginationDTO;
 import com.nthuy.demo_erm.entity.ClassifyReasonEntity;
 import com.nthuy.demo_erm.entity.ReasonEntity;
 import com.nthuy.demo_erm.entity.SystemEntity;
@@ -9,10 +14,14 @@ import com.nthuy.demo_erm.exception.BadRequestValidationException;
 import com.nthuy.demo_erm.mapper.ReasonMapper;
 import com.nthuy.demo_erm.repository.ReasonRepository;
 import com.nthuy.demo_erm.repository.SystemRepository;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
 import java.util.Arrays;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -101,6 +110,35 @@ public class ReasonServiceImpl implements ReasonService {
 
         reason.setSystemEntitiesReason(systemEntities);
         return reasonRepository.save(reason).getId();
+    }
+
+    public ResultPaginationDTO<ReasonDTO> handleGetReason(
+            String code, String name, List<Long> systemIds, Boolean isActive, EnumTypeReason type, Pageable pageable) {
+
+        Specification<ReasonEntity> spec = Specification
+                .where(ReasonSpecification.hasCode(code))
+                .and(ReasonSpecification.hasName(name))
+                .and(ReasonSpecification.hasSystemIdIn(systemIds))
+                .and(ReasonSpecification.hasType(type))
+                .and(ReasonSpecification.hasIsActive(isActive));
+
+        Page<ReasonEntity> pageResult = reasonRepository.findAll(spec, pageable);
+
+        List<ReasonDTO> dtoList = reasonMapper.toDtoList(pageResult.getContent());
+
+        Meta meta = new Meta();
+        meta.setPage(pageResult.getNumber());
+        meta.setSize(pageResult.getSize());
+        meta.setTotalElements(pageResult.getTotalElements());
+        meta.setTotalPages(pageResult.getTotalPages());
+        meta.setNumberOfElements(pageResult.getNumberOfElements());
+        meta.setSort(pageable.getSort().toString());
+
+        ResultPaginationDTO<ReasonDTO> result = new ResultPaginationDTO<>();
+        result.setContent(dtoList);
+        result.setMeta(meta);
+
+        return result;
     }
 
 }

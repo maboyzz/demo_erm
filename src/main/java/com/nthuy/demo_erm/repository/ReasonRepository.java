@@ -7,7 +7,7 @@ import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.stereotype.Repository;
 
 @Repository
-public interface ReasonRepository extends JpaRepository<ReasonEntity, Long>, JpaSpecificationExecutor<ClassifyReasonEntity> {
+public interface ReasonRepository extends JpaRepository<ReasonEntity, Long>, JpaSpecificationExecutor<ReasonEntity> {
     boolean existsByName(String name);
 
 }
