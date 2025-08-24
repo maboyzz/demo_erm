@@ -25,5 +25,5 @@ public interface ClassifyReasonService {
 
     Long handleUpdateClassifyReason(ClassifyReasonDTO dto);
 
-    ResultPaginationDTO handleGetClassifyReason(String code, String name, List<Long> systemIds, Pageable pageable);
+    ResultPaginationDTO<ClassifyReasonDTO> handleGetClassifyReason(String code, String name, List<Long> systemIds, Pageable pageable);
 }

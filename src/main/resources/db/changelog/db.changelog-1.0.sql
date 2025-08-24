@@ -16,7 +16,7 @@ VALUES ('HRM', '2025-08-21 09:00:00', 'nthuy', '2025-08-21 09:00:00', 'nthuy');
 CREATE TABLE classify_reason
 (
     id          SERIAL PRIMARY KEY,                  -- Khóa chính
-    code        VARCHAR(255) UNIQUE NOT NULL,        -- Mã phân loại
+    code        VARCHAR(255),        -- Mã phân loại
     name        VARCHAR(255) UNIQUE NOT NULL,        -- Tên phân loại nguyên nhân
     system_id   VARCHAR(255),                        -- Mã hệ thống dùng để mapping
     description text,                        -- Mô tả chi tiết
@@ -38,8 +38,8 @@ FOREIGN KEY (system_id) REFERENCES system(id) ON DELETE CASCADE
 );
 CREATE TABLE reason (
                         id SERIAL PRIMARY KEY,
-                        code VARCHAR(30) UNIQUE NOT NULL,          -- Mã nguyên nhân
-                        name VARCHAR(50),                          -- Tên nguyên nhân
+                        code VARCHAR(30) ,                     -- Mã nguyên nhân
+                        name VARCHAR(50) UNIQUE NOT NULL,      -- Tên nguyên nhân
                         type VARCHAR(20) NOT NULL,             -- Loại nguyên nhân
                         classify_reason_id INT REFERENCES classify_reason(id) ON DELETE SET NULL,
                         origin VARCHAR NOT NULL,                -- Nguồn gốc (enum)

@@ -60,7 +60,7 @@ public Long handleCreateClassifyReason(ClassifyReasonDTO dto) {
         systemEntities = new HashSet<>(systemRepository.findAllById(Arrays.asList(1L, 2L)));
     }
 
-    entity.setSystemEntities(systemEntities);
+    entity.setSystemEntitiesClassifyReason(systemEntities);
 
     // In ra để kiểm tra
     System.out.println("Entity trước khi lưu: " + entity);
@@ -85,23 +85,6 @@ public Long handleCreateClassifyReason(ClassifyReasonDTO dto) {
         this.classifyReasonRepository.deleteById(id);
     }
 
-//    public Long handleUpdateClassifyReason(ClassifyReasonDTO dto) {
-//        ClassifyReasonEntity classifyReason = this.classifyReasonRepository.findById(dto.getId())
-//                .orElseThrow(() -> new BadRequestValidationException("Thẻ bảo hiểm với ID " + dto.getId() + " không tồn tại"));
-//        classifyReason = classifyReasonMapper.toEntity(dto);
-//
-//        if (dto.getSystems() != null && !dto.getSystems().isEmpty()) {
-//            Set<SystemEntity> systemEntities = dto.getSystems().stream()
-//                    .map(systemDTO -> systemRepository.findById(systemDTO.getId())
-//                            .orElseThrow(() -> new RuntimeException("System not found with id: " + systemDTO.getId())))
-//                    .collect(Collectors.toSet());
-//
-//            classifyReason.setSystemEntities(systemEntities);
-//        }
-//         ClassifyReasonEntity savedEntity = classifyReasonRepository.save(classifyReason);
-//         return savedEntity.getId();
-//
-//    }
 public Long handleUpdateClassifyReason(ClassifyReasonDTO dto) {
     // Lấy entity cũ từ DB
     ClassifyReasonEntity classifyReason = classifyReasonRepository.findById(dto.getId())
@@ -124,7 +107,7 @@ public Long handleUpdateClassifyReason(ClassifyReasonDTO dto) {
         systemEntities = new HashSet<>(systemRepository.findAllById(Arrays.asList(1L, 2L)));
     }
 
-    classifyReason.setSystemEntities(systemEntities);
+    classifyReason.setSystemEntitiesClassifyReason(systemEntities);
 
     return classifyReasonRepository.save(classifyReason).getId();
 }
