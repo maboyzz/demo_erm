@@ -20,8 +20,12 @@ public class SystemEntity extends BaseEntity {
     private String name;
 
     // Quan hệ ngược với ClassifyReasonEntity
-    @ManyToMany(mappedBy = "systemEntities", fetch = FetchType.LAZY)
+    @ManyToMany(mappedBy = "systemEntitiesClassifyReason", fetch = FetchType.LAZY)
     private Set<ClassifyReasonEntity> classifyReasons = new HashSet<>();
+
+    @ManyToMany(mappedBy = "systemEntitiesReason", fetch = FetchType.LAZY)
+    private Set<ReasonEntity> reasons = new HashSet<>();
+
 
     @Override
     public String toString() {

@@ -1,6 +1,5 @@
 package com.nthuy.demo_erm.entity;
 
-import com.nthuy.demo_erm.dto.SystemDTO;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -29,7 +28,7 @@ public class ClassifyReasonEntity extends BaseEntity{
             joinColumns = @JoinColumn(name = "classify_reason_id"),
             inverseJoinColumns = @JoinColumn(name = "system_id")
     )
-    private Set<SystemEntity> systemEntities= new HashSet<>();
+    private Set<SystemEntity> systemEntitiesClassifyReason= new HashSet<>();
 
 
 }
