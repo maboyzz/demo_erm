@@ -1,6 +1,6 @@
-package com.nthuy.demo_erm.DTO;
+package com.nthuy.demo_erm.dto;
 
-import com.nthuy.demo_erm.Constant.EnumErrorCode;
+import com.nthuy.demo_erm.constant.EnumErrorCode;
 import lombok.Getter;
 import lombok.Setter;
 

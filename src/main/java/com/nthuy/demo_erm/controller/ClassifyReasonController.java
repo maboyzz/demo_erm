@@ -1,0 +1,108 @@
+package com.nthuy.demo_erm.controller;
+
+import com.nthuy.demo_erm.dto.ClassifyReasonDTO;
+import com.nthuy.demo_erm.dto.IdResponse;
+import com.nthuy.demo_erm.dto.ResultPaginationDTO;
+import com.nthuy.demo_erm.exception.IdInvalidException;
+import com.nthuy.demo_erm.exception.NameExisted;
+import com.nthuy.demo_erm.service.ClassifyReasonService;
+import com.nthuy.demo_erm.service.ClassifyReasonServiceImpl;
+import com.nthuy.demo_erm.until.annotation.ApiMessage;
+import jakarta.validation.Valid;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
+
+@RestController
+public class ClassifyReasonController {
+
+    private final ClassifyReasonService classifyReasonService;
+
+    public ClassifyReasonController(ClassifyReasonServiceImpl classifyReasonServiceImpl) {
+        this.classifyReasonService = classifyReasonServiceImpl;
+    }
+
+
+    @PostMapping("/api/v1/classify-reason")
+    @ApiMessage("Tạo mới phân loại nguyên nhân")
+    public ResponseEntity<IdResponse> createClassifyReason(
+            @Valid
+            @RequestBody ClassifyReasonDTO classifyReasonDTO
+    ) throws NameExisted {
+            boolean nameExists = this.classifyReasonService.nameExists(classifyReasonDTO.getName());
+            if (nameExists) {
+                throw new NameExisted("Username " +
+                        classifyReasonDTO.getName() + " đã tồn tại");
+            }
+        long newId = classifyReasonService.handleCreateClassifyReason(classifyReasonDTO);
+        IdResponse idResponse = new IdResponse(newId);
+
+        return ResponseEntity.status(HttpStatus.CREATED).body(idResponse);
+    }
+
+
+    @GetMapping(value = "/api/v1/classify-reason", params = "id")
+    @ApiMessage("Lấy thông tin phân loại nguyên nhân theo id")
+    public ResponseEntity<ClassifyReasonDTO> getDetailsClassifyReason(
+            @RequestParam Long id
+    ) {
+        ClassifyReasonDTO dto = classifyReasonService.handleGetClassifyReasonById(id);
+        return ResponseEntity.ok(dto);
+    }
+
+
+
+
+    @DeleteMapping(value = "/api/v1/classify-reason", params = "id")
+    @ApiMessage("Xóa phân loại nguyên nhân")
+    public ResponseEntity<String> deleteClassifyReason(
+            @RequestParam Long id
+    ) {
+        boolean isValidId = classifyReasonService.existsById(id);
+        if (!isValidId) {
+            throw new IdInvalidException("ID " + id + " không hợp có");
+        }
+        this.classifyReasonService.handleDeleteClassifyReason(id);
+        return ResponseEntity.status(HttpStatus.NO_CONTENT).body("Xoá thành công");
+    }
+
+    @GetMapping("/api/v1/classify-reason")
+    public ResponseEntity<ResultPaginationDTO<ClassifyReasonDTO>> getClassifyReasons(
+            @RequestParam(required = false) String code,
+            @RequestParam(required = false) String name,
+            @RequestParam(required = false) List<Long> systemIds,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "20") int size,
+            @RequestParam(defaultValue = "id,desc") String sort
+    ) {
+        // Tạo Pageable từ param sort (vd: id,desc)
+        String[] sortParams = sort.split(",");
+        Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.fromString(sortParams[1]), sortParams[0]));
+
+        ResultPaginationDTO<ClassifyReasonDTO> result =
+                classifyReasonService.handleGetClassifyReason(code, name, systemIds, pageable);
+
+        return ResponseEntity.ok(result);
+    }
+    @PutMapping("/api/v1/classify-reason")
+    @ApiMessage("Cập Nhật phân loại nguyên nhân")
+    public ResponseEntity<IdResponse> updateClassifyReason(
+            @Valid
+            @RequestBody ClassifyReasonDTO classifyReasonDTO
+    ) throws NameExisted {
+        boolean nameExists = this.classifyReasonService.nameExists(classifyReasonDTO.getName());
+        if (nameExists) {
+            throw new NameExisted("Username " +
+                    classifyReasonDTO.getName() + " đã tồn tại");
+        }
+        long newId = classifyReasonService.handleUpdateClassifyReason(classifyReasonDTO);
+        IdResponse idResponse = new IdResponse(newId);
+
+        return ResponseEntity.status(HttpStatus.CREATED).body(idResponse);
+    }
+}
