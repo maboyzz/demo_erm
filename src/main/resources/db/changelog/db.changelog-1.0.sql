@@ -87,3 +87,16 @@ CREATE TABLE risk_category_map (
                             CONSTRAINT fk_system
                                 FOREIGN KEY (system_id) REFERENCES system(id) ON DELETE CASCADE
 );
+--bảng Nhóm thuộc tính
+CREATE TABLE attribute_group (
+                                 id SERIAL PRIMARY KEY,
+                                 code VARCHAR(30),
+                                 name VARCHAR(50) UNIQUE,          -- Tên nhóm thuộc tính, unique
+                                 type VARCHAR(30),
+                                 description text,
+                                 is_active BOOLEAN,
+                                 created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                                 created_by VARCHAR(255),
+                                 updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                                 updated_by VARCHAR(255)
+);
