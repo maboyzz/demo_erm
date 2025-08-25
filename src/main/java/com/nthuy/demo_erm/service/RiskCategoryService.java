@@ -23,5 +23,5 @@ public interface RiskCategoryService {
 
     Long handleUpdateRiskCategory(RiskCategoryDTO dto);
 
-  //  ResultPaginationDTO<ReasonDTO> handleGetReason(String code, String name, List<Long> systemIds, Boolean isActive, EnumTypeReason type, Pageable pageable);
+    ResultPaginationDTO<RiskCategoryDTO> handleGetRiskCategory(String code, String name, List<Long> systemIds, Boolean isActive, Pageable pageable);
 }

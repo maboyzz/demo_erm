@@ -1,6 +1,11 @@
 package com.nthuy.demo_erm.service;
 
+import com.nthuy.demo_erm.config.ReasonSpecification;
+import com.nthuy.demo_erm.config.RiskCategorySpecification;
+import com.nthuy.demo_erm.constant.EnumTypeReason;
+import com.nthuy.demo_erm.dto.Meta;
 import com.nthuy.demo_erm.dto.ReasonDTO;
+import com.nthuy.demo_erm.dto.ResultPaginationDTO;
 import com.nthuy.demo_erm.dto.RiskCategoryDTO;
 import com.nthuy.demo_erm.entity.ReasonEntity;
 import com.nthuy.demo_erm.entity.RiskCategoryEntity;
@@ -9,10 +14,14 @@ import com.nthuy.demo_erm.exception.BadRequestValidationException;
 import com.nthuy.demo_erm.mapper.RiskCategoryMapper;
 import com.nthuy.demo_erm.repository.RiskCategoryRepository;
 import com.nthuy.demo_erm.repository.SystemRepository;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
 import java.util.Arrays;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -103,6 +112,33 @@ public class RiskCategoryServiceImpl implements RiskCategoryService{
         return riskCategoryRepository.save(entity).getId();
     }
 
+    public ResultPaginationDTO<RiskCategoryDTO> handleGetRiskCategory(
+            String code, String name, List<Long> systemIds, Boolean isActive, Pageable pageable) {
+
+        Specification<RiskCategoryEntity> spec = Specification
+                .where(RiskCategorySpecification.hasCode(code))
+                .and(RiskCategorySpecification.hasName(name))
+                .and(RiskCategorySpecification.hasSystemIdIn(systemIds))
+                .and(RiskCategorySpecification.hasIsActive(isActive));
+
+        Page<RiskCategoryEntity> pageResult = riskCategoryRepository.findAll(spec, pageable);
+
+        List<RiskCategoryDTO> dtoList = riskCategoryMapper.toDtoList(pageResult.getContent());
+
+        Meta meta = new Meta();
+        meta.setPage(pageResult.getNumber());
+        meta.setSize(pageResult.getSize());
+        meta.setTotalElements(pageResult.getTotalElements());
+        meta.setTotalPages(pageResult.getTotalPages());
+        meta.setNumberOfElements(pageResult.getNumberOfElements());
+        meta.setSort(pageable.getSort().toString());
+
+        ResultPaginationDTO<RiskCategoryDTO> result = new ResultPaginationDTO<>();
+        result.setContent(dtoList);
+        result.setMeta(meta);
+
+        return result;
+    }
 
 
 }
