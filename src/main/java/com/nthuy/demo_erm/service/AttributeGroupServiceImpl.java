@@ -1,15 +1,20 @@
 package com.nthuy.demo_erm.service;
 
+import com.nthuy.demo_erm.config.AttributeGroupSpecification;
+import com.nthuy.demo_erm.config.ClassifyReasonSpecification;
 import com.nthuy.demo_erm.constant.EnumTypeAttributeGroup;
-import com.nthuy.demo_erm.dto.AttributeGroupDTO;
-import com.nthuy.demo_erm.dto.ClassifyReasonDTO;
-import com.nthuy.demo_erm.dto.ResultPaginationDTO;
+import com.nthuy.demo_erm.dto.*;
 import com.nthuy.demo_erm.entity.AttributeGroupEntity;
 import com.nthuy.demo_erm.entity.ClassifyReasonEntity;
+import com.nthuy.demo_erm.entity.RiskCategoryEntity;
 import com.nthuy.demo_erm.entity.SystemEntity;
+import com.nthuy.demo_erm.exception.BadRequestValidationException;
+import com.nthuy.demo_erm.exception.TypeAttributeGroupValidException;
 import com.nthuy.demo_erm.mapper.AttributeGroupMapper;
 import com.nthuy.demo_erm.repository.AttributeGroupRepository;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
 import java.util.Arrays;
@@ -58,21 +63,55 @@ public class AttributeGroupServiceImpl implements AttributeGroupService{
 
     @Override
     public AttributeGroupDTO handleGetAttributeGroupById(Long id) {
-        return null;
+        AttributeGroupEntity entity = this.attributeGroupRepository.findById(id).orElseThrow(() -> new BadRequestValidationException(id + " không tồn tại"));
+        return attributeGroupMapper.toDto(entity);
+
     }
 
     @Override
     public void handleDeleteAttributeGroup(Long id) {
+        AttributeGroupDTO dto = this.handleGetAttributeGroupById(id);
+        if (!dto.getType().equals(EnumTypeAttributeGroup.SYSTEM)){
+            this.attributeGroupRepository.deleteById(dto.getId());
+        }else throw new  TypeAttributeGroupValidException("SYSTEM không thể xóa");
 
     }
 
     @Override
     public Long handleUpdateAttributeGroup(AttributeGroupDTO dto) {
-        return 0L;
+        AttributeGroupEntity entity = attributeGroupRepository.findById(dto.getId())
+                .orElseThrow(() -> new BadRequestValidationException(
+                        "Nhóm thuộc tính với ID " + dto.getId() + " không tồn tại"));
+        attributeGroupMapper.updateEntityFromDto(dto,entity);
+        if (entity.getType().equals(EnumTypeAttributeGroup.SYSTEM)){
+            throw new TypeAttributeGroupValidException("System không thể chỉnh sửa");
+        }
+        return this.attributeGroupRepository.save(entity).getId();
     }
 
     @Override
-    public ResultPaginationDTO<AttributeGroupDTO> handleGetAttributeGroup(String code, String name, List<Long> systemIds, Pageable pageable) {
-        return null;
+    public ResultPaginationDTO<AttributeGroupDTO> handleGetAttributeGroup(String code, String name, Boolean isActive, Pageable pageable) {
+        Specification<AttributeGroupEntity> spec = Specification
+                .where(AttributeGroupSpecification.hasCode(code))
+                .and(AttributeGroupSpecification.hasName(name))
+                .and(AttributeGroupSpecification.hasIsActive(isActive));
+
+        Page<AttributeGroupEntity> pageResult = attributeGroupRepository.findAll(spec, pageable);
+
+        List<AttributeGroupDTO> dtoList = attributeGroupMapper.toDtoList(pageResult.getContent());
+
+        Meta meta = new Meta();
+        meta.setPage(pageResult.getNumber());
+        meta.setSize(pageResult.getSize());
+        meta.setTotalElements(pageResult.getTotalElements());
+        meta.setTotalPages(pageResult.getTotalPages());
+        meta.setNumberOfElements(pageResult.getNumberOfElements());
+        meta.setSort(pageable.getSort().toString());
+
+        ResultPaginationDTO<AttributeGroupDTO> result = new ResultPaginationDTO<>();
+        result.setContent(dtoList);
+        result.setMeta(meta);
+
+        return result;
     }
 }

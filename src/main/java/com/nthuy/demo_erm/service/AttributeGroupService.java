@@ -25,5 +25,5 @@ public interface AttributeGroupService {
 
     Long handleUpdateAttributeGroup(AttributeGroupDTO dto);
 
-    ResultPaginationDTO<AttributeGroupDTO> handleGetAttributeGroup(String code, String name, List<Long> systemIds, Pageable pageable);
+    ResultPaginationDTO<AttributeGroupDTO> handleGetAttributeGroup(String code, String name, Boolean isActive, Pageable pageable);
 }
