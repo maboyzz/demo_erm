@@ -1,16 +1,18 @@
 package com.nthuy.demo_erm.service;
 
-
 import com.nthuy.demo_erm.config.ReasonSpecification;
+import com.nthuy.demo_erm.config.RiskCategorySpecification;
 import com.nthuy.demo_erm.constant.EnumTypeReason;
 import com.nthuy.demo_erm.dto.Meta;
 import com.nthuy.demo_erm.dto.ReasonDTO;
 import com.nthuy.demo_erm.dto.ResultPaginationDTO;
+import com.nthuy.demo_erm.dto.RiskCategoryDTO;
 import com.nthuy.demo_erm.entity.ReasonEntity;
+import com.nthuy.demo_erm.entity.RiskCategoryEntity;
 import com.nthuy.demo_erm.entity.SystemEntity;
 import com.nthuy.demo_erm.exception.BadRequestValidationException;
-import com.nthuy.demo_erm.mapper.ReasonMapper;
-import com.nthuy.demo_erm.repository.ReasonRepository;
+import com.nthuy.demo_erm.mapper.RiskCategoryMapper;
+import com.nthuy.demo_erm.repository.RiskCategoryRepository;
 import com.nthuy.demo_erm.repository.SystemRepository;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -24,31 +26,32 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 @Service
-public class ReasonServiceImpl implements ReasonService {
+public class RiskCategoryServiceImpl implements RiskCategoryService{
 
-    private final ReasonRepository reasonRepository;
-    private final ReasonMapper reasonMapper;
+    private final RiskCategoryRepository riskCategoryRepository;
+    private final RiskCategoryMapper riskCategoryMapper;
     private final SystemRepository systemRepository;
 
-    public ReasonServiceImpl(ReasonRepository reasonRepository, ReasonMapper reasonMapper, SystemRepository systemRepository) {
-        this.reasonRepository = reasonRepository;
-        this.reasonMapper = reasonMapper;
+    public RiskCategoryServiceImpl(RiskCategoryRepository riskCategoryRepository, RiskCategoryMapper riskCategoryMapper, SystemRepository systemRepository) {
+        this.riskCategoryRepository = riskCategoryRepository;
+        this.riskCategoryMapper = riskCategoryMapper;
         this.systemRepository = systemRepository;
     }
 
 
+    @Override
     public boolean nameExists(String userName) {
-        return this.reasonRepository.existsByName(userName);
+        return this.riskCategoryRepository.existsByName(userName);
     }
 
-
+    @Override
     public boolean existsById(Long id) {
-        return this.reasonRepository.existsById(id);
+        return this.riskCategoryRepository.existsById(id);
     }
 
-    public Long handleCreateClassifyReason(ReasonDTO dto) {
-        ReasonEntity entity = reasonMapper.toEntity(dto);
-
+    @Override
+    public Long handleCreateRiskCategory(RiskCategoryDTO dto) {
+        RiskCategoryEntity entity = riskCategoryMapper.toEntity(dto);
         Set<SystemEntity> systemEntities;
         if (dto.getSystems() != null && !dto.getSystems().isEmpty()) {
             // Nếu DTO có truyền systems thì lấy theo danh sách đó
@@ -60,39 +63,38 @@ public class ReasonServiceImpl implements ReasonService {
             // Nếu không truyền thì mặc định lấy system có id = 1 và id = 2
             systemEntities = new HashSet<>(systemRepository.findAllById(Arrays.asList(1L, 2L)));
         }
-
-        entity.setSystemEntitiesReason(systemEntities);
-
-// In ra để kiểm tra
+        entity.setSystemEntitiesRiskCategory(systemEntities);
+        // In ra để kiểm tra
         System.out.println("Entity trước khi lưu: " + entity);
 
-// Lưu xuống DB
-        ReasonEntity savedEntity = reasonRepository.save(entity);
+        // Lưu xuống DB
+        RiskCategoryEntity savedEntity = riskCategoryRepository.save(entity);
 
-// Trả về ID
+        // Trả về ID
         return savedEntity.getId();
     }
 
-    public ReasonDTO handleGetReasonById(Long id) {
+    public RiskCategoryDTO handleGetRiskCategoryById(Long id) {
 
-        ReasonEntity reason = this.reasonRepository.findById(id)
-                .orElseThrow(() -> new BadRequestValidationException("Thẻ bảo hiểm với ID " + id + " không tồn tại"));
-        return reasonMapper.toDto(reason);
+        RiskCategoryEntity dto = this.riskCategoryRepository.findById(id)
+                .orElseThrow(() -> new BadRequestValidationException(id + " không tồn tại"));
+        return riskCategoryMapper.toDto(dto);
 
     }
 
 
-    public void handleDeleteReason(Long id) {
-        this.reasonRepository.deleteById(id);
+    public void handleDeleteRiskCategory(Long id) {
+        this.riskCategoryRepository.deleteById(id);
     }
 
 
-    public Long handleUpdateReason(ReasonDTO dto) {
-        // Lấy entity cũ từ DB
-        ReasonEntity reason = reasonRepository.findById(dto.getId())
-                .orElseThrow(() -> new BadRequestValidationException(
-                        "Phân loại nguyên nhân với ID " + dto.getId() + " không tồn tại"));
-        reasonMapper.updateEntityFromDto(dto,reason);
+
+    @Override
+    public Long handleUpdateRiskCategory(RiskCategoryDTO dto) {
+        RiskCategoryEntity entity = riskCategoryRepository.findById(dto.getId()) .orElseThrow(() -> new BadRequestValidationException(
+                "Danh mục rủi ro với ID " + dto.getId() + " không tồn tại"));
+
+        riskCategoryMapper.updateEntityFromDto(dto,entity);
         Set<SystemEntity> systemEntities;
 
         if (dto.getSystems() != null && !dto.getSystems().isEmpty()) {
@@ -106,23 +108,22 @@ public class ReasonServiceImpl implements ReasonService {
             systemEntities = new HashSet<>(systemRepository.findAllById(Arrays.asList(1L, 2L)));
         }
 
-        reason.setSystemEntitiesReason(systemEntities);
-        return reasonRepository.save(reason).getId();
+        entity.setSystemEntitiesRiskCategory(systemEntities);
+        return riskCategoryRepository.save(entity).getId();
     }
 
-    public ResultPaginationDTO<ReasonDTO> handleGetReason(
-            String code, String name, List<Long> systemIds, Boolean isActive, EnumTypeReason type, Pageable pageable) {
+    public ResultPaginationDTO<RiskCategoryDTO> handleGetRiskCategory(
+            String code, String name, List<Long> systemIds, Boolean isActive, Pageable pageable) {
 
-        Specification<ReasonEntity> spec = Specification
-                .where(ReasonSpecification.hasCode(code))
-                .and(ReasonSpecification.hasName(name))
-                .and(ReasonSpecification.hasSystemIdIn(systemIds))
-                .and(ReasonSpecification.hasType(type))
-                .and(ReasonSpecification.hasIsActive(isActive));
+        Specification<RiskCategoryEntity> spec = Specification
+                .where(RiskCategorySpecification.hasCode(code))
+                .and(RiskCategorySpecification.hasName(name))
+                .and(RiskCategorySpecification.hasSystemIdIn(systemIds))
+                .and(RiskCategorySpecification.hasIsActive(isActive));
 
-        Page<ReasonEntity> pageResult = reasonRepository.findAll(spec, pageable);
+        Page<RiskCategoryEntity> pageResult = riskCategoryRepository.findAll(spec, pageable);
 
-        List<ReasonDTO> dtoList = reasonMapper.toDtoList(pageResult.getContent());
+        List<RiskCategoryDTO> dtoList = riskCategoryMapper.toDtoList(pageResult.getContent());
 
         Meta meta = new Meta();
         meta.setPage(pageResult.getNumber());
@@ -132,11 +133,12 @@ public class ReasonServiceImpl implements ReasonService {
         meta.setNumberOfElements(pageResult.getNumberOfElements());
         meta.setSort(pageable.getSort().toString());
 
-        ResultPaginationDTO<ReasonDTO> result = new ResultPaginationDTO<>();
+        ResultPaginationDTO<RiskCategoryDTO> result = new ResultPaginationDTO<>();
         result.setContent(dtoList);
         result.setMeta(meta);
 
         return result;
     }
+
 
 }

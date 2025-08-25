@@ -62,4 +62,41 @@ CREATE TABLE reason_map (
                             CONSTRAINT fk_system
                                 FOREIGN KEY (system_id) REFERENCES system(id) ON DELETE CASCADE
 );
+--bảng Danh mục rủi ro (phân cấp cha - con)
+CREATE TABLE risk_category (
+                               id SERIAL PRIMARY KEY,
+                               code VARCHAR(30),
+                               name VARCHAR(50),
+                               parent_id INT REFERENCES risk_category(id),
+                               description text,
+                               is_active BOOLEAN,
 
+                               created_at  TIMESTAMP DEFAULT CURRENT_TIMESTAMP, -- Ngày giờ tạo
+                               created_by  VARCHAR(255),                        -- Người tạo
+                               updated_at  TIMESTAMP DEFAULT CURRENT_TIMESTAMP, -- Ngày giờ cập nhật
+                               updated_by VARCHAR(255)                          -- Người cập nhật
+
+);
+-- Bảng mapping risk_category với hệ thống ngoài
+CREATE TABLE risk_category_map (
+                            risk_category_id INT NOT NULL,
+                            system_id INT NOT NULL,
+                            PRIMARY KEY (risk_category_id, system_id),
+                            CONSTRAINT fk_reason
+                                FOREIGN KEY (risk_category_id) REFERENCES risk_category(id) ON DELETE CASCADE,
+                            CONSTRAINT fk_system
+                                FOREIGN KEY (system_id) REFERENCES system(id) ON DELETE CASCADE
+);
+--bảng Nhóm thuộc tính
+CREATE TABLE attribute_group (
+                                 id SERIAL PRIMARY KEY,
+                                 code VARCHAR(30),
+                                 name VARCHAR(50) UNIQUE,          -- Tên nhóm thuộc tính, unique
+                                 type VARCHAR(30),
+                                 description text,
+                                 is_active BOOLEAN,
+                                 created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                                 created_by VARCHAR(255),
+                                 updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                                 updated_by VARCHAR(255)
+);
