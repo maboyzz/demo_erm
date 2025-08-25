@@ -1,13 +1,11 @@
 package com.nthuy.demo_erm.service;
 
-import com.nthuy.demo_erm.config.ClassifyReasonSpecification;
+
 import com.nthuy.demo_erm.config.ReasonSpecification;
 import com.nthuy.demo_erm.constant.EnumTypeReason;
-import com.nthuy.demo_erm.dto.ClassifyReasonDTO;
 import com.nthuy.demo_erm.dto.Meta;
 import com.nthuy.demo_erm.dto.ReasonDTO;
 import com.nthuy.demo_erm.dto.ResultPaginationDTO;
-import com.nthuy.demo_erm.entity.ClassifyReasonEntity;
 import com.nthuy.demo_erm.entity.ReasonEntity;
 import com.nthuy.demo_erm.entity.SystemEntity;
 import com.nthuy.demo_erm.exception.BadRequestValidationException;

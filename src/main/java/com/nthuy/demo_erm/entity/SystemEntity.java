@@ -26,6 +26,8 @@ public class SystemEntity extends BaseEntity {
     @ManyToMany(mappedBy = "systemEntitiesReason", fetch = FetchType.LAZY)
     private Set<ReasonEntity> reasons = new HashSet<>();
 
+    @ManyToMany(mappedBy = "systemEntitiesRiskCategory", fetch = FetchType.LAZY)
+    private Set<RiskCategoryEntity> riskCategory = new HashSet<>();
 
     @Override
     public String toString() {

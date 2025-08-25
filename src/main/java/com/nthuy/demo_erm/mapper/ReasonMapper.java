@@ -33,6 +33,7 @@ public interface ReasonMapper {
     List<ReasonEntity> toEntityList(List<ReasonDTO> dtos);
 
     Set<ReasonDTO> toDtoSet(Set<ReasonEntity> entities);
+
     Set<ReasonEntity> toEntitySet(Set<ReasonDTO> dtos);
 
     @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
