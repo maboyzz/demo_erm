@@ -17,6 +17,8 @@ public interface RiskCategoryService {
 
     Long handleCreateRiskCategory(RiskCategoryDTO dto);
 
+    RiskCategoryDTO handleGetRiskCategoryById(Long id);
+
     void handleDeleteRiskCategory(Long id);
 
     Long handleUpdateRiskCategory(RiskCategoryDTO dto);

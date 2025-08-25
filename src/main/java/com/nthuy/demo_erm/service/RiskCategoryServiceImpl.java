@@ -5,6 +5,7 @@ import com.nthuy.demo_erm.dto.RiskCategoryDTO;
 import com.nthuy.demo_erm.entity.ReasonEntity;
 import com.nthuy.demo_erm.entity.RiskCategoryEntity;
 import com.nthuy.demo_erm.entity.SystemEntity;
+import com.nthuy.demo_erm.exception.BadRequestValidationException;
 import com.nthuy.demo_erm.mapper.RiskCategoryMapper;
 import com.nthuy.demo_erm.repository.RiskCategoryRepository;
 import com.nthuy.demo_erm.repository.SystemRepository;
@@ -31,12 +32,12 @@ public class RiskCategoryServiceImpl implements RiskCategoryService{
 
     @Override
     public boolean nameExists(String userName) {
-        return false;
+        return this.riskCategoryRepository.existsByName(userName);
     }
 
     @Override
     public boolean existsById(Long id) {
-        return false;
+        return this.riskCategoryRepository.existsById(id);
     }
 
     @Override
@@ -64,13 +65,44 @@ public class RiskCategoryServiceImpl implements RiskCategoryService{
         return savedEntity.getId();
     }
 
-    @Override
-    public void handleDeleteRiskCategory(Long id) {
+    public RiskCategoryDTO handleGetRiskCategoryById(Long id) {
+
+        RiskCategoryEntity dto = this.riskCategoryRepository.findById(id)
+                .orElseThrow(() -> new BadRequestValidationException(id + " không tồn tại"));
+        return riskCategoryMapper.toDto(dto);
 
     }
+
+
+    public void handleDeleteRiskCategory(Long id) {
+        this.riskCategoryRepository.deleteById(id);
+    }
+
+
 
     @Override
     public Long handleUpdateRiskCategory(RiskCategoryDTO dto) {
-        return 0L;
+        RiskCategoryEntity entity = riskCategoryRepository.findById(dto.getId()) .orElseThrow(() -> new BadRequestValidationException(
+                "Danh mục rủi ro với ID " + dto.getId() + " không tồn tại"));
+
+        riskCategoryMapper.updateEntityFromDto(dto,entity);
+        Set<SystemEntity> systemEntities;
+
+        if (dto.getSystems() != null && !dto.getSystems().isEmpty()) {
+            // Nếu DTO có truyền systems thì lấy theo danh sách đó
+            systemEntities = dto.getSystems().stream()
+                    .map(systemDTO -> systemRepository.findById(systemDTO.getId())
+                            .orElseThrow(() -> new RuntimeException("System not found with id: " + systemDTO.getId())))
+                    .collect(Collectors.toSet());
+        } else {
+            // Nếu không truyền thì mặc định lấy system có id = 1 và id = 2
+            systemEntities = new HashSet<>(systemRepository.findAllById(Arrays.asList(1L, 2L)));
+        }
+
+        entity.setSystemEntitiesRiskCategory(systemEntities);
+        return riskCategoryRepository.save(entity).getId();
     }
+
+
+
 }

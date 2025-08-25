@@ -8,4 +8,5 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface RiskCategoryRepository extends JpaRepository<RiskCategoryEntity, Long>, JpaSpecificationExecutor<RiskCategoryEntity> {
+    boolean existsByName(String name);
 }
