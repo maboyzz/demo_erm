@@ -37,6 +37,14 @@ public class GlobalException {
         restResponse.setErrorCode(VALIDATION_ERROR);
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(restResponse);
     }
+    @ExceptionHandler(value = TypeAttributeGroupValidException.class)
+    public ResponseEntity<RestResponse<Object>> handleTypeAttributeGroupValid(TypeAttributeGroupValidException ex) {
+        RestResponse<Object> restResponse = new RestResponse<Object>();
+        restResponse.setStatusCode(HttpStatus.BAD_REQUEST.value());
+        restResponse.setMessage(ex.getMessage());
+        restResponse.setErrorCode(VALIDATION_ERROR);
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(restResponse);
+    }
 
 
 

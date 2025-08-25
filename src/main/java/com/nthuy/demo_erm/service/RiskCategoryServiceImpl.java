@@ -76,9 +76,9 @@ public class RiskCategoryServiceImpl implements RiskCategoryService{
 
     public RiskCategoryDTO handleGetRiskCategoryById(Long id) {
 
-        RiskCategoryEntity dto = this.riskCategoryRepository.findById(id)
+        RiskCategoryEntity entity = this.riskCategoryRepository.findById(id)
                 .orElseThrow(() -> new BadRequestValidationException(id + " không tồn tại"));
-        return riskCategoryMapper.toDto(dto);
+        return riskCategoryMapper.toDto(entity);
 
     }
 
