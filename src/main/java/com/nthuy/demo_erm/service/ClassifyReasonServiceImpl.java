@@ -1,10 +1,7 @@
 package com.nthuy.demo_erm.service;
 
 import com.nthuy.demo_erm.config.ClassifyReasonSpecification;
-import com.nthuy.demo_erm.dto.ClassifyReasonDTO;
-import com.nthuy.demo_erm.dto.Meta;
-import com.nthuy.demo_erm.dto.ResultPaginationDTO;
-import com.nthuy.demo_erm.dto.SystemDTO;
+import com.nthuy.demo_erm.dto.*;
 import com.nthuy.demo_erm.entity.ClassifyReasonEntity;
 import com.nthuy.demo_erm.entity.SystemEntity;
 import com.nthuy.demo_erm.exception.BadRequestValidationException;
@@ -78,6 +75,8 @@ public Long handleCreateClassifyReason(ClassifyReasonDTO dto) {
         ClassifyReasonEntity classifyReason = this.classifyReasonRepository.findById(id)
                 .orElseThrow(() -> new BadRequestValidationException("Thẻ bảo hiểm với ID " + id + " không tồn tại"));
         return classifyReasonMapper.toDto(classifyReason);
+
+
 
     }
 

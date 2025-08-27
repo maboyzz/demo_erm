@@ -1,0 +1,13 @@
+package com.nthuy.demo_erm.repository;
+
+import com.nthuy.demo_erm.entity.AttributeEntity;
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
+import org.springframework.stereotype.Repository;
+
+@Repository
+public interface AttributeRepository extends JpaRepository<AttributeEntity, Long>, JpaSpecificationExecutor<AttributeEntity> {
+
+    boolean existsByName(String name);
+
+}

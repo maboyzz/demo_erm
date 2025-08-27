@@ -100,3 +100,29 @@ CREATE TABLE attribute_group (
                                  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
                                  updated_by VARCHAR(255)
 );
+-- Bảng attribute (thuộc tính đơn lẻ)
+CREATE TABLE attribute (
+                           id SERIAL PRIMARY KEY,
+                           code VARCHAR(255),
+                           name VARCHAR(255),
+                           display_type VARCHAR(255), -- textbox, selectbox…
+                           datatype VARCHAR(255),     -- string, number, date…
+                           attribute_group_id INT REFERENCES attribute_group(id) ON DELETE SET NULL,
+                           description VARCHAR(255),
+                           is_active BOOLEAN DEFAULT TRUE,
+                           created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                           created_by VARCHAR(255),
+                           updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                           updated_by VARCHAR(255)
+);
+
+-- Bảng attribute_value (giá trị của thuộc tính, cho selectbox/multiselect)
+CREATE TABLE attribute_value (
+                                 id SERIAL PRIMARY KEY,
+                                 value VARCHAR(255),
+                                 attribute_id INT NOT NULL REFERENCES attribute(id) ON DELETE CASCADE,
+                                 created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                                 created_by VARCHAR(255),
+                                 updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                                 updated_by VARCHAR(255)
+);
