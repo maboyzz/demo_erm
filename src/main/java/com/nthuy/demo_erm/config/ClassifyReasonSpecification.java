@@ -10,13 +10,11 @@ import java.util.List;
 public class ClassifyReasonSpecification {
 
     public static Specification<ClassifyReasonEntity> hasCode(String code) {
-        return (root, query, cb) ->
-                code == null ? null : cb.equal(root.get("code"), code);
+        return (root, query, cb) -> code == null ? null : cb.equal(root.get("code"), code);
     }
 
     public static Specification<ClassifyReasonEntity> hasName(String name) {
-        return (root, query, cb) ->
-                name == null ? null : cb.like(cb.lower(root.get("name")), "%" + name.toLowerCase() + "%");
+        return (root, query, cb) -> name == null ? null : cb.like(cb.lower(root.get("name")), "%" + name.toLowerCase() + "%");
     }
 
     public static Specification<ClassifyReasonEntity> hasSystemIdIn(List<Long> systemIds) {

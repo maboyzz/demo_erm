@@ -1,16 +1,14 @@
 package com.nthuy.demo_erm.controller;
 
-import com.nthuy.demo_erm.constant.EnumTypeAttributeGroup;
+
 import com.nthuy.demo_erm.dto.AttributeGroupDTO;
-import com.nthuy.demo_erm.dto.ClassifyReasonDTO;
 import com.nthuy.demo_erm.dto.IdResponse;
 import com.nthuy.demo_erm.dto.ResultPaginationDTO;
-import com.nthuy.demo_erm.exception.IdInvalidException;
 import com.nthuy.demo_erm.exception.NameExisted;
-import com.nthuy.demo_erm.exception.TypeAttributeGroupValidException;
 import com.nthuy.demo_erm.service.AttributeGroupService;
 import com.nthuy.demo_erm.until.annotation.ApiMessage;
 import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
@@ -18,17 +16,13 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
 
 @RestController
+@RequiredArgsConstructor
 public class AttributeGroupController {
 
     private final AttributeGroupService attributeGroupService;
 
-
-    public AttributeGroupController(AttributeGroupService attributeGroupService) {
-        this.attributeGroupService = attributeGroupService;
-    }
 
     @PostMapping("/api/v1/attribute-group")
     @ApiMessage("Tạo mới nhóm thuộc tính")
@@ -36,16 +30,12 @@ public class AttributeGroupController {
             @Valid
             @RequestBody AttributeGroupDTO dto
     ) throws NameExisted {
-        boolean nameExists = this.attributeGroupService.nameExists(dto.getName());
-        if (nameExists) {
-            throw new NameExisted("Username " +
-                    dto.getName() + " đã tồn tại");
-        }
         long newId = attributeGroupService.handleCreateAttributeGroup(dto);
         IdResponse idResponse = new IdResponse(newId);
 
         return ResponseEntity.status(HttpStatus.CREATED).body(idResponse);
     }
+
     @GetMapping(value = "/api/v1/attribute-group", params = "id")
     @ApiMessage("Lấy thông tin nhóm thuộc tính theo id")
     public ResponseEntity<AttributeGroupDTO> getDetailsAttributeGroup(
@@ -61,10 +51,6 @@ public class AttributeGroupController {
     public ResponseEntity<String> deleteAttributeGroup(
             @RequestParam Long id
     ) {
-        boolean isValidId = attributeGroupService.existsById(id);
-        if (!isValidId) {
-            throw new IdInvalidException("ID " + id + " không có");
-        }
         this.attributeGroupService.handleDeleteAttributeGroup(id);
         return ResponseEntity.status(HttpStatus.NO_CONTENT).body("Xoá thành công");
     }
@@ -75,16 +61,12 @@ public class AttributeGroupController {
             @Valid
             @RequestBody AttributeGroupDTO dto
     ) throws NameExisted {
-        boolean nameExists = this.attributeGroupService.nameExists(dto.getName());
-        if (nameExists) {
-            throw new NameExisted("Username " +
-                    dto.getName() + " đã tồn tại");
-        }
         long newId = attributeGroupService.handleUpdateAttributeGroup(dto);
         IdResponse idResponse = new IdResponse(newId);
 
         return ResponseEntity.status(HttpStatus.CREATED).body(idResponse);
     }
+
     @GetMapping("/api/v1/attribute-group")
     public ResponseEntity<ResultPaginationDTO<AttributeGroupDTO>> getAttributeGroups(
             @RequestParam(required = false) String code,

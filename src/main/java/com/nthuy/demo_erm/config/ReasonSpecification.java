@@ -1,7 +1,6 @@
 package com.nthuy.demo_erm.config;
 
 import com.nthuy.demo_erm.constant.EnumTypeReason;
-import com.nthuy.demo_erm.entity.ClassifyReasonEntity;
 import com.nthuy.demo_erm.entity.ReasonEntity;
 import com.nthuy.demo_erm.entity.SystemEntity;
 import jakarta.persistence.criteria.Join;
@@ -11,13 +10,11 @@ import java.util.List;
 
 public class ReasonSpecification {
     public static Specification<ReasonEntity> hasCode(String code) {
-        return (root, query, cb) ->
-                code == null ? null : cb.equal(root.get("code"), code);
+        return (root, query, cb) -> code == null ? null : cb.equal(root.get("code"), code);
     }
 
     public static Specification<ReasonEntity> hasName(String name) {
-        return (root, query, cb) ->
-                name == null ? null : cb.like(cb.lower(root.get("name")), "%" + name.toLowerCase() + "%");
+        return (root, query, cb) -> name == null ? null : cb.like(cb.lower(root.get("name")), "%" + name.toLowerCase() + "%");
     }
 
     public static Specification<ReasonEntity> hasSystemIdIn(List<Long> systemIds) {
@@ -34,6 +31,7 @@ public class ReasonSpecification {
             return systemJoin.get("id").in(systemIds);
         };
     }
+
     public static Specification<ReasonEntity> hasType(EnumTypeReason type) {
         return (root, query, cb) -> {
             if (type == null) {
@@ -42,8 +40,8 @@ public class ReasonSpecification {
             return cb.equal(root.get("type"), type);
         };
     }
+
     public static Specification<ReasonEntity> hasIsActive(Boolean isActive) {
-        return (root, query, cb) ->
-                isActive == null ? null : cb.equal(root.get("isActive"), isActive);
+        return (root, query, cb) -> isActive == null ? null : cb.equal(root.get("isActive"), isActive);
     }
 }

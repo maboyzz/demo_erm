@@ -24,5 +24,4 @@ public class AttributeDTO {
     // Khi client muốn response kèm values, service sẽ set trường này
     private List<AttributeValueDTO> values;
 
-    // getters/setters
 }

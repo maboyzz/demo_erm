@@ -1,7 +1,5 @@
 package com.nthuy.demo_erm.config;
 
-import com.nthuy.demo_erm.entity.ClassifyReasonEntity;
-import com.nthuy.demo_erm.entity.ReasonEntity;
 import com.nthuy.demo_erm.entity.RiskCategoryEntity;
 import com.nthuy.demo_erm.entity.SystemEntity;
 import jakarta.persistence.criteria.Join;
@@ -11,13 +9,11 @@ import java.util.List;
 
 public class RiskCategorySpecification {
     public static Specification<RiskCategoryEntity> hasCode(String code) {
-        return (root, query, cb) ->
-                code == null ? null : cb.equal(root.get("code"), code);
+        return (root, query, cb) -> code == null ? null : cb.equal(root.get("code"), code);
     }
 
     public static Specification<RiskCategoryEntity> hasName(String name) {
-        return (root, query, cb) ->
-                name == null ? null : cb.like(cb.lower(root.get("name")), "%" + name.toLowerCase() + "%");
+        return (root, query, cb) -> name == null ? null : cb.like(cb.lower(root.get("name")), "%" + name.toLowerCase() + "%");
     }
 
     public static Specification<RiskCategoryEntity> hasSystemIdIn(List<Long> systemIds) {
@@ -34,8 +30,8 @@ public class RiskCategorySpecification {
             return systemJoin.get("id").in(systemIds);
         };
     }
+
     public static Specification<RiskCategoryEntity> hasIsActive(Boolean isActive) {
-        return (root, query, cb) ->
-                isActive == null ? null : cb.equal(root.get("isActive"), isActive);
+        return (root, query, cb) -> isActive == null ? null : cb.equal(root.get("isActive"), isActive);
     }
 }

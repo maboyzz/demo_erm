@@ -3,27 +3,20 @@ package com.nthuy.demo_erm.service;
 import com.nthuy.demo_erm.dto.AttributeGroupDTO;
 
 import com.nthuy.demo_erm.dto.ResultPaginationDTO;
+import com.nthuy.demo_erm.exception.NameExisted;
 import org.springframework.data.domain.Pageable;
 
 import java.util.List;
 
 public interface AttributeGroupService {
-    boolean nameExists(String userName);
 
-
-    boolean existsById(Long id);
-
-
-    Long handleCreateAttributeGroup(AttributeGroupDTO dto);
-
+    Long handleCreateAttributeGroup(AttributeGroupDTO dto) throws NameExisted;
 
     AttributeGroupDTO handleGetAttributeGroupById(Long id);
 
-
     void handleDeleteAttributeGroup(Long id);
 
-
-    Long handleUpdateAttributeGroup(AttributeGroupDTO dto);
+    Long handleUpdateAttributeGroup(AttributeGroupDTO dto) throws NameExisted;
 
     ResultPaginationDTO<AttributeGroupDTO> handleGetAttributeGroup(String code, String name, Boolean isActive, Pageable pageable);
 }

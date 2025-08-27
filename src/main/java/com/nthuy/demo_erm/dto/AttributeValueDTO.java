@@ -11,5 +11,4 @@ public class AttributeValueDTO {
     private Long id;
     private String value;
     private Long attributeId; // sẽ được service set (client có thể bỏ)
-    // getters & setters
 }
