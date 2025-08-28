@@ -3,6 +3,8 @@ package com.nthuy.demo_erm.controller;
 
 import com.nthuy.demo_erm.common.constant.EnumTypeReason;
 import com.nthuy.demo_erm.common.dto.IdResponse;
+import com.nthuy.demo_erm.common.until.PageableUtils;
+import com.nthuy.demo_erm.common.until.ResponseUtils;
 import com.nthuy.demo_erm.dto.ReasonDTO;
 import com.nthuy.demo_erm.dto.ResultPaginationDTO;
 import com.nthuy.demo_erm.common.exception.NameExisted;
@@ -20,6 +22,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
+@RequestMapping("/api/v1/reason")
 @RequiredArgsConstructor
 public class ReasonController {
 
@@ -27,41 +30,34 @@ public class ReasonController {
     private final ReasonService reasonService;
 
 
-    @PostMapping("/api/v1/reason")
+    @PostMapping
     @ApiMessage("Tạo mới nguyên nhân")
     public ResponseEntity<IdResponse> createReason(@Valid @RequestBody ReasonDTO reasonDTO) throws NameExisted {
         long newId = reasonService.handleCreateClassifyReason(reasonDTO);
-        IdResponse idResponse = new IdResponse(newId);
-
-        return ResponseEntity.status(HttpStatus.CREATED).body(idResponse);
+        return ResponseUtils.created(new IdResponse(newId));
     }
 
-    @GetMapping(value = "/api/v1/reason", params = "id")
+    @GetMapping
     @ApiMessage("Lấy thông tin nguyên nhân theo id")
     public ResponseEntity<ReasonDTO> getDetailsReason(@RequestParam Long id) {
-        ReasonDTO dto = reasonService.handleGetReasonById(id);
-
-        return ResponseEntity.ok(dto);
+        return ResponseUtils.ok(reasonService.handleGetReasonById(id));
     }
 
-    @DeleteMapping(value = "/api/v1/reason", params = "id")
+    @DeleteMapping
     @ApiMessage("Xóa nguyên nhân")
     public ResponseEntity<String> deleteReason(@RequestParam Long id) {
-        this.reasonService.handleDeleteReason(id);
-
-        return ResponseEntity.status(HttpStatus.NO_CONTENT).body("Xoá thành công");
+        reasonService.handleDeleteReason(id);
+        return ResponseUtils.noContent();
     }
 
-    @PutMapping("/api/v1/reason")
+    @PutMapping
     @ApiMessage("Cập Nhật phân loại nguyên nhân")
     public ResponseEntity<IdResponse> updateReason(@Valid @RequestBody ReasonDTO dto) throws NameExisted {
         long newId = reasonService.handleUpdateReason(dto);
-        IdResponse idResponse = new IdResponse(newId);
-
-        return ResponseEntity.status(HttpStatus.CREATED).body(idResponse);
+        return ResponseUtils.ok(new IdResponse(newId));
     }
 
-    @GetMapping("/api/v1/reason")
+    @GetMapping("/list")
     public ResponseEntity<ResultPaginationDTO<ReasonDTO>> getReasons(
             @RequestParam(required = false) String code,
             @RequestParam(required = false) String name,
@@ -71,12 +67,10 @@ public class ReasonController {
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "20") int size,
             @RequestParam(defaultValue = "id,desc") String sort) {
-        // Tạo Pageable từ param sort (vd: id,desc)
-        String[] sortParams = sort.split(",");
-        Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.fromString(sortParams[1]), sortParams[0]));
 
-        ResultPaginationDTO<ReasonDTO> result = reasonService.handleGetReason(code, name, systemIds, isActive, type, pageable);
+        Pageable pageable = PageableUtils.from(page, size, sort);
+        return ResponseUtils.ok(reasonService.handleGetReason(code, name, systemIds, isActive, type, pageable));
 
-        return ResponseEntity.ok(result);
+
     }
 }

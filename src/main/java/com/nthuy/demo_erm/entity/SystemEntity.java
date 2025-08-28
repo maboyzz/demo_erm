@@ -19,9 +19,6 @@ public class SystemEntity extends BaseEntity {
     @Column(unique = true, nullable = false, length = 100)
     private String name;
 
-    @ManyToMany(mappedBy = "systemEntitiesReason", fetch = FetchType.LAZY)
-    private Set<ReasonEntity> reasons = new HashSet<>();
-
     @ManyToMany(mappedBy = "systemEntitiesRiskCategory", fetch = FetchType.LAZY)
     private Set<RiskCategoryEntity> riskCategory = new HashSet<>();
 

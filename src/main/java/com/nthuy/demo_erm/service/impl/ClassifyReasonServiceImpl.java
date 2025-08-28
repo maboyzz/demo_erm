@@ -1,4 +1,4 @@
-package com.nthuy.demo_erm.service.Impl;
+package com.nthuy.demo_erm.service.impl;
 
 import com.nthuy.demo_erm.FeignClient.SystemFeignClient;
 import com.nthuy.demo_erm.common.dto.ApiResponse;
@@ -10,6 +10,7 @@ import com.nthuy.demo_erm.common.exception.BadRequestValidationException;
 import com.nthuy.demo_erm.common.exception.IdInvalidException;
 import com.nthuy.demo_erm.common.exception.NameExisted;
 import com.nthuy.demo_erm.mapper.ClassifyReasonMapper;
+import com.nthuy.demo_erm.proxy.SystemProxy;
 import com.nthuy.demo_erm.repository.ClassifyReasonMapRepository;
 import com.nthuy.demo_erm.repository.ClassifyReasonRepository;
 import com.nthuy.demo_erm.service.ClassifyReasonService;
@@ -34,37 +35,8 @@ public class ClassifyReasonServiceImpl implements ClassifyReasonService {
     private final ClassifyReasonMapper classifyReasonMapper;
     private final SystemFeignClient systemFeignClient;
     private final ClassifyReasonMapRepository classifyReasonMapRepository;
+    private final SystemProxy systemProxy;
 
-    private void validateNameNotExists(String name, Long excludeId) throws NameExisted {
-        boolean exists;
-        if (excludeId == null) {
-            exists = classifyReasonRepository.existsByName(name);
-        } else {
-            exists = classifyReasonRepository.existsByNameAndIdNot(name, excludeId);
-        }
-        if (exists) {
-            throw new NameExisted("Name đã tồn tại: " + name);
-        }
-    }
-
-    private void validateCodeNotExists(String code, Long excludeId) throws NameExisted {
-        boolean exists;
-        if (excludeId == null) {
-            exists = classifyReasonRepository.existsByCode(code);
-        } else {
-            exists = classifyReasonRepository.existsByCodeAndIdNot(code, excludeId);
-        }
-        if (exists) {
-            throw new NameExisted("Code đã tồn tại: " + code);
-        }
-    }
-
-    // Check tồn tại ID
-    private void validateIdExists(Long id) {
-        if (!classifyReasonRepository.existsById(id)) {
-            throw new IdInvalidException("Id không tồn tại: " + id);
-        }
-    }
 
 
     // ---------------- CREATE ----------------
@@ -147,9 +119,8 @@ public class ClassifyReasonServiceImpl implements ClassifyReasonService {
         List<ClassifyReasonMapEntity> allMappings = classifyReasonMapRepository.findByClassifyReasonIdIn(reasonIds);
         allMappings.forEach(mapping -> allSystemIds.add(mapping.getSystemId()));
 
-        //CHỈ GỌI 1 LẦN FeignClient để lấy tất cả systems cần thiết
-        Map<Long, SystemDTO> systemDTOMap = getMapSystems(allSystemIds);
-
+        //call FeignClient để lấy tất cả systems cần thiết
+        Map<Long, SystemDTO> systemDTOMap = systemProxy.getSystems(allSystemIds);
         // Gán systems cho từng reason
         for (ClassifyReasonDTO dto : dtoList) {
             dto.setSystems(getSystemsByClassifyReasonIdOptimized(dto.getId(), allMappings, systemDTOMap));
@@ -177,11 +148,8 @@ public class ClassifyReasonServiceImpl implements ClassifyReasonService {
         if (mapEntities.isEmpty()) {
             return Collections.emptySet();
         }
-
         Set<Long> systemIds = mapEntities.stream().map(ClassifyReasonMapEntity::getSystemId).collect(Collectors.toSet());
-
-        Map<Long, SystemDTO> systemDTOMap = getMapSystems(systemIds);
-
+        Map<Long, SystemDTO> systemDTOMap = systemProxy.getSystems(systemIds);
         return systemIds.stream().map(systemDTOMap::get).filter(Objects::nonNull).collect(Collectors.toSet());
     }
 
@@ -191,21 +159,35 @@ public class ClassifyReasonServiceImpl implements ClassifyReasonService {
 
         return systemIds.stream().map(systemDTOMap::get).filter(Objects::nonNull).collect(Collectors.toSet());
     }
-
-    // Method gọi FeignClient
-    private Map<Long, SystemDTO> getMapSystems(Set<Long> systemIds) {
-        if (systemIds.isEmpty()) {
-            return new HashMap<>();
+    private void validateNameNotExists(String name, Long excludeId) throws NameExisted {
+        boolean exists;
+        if (excludeId == null) {
+            exists = classifyReasonRepository.existsByName(name);
+        } else {
+            exists = classifyReasonRepository.existsByNameAndIdNot(name, excludeId);
         }
-        try {
-            ApiResponse<ResultPaginationDTO<SystemDTO>> response = systemFeignClient.getSystemList(systemIds, 0, 1000);
-
-            if (response != null && response.getData() != null && response.getData().getContent() != null) {
-                return response.getData().getContent().stream().collect(Collectors.toMap(SystemDTO::getId, Function.identity()));
-            }
-            return new HashMap<>();
-        } catch (Exception e) {
-            return new HashMap<>();
+        if (exists) {
+            throw new NameExisted("Name đã tồn tại: " + name);
         }
     }
+
+    private void validateCodeNotExists(String code, Long excludeId) throws NameExisted {
+        boolean exists;
+        if (excludeId == null) {
+            exists = classifyReasonRepository.existsByCode(code);
+        } else {
+            exists = classifyReasonRepository.existsByCodeAndIdNot(code, excludeId);
+        }
+        if (exists) {
+            throw new NameExisted("Code đã tồn tại: " + code);
+        }
+    }
+
+    // Check tồn tại ID
+    private void validateIdExists(Long id) {
+        if (!classifyReasonRepository.existsById(id)) {
+            throw new IdInvalidException("Id không tồn tại: " + id);
+        }
+    }
+
 }

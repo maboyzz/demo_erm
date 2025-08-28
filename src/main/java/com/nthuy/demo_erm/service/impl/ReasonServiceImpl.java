@@ -1,4 +1,4 @@
-package com.nthuy.demo_erm.service.Impl;
+package com.nthuy.demo_erm.service.impl;
 
 
 import com.nthuy.demo_erm.config.ReasonSpecification;
@@ -58,7 +58,7 @@ public class ReasonServiceImpl implements ReasonService {
             // Nếu không truyền thì mặc định lấy system có id = 1 và id = 2
             systemEntities = new HashSet<>(systemRepository.findAllById(Arrays.asList(1L, 2L)));
         }
-        entity.setSystemEntitiesReason(systemEntities);
+       // entity.setSystemEntitiesReason(systemEntities);
         System.out.println("Entity trước khi lưu: " + entity);
         ReasonEntity savedEntity = reasonRepository.save(entity);
 
@@ -98,7 +98,7 @@ public class ReasonServiceImpl implements ReasonService {
             // Nếu không truyền thì mặc định lấy system có id = 1 và id = 2
             systemEntities = new HashSet<>(systemRepository.findAllById(Arrays.asList(1L, 2L)));
         }
-        reason.setSystemEntitiesReason(systemEntities);
+      //  reason.setSystemEntitiesReason(systemEntities);
 
         return reasonRepository.save(reason).getId();
     }

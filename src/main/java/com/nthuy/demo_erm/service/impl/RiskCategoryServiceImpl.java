@@ -1,4 +1,4 @@
-package com.nthuy.demo_erm.service.Impl;
+package com.nthuy.demo_erm.service.impl;
 
 import com.nthuy.demo_erm.config.RiskCategorySpecification;
 import com.nthuy.demo_erm.common.dto.Meta;

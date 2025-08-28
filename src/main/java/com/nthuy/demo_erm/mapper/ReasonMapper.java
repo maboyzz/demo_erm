@@ -18,14 +18,11 @@ public interface ReasonMapper {
 
     // ReasonDTO: Set<SystemDTO> systems
     // ReasonEntity: Set<SystemEntity> systemEntitiesReason
-    @Mapping(source = "systemEntitiesReason", target = "systems")
     ReasonDTO toDto(ReasonEntity entity);
 
-    @Mapping(source = "systems", target = "systemEntitiesReason")
     ReasonEntity toEntity(ReasonDTO dto);
 
     @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
-    @Mapping(source = "systems", target = "systemEntitiesReason")
     void updateEntityFromDto(ReasonDTO dto, @MappingTarget ReasonEntity entity);
 
     // Collections
@@ -37,6 +34,5 @@ public interface ReasonMapper {
     Set<ReasonEntity> toEntitySet(Set<ReasonDTO> dtos);
 
     @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
-    @Mapping(target = "systemEntitiesReason", ignore = true)
     void updateEntityCoreFields(ReasonDTO dto, @MappingTarget ReasonEntity entity);
 }

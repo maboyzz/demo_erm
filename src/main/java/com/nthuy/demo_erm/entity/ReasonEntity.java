@@ -29,12 +29,4 @@ public class ReasonEntity extends BaseEntity{
     private EnumOriginReason origin;
     private String note;
     private boolean isActive;
-    // Many-to-many với System
-    @ManyToMany(fetch = FetchType.LAZY)
-    @JoinTable(
-            name = "reason_map",
-            joinColumns = @JoinColumn(name = "reason_id"),
-            inverseJoinColumns = @JoinColumn(name = "system_id")
-    )
-    private Set<SystemEntity> systemEntitiesReason= new HashSet<>();
 }
