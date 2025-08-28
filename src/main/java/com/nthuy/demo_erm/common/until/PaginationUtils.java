@@ -1,7 +1,7 @@
-package com.nthuy.demo_erm.until;
+package com.nthuy.demo_erm.common.until;
 
 
-import com.nthuy.demo_erm.dto.Meta;
+import com.nthuy.demo_erm.common.dto.Meta;
 import com.nthuy.demo_erm.dto.ResultPaginationDTO;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;

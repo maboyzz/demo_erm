@@ -1,9 +1,7 @@
-package com.nthuy.demo_erm.exception;
+package com.nthuy.demo_erm.common.exception;
 
 
-import com.nthuy.demo_erm.dto.RestResponse;
-import jakarta.validation.ValidationException;
-import jakarta.validation.Validator;
+import com.nthuy.demo_erm.common.dto.RestResponse;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
@@ -15,7 +13,8 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import static com.nthuy.demo_erm.constant.EnumErrorCode.*;
+import static com.nthuy.demo_erm.common.constant.EnumErrorCode.NOT_FOUND;
+import static com.nthuy.demo_erm.common.constant.EnumErrorCode.VALIDATION_ERROR;
 
 
 @RestControllerAdvice

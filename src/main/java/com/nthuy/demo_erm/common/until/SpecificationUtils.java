@@ -1,4 +1,4 @@
-package com.nthuy.demo_erm.until;
+package com.nthuy.demo_erm.common.until;
 
 import com.nthuy.demo_erm.entity.ClassifyReasonEntity;
 import org.springframework.data.jpa.domain.Specification;

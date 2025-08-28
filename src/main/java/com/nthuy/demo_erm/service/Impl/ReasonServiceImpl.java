@@ -2,15 +2,15 @@ package com.nthuy.demo_erm.service.Impl;
 
 
 import com.nthuy.demo_erm.config.ReasonSpecification;
-import com.nthuy.demo_erm.constant.EnumTypeReason;
-import com.nthuy.demo_erm.dto.Meta;
+import com.nthuy.demo_erm.common.constant.EnumTypeReason;
+import com.nthuy.demo_erm.common.dto.Meta;
 import com.nthuy.demo_erm.dto.ReasonDTO;
 import com.nthuy.demo_erm.dto.ResultPaginationDTO;
 import com.nthuy.demo_erm.entity.ReasonEntity;
 import com.nthuy.demo_erm.entity.SystemEntity;
-import com.nthuy.demo_erm.exception.BadRequestValidationException;
-import com.nthuy.demo_erm.exception.IdInvalidException;
-import com.nthuy.demo_erm.exception.NameExisted;
+import com.nthuy.demo_erm.common.exception.BadRequestValidationException;
+import com.nthuy.demo_erm.common.exception.IdInvalidException;
+import com.nthuy.demo_erm.common.exception.NameExisted;
 import com.nthuy.demo_erm.mapper.ReasonMapper;
 import com.nthuy.demo_erm.repository.ReasonRepository;
 import com.nthuy.demo_erm.repository.SystemRepository;

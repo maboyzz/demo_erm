@@ -1,13 +1,14 @@
 package com.nthuy.demo_erm.service.Impl;
 
+import com.nthuy.demo_erm.common.dto.Meta;
 import com.nthuy.demo_erm.config.AttributeGroupSpecification;
-import com.nthuy.demo_erm.constant.EnumTypeAttributeGroup;
+import com.nthuy.demo_erm.common.constant.EnumTypeAttributeGroup;
 import com.nthuy.demo_erm.dto.*;
 import com.nthuy.demo_erm.entity.AttributeGroupEntity;
-import com.nthuy.demo_erm.exception.BadRequestValidationException;
-import com.nthuy.demo_erm.exception.IdInvalidException;
-import com.nthuy.demo_erm.exception.NameExisted;
-import com.nthuy.demo_erm.exception.TypeAttributeGroupValidException;
+import com.nthuy.demo_erm.common.exception.BadRequestValidationException;
+import com.nthuy.demo_erm.common.exception.IdInvalidException;
+import com.nthuy.demo_erm.common.exception.NameExisted;
+import com.nthuy.demo_erm.common.exception.TypeAttributeGroupValidException;
 import com.nthuy.demo_erm.mapper.AttributeGroupMapper;
 import com.nthuy.demo_erm.repository.AttributeGroupRepository;
 import com.nthuy.demo_erm.service.AttributeGroupService;

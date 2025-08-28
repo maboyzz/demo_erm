@@ -1,6 +1,6 @@
 package com.nthuy.demo_erm.dto;
 
-import com.nthuy.demo_erm.constant.EnumTypeAttributeGroup;
+import com.nthuy.demo_erm.common.constant.EnumTypeAttributeGroup;
 
 import lombok.*;
 

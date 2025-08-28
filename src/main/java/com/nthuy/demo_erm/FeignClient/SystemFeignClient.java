@@ -1,7 +1,7 @@
 package com.nthuy.demo_erm.FeignClient;
 
 import com.nthuy.demo_erm.config.FeignConfig;
-import com.nthuy.demo_erm.dto.ApiResponse;
+import com.nthuy.demo_erm.common.dto.ApiResponse;
 import com.nthuy.demo_erm.dto.ResultPaginationDTO;
 import com.nthuy.demo_erm.dto.SystemDTO;
 import org.springframework.cloud.openfeign.FeignClient;

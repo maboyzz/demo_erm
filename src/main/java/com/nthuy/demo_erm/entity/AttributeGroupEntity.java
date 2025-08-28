@@ -1,6 +1,6 @@
 package com.nthuy.demo_erm.entity;
 
-import com.nthuy.demo_erm.constant.EnumTypeAttributeGroup;
+import com.nthuy.demo_erm.common.constant.EnumTypeAttributeGroup;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;

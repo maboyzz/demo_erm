@@ -1,4 +1,4 @@
-package com.nthuy.demo_erm.until;
+package com.nthuy.demo_erm.common.until;
 
 
 import org.springframework.data.domain.PageRequest;

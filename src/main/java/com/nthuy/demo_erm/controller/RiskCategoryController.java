@@ -1,12 +1,11 @@
 package com.nthuy.demo_erm.controller;
 
-import com.nthuy.demo_erm.dto.IdResponse;
+import com.nthuy.demo_erm.common.dto.IdResponse;
 import com.nthuy.demo_erm.dto.ResultPaginationDTO;
 import com.nthuy.demo_erm.dto.RiskCategoryDTO;
-import com.nthuy.demo_erm.exception.IdInvalidException;
-import com.nthuy.demo_erm.exception.NameExisted;
+import com.nthuy.demo_erm.common.exception.NameExisted;
 import com.nthuy.demo_erm.service.RiskCategoryService;
-import com.nthuy.demo_erm.until.annotation.ApiMessage;
+import com.nthuy.demo_erm.common.until.annotation.ApiMessage;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;

@@ -1,14 +1,14 @@
 package com.nthuy.demo_erm.service.Impl;
 
 import com.nthuy.demo_erm.config.RiskCategorySpecification;
-import com.nthuy.demo_erm.dto.Meta;
+import com.nthuy.demo_erm.common.dto.Meta;
 import com.nthuy.demo_erm.dto.ResultPaginationDTO;
 import com.nthuy.demo_erm.dto.RiskCategoryDTO;
 import com.nthuy.demo_erm.entity.RiskCategoryEntity;
 import com.nthuy.demo_erm.entity.SystemEntity;
-import com.nthuy.demo_erm.exception.BadRequestValidationException;
-import com.nthuy.demo_erm.exception.IdInvalidException;
-import com.nthuy.demo_erm.exception.NameExisted;
+import com.nthuy.demo_erm.common.exception.BadRequestValidationException;
+import com.nthuy.demo_erm.common.exception.IdInvalidException;
+import com.nthuy.demo_erm.common.exception.NameExisted;
 import com.nthuy.demo_erm.mapper.RiskCategoryMapper;
 import com.nthuy.demo_erm.repository.RiskCategoryRepository;
 import com.nthuy.demo_erm.repository.SystemRepository;

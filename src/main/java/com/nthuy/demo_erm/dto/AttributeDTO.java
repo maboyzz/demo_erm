@@ -1,7 +1,7 @@
 package com.nthuy.demo_erm.dto;
 
-import com.nthuy.demo_erm.constant.EnumAttributeDataType;
-import com.nthuy.demo_erm.constant.EnumAttributeDisplayType;
+import com.nthuy.demo_erm.common.constant.EnumAttributeDataType;
+import com.nthuy.demo_erm.common.constant.EnumAttributeDisplayType;
 import lombok.*;
 
 import java.util.List;

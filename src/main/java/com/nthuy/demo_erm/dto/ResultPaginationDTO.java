@@ -1,6 +1,7 @@
 package com.nthuy.demo_erm.dto;
 
 
+import com.nthuy.demo_erm.common.dto.Meta;
 import lombok.Getter;
 import lombok.Setter;
 

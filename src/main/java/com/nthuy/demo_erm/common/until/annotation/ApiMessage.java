@@ -1,4 +1,4 @@
-package com.nthuy.demo_erm.until.annotation;
+package com.nthuy.demo_erm.common.until.annotation;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;

@@ -1,7 +1,7 @@
 package com.nthuy.demo_erm.entity;
 
-import com.nthuy.demo_erm.constant.EnumOriginReason;
-import com.nthuy.demo_erm.constant.EnumTypeReason;
+import com.nthuy.demo_erm.common.constant.EnumOriginReason;
+import com.nthuy.demo_erm.common.constant.EnumTypeReason;
 import jakarta.persistence.*;
 import lombok.*;
 

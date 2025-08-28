@@ -1,6 +1,6 @@
 package com.nthuy.demo_erm.config;
 
-import com.nthuy.demo_erm.constant.EnumTypeReason;
+import com.nthuy.demo_erm.common.constant.EnumTypeReason;
 import com.nthuy.demo_erm.entity.ReasonEntity;
 import com.nthuy.demo_erm.entity.SystemEntity;
 import jakarta.persistence.criteria.Join;

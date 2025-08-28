@@ -1,19 +1,20 @@
 package com.nthuy.demo_erm.service.Impl;
 
 import com.nthuy.demo_erm.FeignClient.SystemFeignClient;
+import com.nthuy.demo_erm.common.dto.ApiResponse;
 import com.nthuy.demo_erm.config.ClassifyReasonSpecification;
 import com.nthuy.demo_erm.dto.*;
 import com.nthuy.demo_erm.entity.ClassifyReasonEntity;
 import com.nthuy.demo_erm.entity.ClassifyReasonMapEntity;
-import com.nthuy.demo_erm.exception.BadRequestValidationException;
-import com.nthuy.demo_erm.exception.IdInvalidException;
-import com.nthuy.demo_erm.exception.NameExisted;
+import com.nthuy.demo_erm.common.exception.BadRequestValidationException;
+import com.nthuy.demo_erm.common.exception.IdInvalidException;
+import com.nthuy.demo_erm.common.exception.NameExisted;
 import com.nthuy.demo_erm.mapper.ClassifyReasonMapper;
 import com.nthuy.demo_erm.repository.ClassifyReasonMapRepository;
 import com.nthuy.demo_erm.repository.ClassifyReasonRepository;
 import com.nthuy.demo_erm.service.ClassifyReasonService;
-import com.nthuy.demo_erm.until.PaginationUtils;
-import com.nthuy.demo_erm.until.SpecificationUtils;
+import com.nthuy.demo_erm.common.until.PaginationUtils;
+import com.nthuy.demo_erm.common.until.SpecificationUtils;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;

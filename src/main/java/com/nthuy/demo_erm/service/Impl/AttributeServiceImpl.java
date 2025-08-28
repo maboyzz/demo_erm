@@ -1,14 +1,14 @@
 package com.nthuy.demo_erm.service.Impl;
 
-import com.nthuy.demo_erm.constant.EnumAttributeDisplayType;
+import com.nthuy.demo_erm.common.constant.EnumAttributeDisplayType;
 import com.nthuy.demo_erm.dto.AttributeDTO;
 import com.nthuy.demo_erm.dto.AttributeValueDTO;
 import com.nthuy.demo_erm.dto.ResultPaginationDTO;
 import com.nthuy.demo_erm.entity.AttributeEntity;
 import com.nthuy.demo_erm.entity.AttributeValueEntity;
-import com.nthuy.demo_erm.exception.BadRequestValidationException;
-import com.nthuy.demo_erm.exception.IdInvalidException;
-import com.nthuy.demo_erm.exception.NameExisted;
+import com.nthuy.demo_erm.common.exception.BadRequestValidationException;
+import com.nthuy.demo_erm.common.exception.IdInvalidException;
+import com.nthuy.demo_erm.common.exception.NameExisted;
 import com.nthuy.demo_erm.mapper.AttributeMapper;
 import com.nthuy.demo_erm.mapper.AttributeValueMapper;
 import com.nthuy.demo_erm.repository.AttributeRepository;
