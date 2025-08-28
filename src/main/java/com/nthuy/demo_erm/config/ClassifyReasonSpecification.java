@@ -6,6 +6,8 @@ import jakarta.persistence.criteria.Root;
 import jakarta.persistence.criteria.Subquery;
 import org.springframework.data.jpa.domain.Specification;
 
+import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 
 public class ClassifyReasonSpecification {
@@ -18,19 +20,23 @@ public class ClassifyReasonSpecification {
         return (root, query, cb) -> name == null ? null : cb.like(cb.lower(root.get("name")), "%" + name.toLowerCase() + "%");
     }
 
-    public static Specification<ClassifyReasonEntity> hasSystemIdIn(List<Long> systemIds) {
+    public static Specification<ClassifyReasonEntity> hasSystemIdIn(Collection<Long> systemIds) {
         return (root, query, cb) -> {
             if (systemIds == null || systemIds.isEmpty()) {
-                return null;
+                return null; // không thêm filter
             }
 
-            // Subquery đếm số systemIds khớp
+            // Subquery: đếm số systemId mapping khớp với entity hiện tại
             Subquery<Long> subquery = query.subquery(Long.class);
             Root<ClassifyReasonMapEntity> mapRoot = subquery.from(ClassifyReasonMapEntity.class);
 
-            subquery.select(cb.count(mapRoot.get("systemId"))).where(cb.equal(mapRoot.get("classifyReasonId"), root.get("id")), mapRoot.get("systemId").in(systemIds));
+            subquery.select(cb.count(mapRoot.get("systemId")))
+                    .where(
+                            cb.equal(mapRoot.get("classifyReasonId"), root.get("id")),
+                            mapRoot.get("systemId").in(systemIds)
+                    );
 
-            // Chỉ lấy reason có đủ TẤT CẢ systemIds
+            // Điều kiện: số lượng systemIds khớp phải đúng bằng size của systemIds truyền vào
             return cb.equal(subquery, (long) systemIds.size());
         };
     }

@@ -11,9 +11,9 @@ import java.util.Set;
 @Builder
 public class ClassifyReasonDTO {
     private Long id;
-    @NotEmpty
+    @NotEmpty(message = "code không được để trống")
     private String code;
-    @NotEmpty
+    @NotEmpty(message = "name không được để trống")
     private String name;
     private String description;
     private String note;

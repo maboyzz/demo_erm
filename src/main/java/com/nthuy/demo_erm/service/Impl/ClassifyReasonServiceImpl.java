@@ -13,6 +13,7 @@ import com.nthuy.demo_erm.repository.ClassifyReasonMapRepository;
 import com.nthuy.demo_erm.repository.ClassifyReasonRepository;
 import com.nthuy.demo_erm.service.ClassifyReasonService;
 import com.nthuy.demo_erm.until.PaginationUtils;
+import com.nthuy.demo_erm.until.SpecificationUtils;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -44,6 +45,7 @@ public class ClassifyReasonServiceImpl implements ClassifyReasonService {
             throw new NameExisted("Name đã tồn tại: " + name);
         }
     }
+
     private void validateCodeNotExists(String code, Long excludeId) throws NameExisted {
         boolean exists;
         if (excludeId == null) {
@@ -128,15 +130,9 @@ public class ClassifyReasonServiceImpl implements ClassifyReasonService {
 
         Specification<ClassifyReasonEntity> spec = Specification.where(null);
 
-        if (code != null && !code.isBlank()) {
-            spec = spec.and(ClassifyReasonSpecification.hasCode(code));
-        }
-        if (name != null && !name.isBlank()) {
-            spec = spec.and(ClassifyReasonSpecification.hasName(name));
-        }
-        if (systemIds != null && !systemIds.isEmpty()) {
-            spec = spec.and(ClassifyReasonSpecification.hasSystemIdIn(systemIds));
-        }
+        spec = SpecificationUtils.addIfNotBlank(spec, code, ClassifyReasonSpecification::hasCode);
+        spec = SpecificationUtils.addIfNotBlank(spec, name, ClassifyReasonSpecification::hasName);
+        spec = SpecificationUtils.addIfNotEmpty(spec, systemIds, ClassifyReasonSpecification::hasSystemIdIn);
 
         Page<ClassifyReasonEntity> pageResult = classifyReasonRepository.findAll(spec, pageable);
 
@@ -210,6 +206,5 @@ public class ClassifyReasonServiceImpl implements ClassifyReasonService {
         } catch (Exception e) {
             return new HashMap<>();
         }
-
     }
 }
