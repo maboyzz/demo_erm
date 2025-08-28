@@ -2,8 +2,8 @@ package com.nthuy.demo_erm.config;
 
 import com.nthuy.demo_erm.entity.ClassifyReasonEntity;
 import com.nthuy.demo_erm.entity.ClassifyReasonMapEntity;
-import jakarta.persistence.criteria.Join;
-import jakarta.persistence.criteria.Predicate;
+import jakarta.persistence.criteria.Root;
+import jakarta.persistence.criteria.Subquery;
 import org.springframework.data.jpa.domain.Specification;
 
 import java.util.List;
@@ -23,16 +23,15 @@ public class ClassifyReasonSpecification {
             if (systemIds == null || systemIds.isEmpty()) {
                 return null;
             }
-            // Join với bảng trung gian ClassifyReasonMapEntity
-            Join<ClassifyReasonEntity, ClassifyReasonMapEntity> mapJoin = root.join("classifyReasonMaps");
 
-            // Điều kiện: systemId phải nằm trong danh sách systemIds
-            Predicate systemIdInPredicate = mapJoin.get("systemId").in(systemIds);
+            // Subquery đếm số systemIds khớp
+            Subquery<Long> subquery = query.subquery(Long.class);
+            Root<ClassifyReasonMapEntity> mapRoot = subquery.from(ClassifyReasonMapEntity.class);
 
-            // Tránh duplicate records do join
-            query.distinct(true);
+            subquery.select(cb.count(mapRoot.get("systemId"))).where(cb.equal(mapRoot.get("classifyReasonId"), root.get("id")), mapRoot.get("systemId").in(systemIds));
 
-            return systemIdInPredicate;
+            // Chỉ lấy reason có đủ TẤT CẢ systemIds
+            return cb.equal(subquery, (long) systemIds.size());
         };
     }
 }

@@ -11,4 +11,6 @@ public interface ClassifyReasonRepository extends JpaRepository<ClassifyReasonEn
 
     boolean existsByName(String name);
     boolean existsByNameAndIdNot(String name, Long id);
+    boolean existsByCode(String code);
+    boolean existsByCodeAndIdNot(String code, Long id);
 }

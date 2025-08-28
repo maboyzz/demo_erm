@@ -11,6 +11,7 @@ import java.util.Set;
 @Builder
 public class ClassifyReasonDTO {
     private Long id;
+    @NotEmpty
     private String code;
     @NotEmpty
     private String name;
