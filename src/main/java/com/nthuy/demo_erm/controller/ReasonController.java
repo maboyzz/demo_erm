@@ -12,10 +12,7 @@ import com.nthuy.demo_erm.service.ReasonService;
 import com.nthuy.demo_erm.common.until.annotation.ApiMessage;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -33,27 +30,27 @@ public class ReasonController {
     @PostMapping
     @ApiMessage("Tạo mới nguyên nhân")
     public ResponseEntity<IdResponse> createReason(@Valid @RequestBody ReasonDTO reasonDTO) throws NameExisted {
-        long newId = reasonService.handleCreateClassifyReason(reasonDTO);
+        long newId = reasonService.create(reasonDTO);
         return ResponseUtils.created(new IdResponse(newId));
     }
 
     @GetMapping
     @ApiMessage("Lấy thông tin nguyên nhân theo id")
     public ResponseEntity<ReasonDTO> getDetailsReason(@RequestParam Long id) {
-        return ResponseUtils.ok(reasonService.handleGetReasonById(id));
+        return ResponseUtils.ok(reasonService.getReason(id));
     }
 
     @DeleteMapping
     @ApiMessage("Xóa nguyên nhân")
     public ResponseEntity<String> deleteReason(@RequestParam Long id) {
-        reasonService.handleDeleteReason(id);
+        reasonService.delete(id);
         return ResponseUtils.noContent();
     }
 
     @PutMapping
     @ApiMessage("Cập Nhật phân loại nguyên nhân")
     public ResponseEntity<IdResponse> updateReason(@Valid @RequestBody ReasonDTO dto) throws NameExisted {
-        long newId = reasonService.handleUpdateReason(dto);
+        long newId = reasonService.update(dto);
         return ResponseUtils.ok(new IdResponse(newId));
     }
 
@@ -69,7 +66,7 @@ public class ReasonController {
             @RequestParam(defaultValue = "id,desc") String sort) {
 
         Pageable pageable = PageableUtils.from(page, size, sort);
-        return ResponseUtils.ok(reasonService.handleGetReason(code, name, systemIds, isActive, type, pageable));
+        return ResponseUtils.ok(reasonService.getListReason(code, name, systemIds, isActive, type, pageable));
 
 
     }

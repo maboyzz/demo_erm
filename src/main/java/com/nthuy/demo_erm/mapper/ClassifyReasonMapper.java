@@ -9,20 +9,21 @@ import org.mapstruct.NullValuePropertyMappingStrategy;
 
 import java.util.List;
 
-@Mapper(componentModel = "spring", uses = { SystemMapper.class })
+@Mapper(componentModel = "spring", uses = {SystemMapper.class})
 public interface ClassifyReasonMapper {
 
 
-        ClassifyReasonDTO toDto(ClassifyReasonEntity entity);
+    ClassifyReasonDTO toDto(ClassifyReasonEntity entity);
 
-        ClassifyReasonEntity toEntity(ClassifyReasonDTO dto);
+    ClassifyReasonEntity toEntity(ClassifyReasonDTO dto);
 
-        List<ClassifyReasonDTO> toDtoList(List<ClassifyReasonEntity> entities);
-        List<ClassifyReasonEntity> toEntityList(List<ClassifyReasonDTO> dtos);
+    List<ClassifyReasonDTO> toDtoList(List<ClassifyReasonEntity> entities);
+
+    List<ClassifyReasonEntity> toEntityList(List<ClassifyReasonDTO> dtos);
 
 
-        @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
-        void updateEntityFromDto(ClassifyReasonDTO dto, @MappingTarget ClassifyReasonEntity entity);
+    @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
+    void updateEntityFromDto(ClassifyReasonDTO dto, @MappingTarget ClassifyReasonEntity entity);
 
 
 }

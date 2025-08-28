@@ -8,5 +8,7 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface ReasonRepository extends JpaRepository<ReasonEntity, Long>, JpaSpecificationExecutor<ReasonEntity> {
     boolean existsByName(String name);
-
+    boolean existsByNameAndIdNot(String name, Long id);
+    boolean existsByCode(String code);
+    boolean existsByCodeAndIdNot(String code, Long id);
 }

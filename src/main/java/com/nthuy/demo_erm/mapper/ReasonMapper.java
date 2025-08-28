@@ -2,37 +2,43 @@ package com.nthuy.demo_erm.mapper;
 
 
 import com.nthuy.demo_erm.dto.ReasonDTO;
+import com.nthuy.demo_erm.dto.response.ClassifyReasonResponse;
+import com.nthuy.demo_erm.entity.ClassifyReasonEntity;
 import com.nthuy.demo_erm.entity.ReasonEntity;
-import org.mapstruct.BeanMapping;
-import org.mapstruct.Mapper;
-import org.mapstruct.Mapping;
-import org.mapstruct.MappingTarget;
-import org.mapstruct.NullValuePropertyMappingStrategy;
+import org.mapstruct.*;
 
 import java.util.List;
-import java.util.Set;
+
 
 // Uses SystemMapper to convert nested SystemEntity <-> SystemDTO
-@Mapper(componentModel = "spring", uses = { SystemMapper.class })
+@Mapper(componentModel = "spring")
 public interface ReasonMapper {
 
-    // ReasonDTO: Set<SystemDTO> systems
-    // ReasonEntity: Set<SystemEntity> systemEntitiesReason
+
+    @Mapping(target = "classifyReason.id", source = "classifyReasonId")
     ReasonDTO toDto(ReasonEntity entity);
 
+    @Mapping(target = "classifyReasonId", source = "classifyReason.id")
     ReasonEntity toEntity(ReasonDTO dto);
 
+    @Mapping(target = "classifyReasonId", source = "classifyReason.id")
+    List<ReasonDTO> toDtoList(List<ReasonEntity> entities);
+
+    List<ReasonEntity> toEntityList(List<ReasonDTO> dtos);
+
+    @Mapping(target = "classifyReasonId", source = "classifyReason.id")
     @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
     void updateEntityFromDto(ReasonDTO dto, @MappingTarget ReasonEntity entity);
 
-    // Collections
-    List<ReasonDTO> toDtoList(List<ReasonEntity> entities);
-    List<ReasonEntity> toEntityList(List<ReasonDTO> dtos);
-
-    Set<ReasonDTO> toDtoSet(Set<ReasonEntity> entities);
-
-    Set<ReasonEntity> toEntitySet(Set<ReasonDTO> dtos);
-
-    @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
-    void updateEntityCoreFields(ReasonDTO dto, @MappingTarget ReasonEntity entity);
+    default void setClassifyReason(ReasonDTO dto, ClassifyReasonEntity classify) {
+        if (classify != null) {
+            dto.setClassifyReason(
+                    new ClassifyReasonResponse(
+                            classify.getId(),
+                            classify.getCode(),
+                            classify.getName()
+                    )
+            );
+        }
+    }
 }

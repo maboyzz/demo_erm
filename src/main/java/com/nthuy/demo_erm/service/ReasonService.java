@@ -15,14 +15,14 @@ import java.util.List;
 public interface ReasonService {
 
 
-    Long handleCreateClassifyReason(ReasonDTO dto) throws NameExisted;
+    Long create(ReasonDTO dto) throws NameExisted;
 
-    ReasonDTO handleGetReasonById(Long id);
+    ReasonDTO getReason(Long id);
 
-    void handleDeleteReason(Long id);
+    void delete(Long id);
 
-    Long handleUpdateReason(ReasonDTO dto) throws NameExisted;
+    Long update(ReasonDTO dto) throws NameExisted;
 
-    ResultPaginationDTO<ReasonDTO> handleGetReason(String code, String name, List<Long> systemIds, Boolean isActive, EnumTypeReason type, Pageable pageable);
+    ResultPaginationDTO<ReasonDTO> getListReason(String code, String name, List<Long> systemIds, Boolean isActive, EnumTypeReason type, Pageable pageable);
 
 }

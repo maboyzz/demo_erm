@@ -1,4 +1,4 @@
-package com.nthuy.demo_erm.dto;
+package com.nthuy.demo_erm.dto.response;
 
 import lombok.*;
 
@@ -7,7 +7,8 @@ import lombok.*;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class SystemDTO {
+public class ClassifyReasonResponse {
     private Long id;
+    private String code;
     private String name;
 }

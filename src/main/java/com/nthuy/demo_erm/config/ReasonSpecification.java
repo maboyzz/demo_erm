@@ -1,11 +1,13 @@
 package com.nthuy.demo_erm.config;
 
 import com.nthuy.demo_erm.common.constant.EnumTypeReason;
-import com.nthuy.demo_erm.entity.ReasonEntity;
-import com.nthuy.demo_erm.entity.SystemEntity;
+import com.nthuy.demo_erm.entity.*;
 import jakarta.persistence.criteria.Join;
+import jakarta.persistence.criteria.Root;
+import jakarta.persistence.criteria.Subquery;
 import org.springframework.data.jpa.domain.Specification;
 
+import java.util.Collection;
 import java.util.List;
 
 public class ReasonSpecification {
@@ -17,18 +19,23 @@ public class ReasonSpecification {
         return (root, query, cb) -> name == null ? null : cb.like(cb.lower(root.get("name")), "%" + name.toLowerCase() + "%");
     }
 
-    public static Specification<ReasonEntity> hasSystemIdIn(List<Long> systemIds) {
+    public static Specification<ReasonEntity> hasSystemIdIn(Collection<Long> systemIds) {
         return (root, query, cb) -> {
-            if (systemIds == null || systemIds.isEmpty()) return null;
+            if (systemIds == null || systemIds.isEmpty()) {
+                return null; // không thêm filter
+            }
+            // Subquery: đếm số systemId mapping khớp với entity hiện tại
+            Subquery<Long> subquery = query.subquery(Long.class);
+            Root<ReasonMapEntity> mapRoot = subquery.from(ReasonMapEntity.class);
 
-            // Join với bảng trung gian
-            Join<ReasonEntity, SystemEntity> systemJoin = root.join("systemEntitiesReason");
+            subquery.select(cb.count(mapRoot.get("systemId")))
+                    .where(
+                            cb.equal(mapRoot.get("reasonId"), root.get("id")),
+                            mapRoot.get("systemId").in(systemIds)
+                    );
 
-            // Tránh duplicate khi join
-            query.groupBy(root.get("id"));
-            query.having(cb.equal(cb.countDistinct(systemJoin.get("id")), systemIds.size()));
-
-            return systemJoin.get("id").in(systemIds);
+            // Điều kiện: số lượng systemIds khớp phải đúng bằng size của systemIds truyền vào
+            return cb.equal(subquery, (long) systemIds.size());
         };
     }
 

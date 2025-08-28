@@ -1,7 +1,5 @@
 package com.nthuy.demo_erm.service.impl;
 
-import com.nthuy.demo_erm.FeignClient.SystemFeignClient;
-import com.nthuy.demo_erm.common.dto.ApiResponse;
 import com.nthuy.demo_erm.config.ClassifyReasonSpecification;
 import com.nthuy.demo_erm.dto.*;
 import com.nthuy.demo_erm.entity.ClassifyReasonEntity;
@@ -24,7 +22,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.*;
-import java.util.function.Function;
 import java.util.stream.Collectors;
 
 @Service
@@ -33,7 +30,6 @@ public class ClassifyReasonServiceImpl implements ClassifyReasonService {
 
     private final ClassifyReasonRepository classifyReasonRepository;
     private final ClassifyReasonMapper classifyReasonMapper;
-    private final SystemFeignClient systemFeignClient;
     private final ClassifyReasonMapRepository classifyReasonMapRepository;
     private final SystemProxy systemProxy;
 
@@ -51,7 +47,7 @@ public class ClassifyReasonServiceImpl implements ClassifyReasonService {
         // xử lý systems
         Set<Long> systemIds = (dto.getSystems() != null && !dto.getSystems().isEmpty()) ? dto.getSystems().stream().map(SystemDTO::getId).collect(Collectors.toSet()) : new HashSet<>(Arrays.asList(1L, 2L));
 
-        saveReasonSystemMap(entity.getId(), systemIds);
+        saveClassifyReasonSystemMap(entity.getId(), systemIds);
 
         return entity.getId();
     }
@@ -64,7 +60,7 @@ public class ClassifyReasonServiceImpl implements ClassifyReasonService {
         ClassifyReasonDTO dto = classifyReasonMapper.toDto(classifyReason);
 
         // Tối ưu: Chỉ lấy systems cho 1 reason này
-        dto.setSystems(getSystemsByReasonId(id));
+        dto.setSystems(getSystemsByClassifyReasonId(id));
 
         return dto;
     }
@@ -91,7 +87,7 @@ public class ClassifyReasonServiceImpl implements ClassifyReasonService {
         Set<Long> systemIds = (dto.getSystems() != null && !dto.getSystems().isEmpty()) ? dto.getSystems().stream().map(SystemDTO::getId).collect(Collectors.toSet()) : new HashSet<>(Arrays.asList(1L, 2L));
 
         classifyReasonMapRepository.deleteByClassifyReasonId(classifyReason.getId());
-        saveReasonSystemMap(classifyReason.getId(), systemIds);
+        saveClassifyReasonSystemMap(classifyReason.getId(), systemIds);
 
         return classifyReason.getId();
     }
@@ -130,7 +126,7 @@ public class ClassifyReasonServiceImpl implements ClassifyReasonService {
     }
 
     // ---------------- HELPER METHODS ----------------
-    private void saveReasonSystemMap(Long reasonId, Set<Long> systemIds) {
+    private void saveClassifyReasonSystemMap(Long reasonId, Set<Long> systemIds) {
         List<ClassifyReasonMapEntity> mapEntities = systemIds.stream().map(systemId -> {
             ClassifyReasonMapEntity mapEntity = new ClassifyReasonMapEntity();
             mapEntity.setClassifyReasonId(reasonId);
@@ -142,8 +138,8 @@ public class ClassifyReasonServiceImpl implements ClassifyReasonService {
     }
 
     // Method cho GET single record
-    private Set<SystemDTO> getSystemsByReasonId(Long reasonId) {
-        List<ClassifyReasonMapEntity> mapEntities = classifyReasonMapRepository.findByClassifyReasonId(reasonId);
+    private Set<SystemDTO> getSystemsByClassifyReasonId(Long classifyReasonId) {
+        List<ClassifyReasonMapEntity> mapEntities = classifyReasonMapRepository.findByClassifyReasonId(classifyReasonId);
 
         if (mapEntities.isEmpty()) {
             return Collections.emptySet();

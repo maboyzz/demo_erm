@@ -34,4 +34,22 @@ public class SpecificationUtils {
         }
         return spec;
     }
+//    public static <T> Specification<T> addIfNotNull(
+//            Specification<T> spec,
+//            Boolean value,
+//            Function<Boolean, Specification<T>> specFunction) {
+//        if (value != null) {
+//            return spec.and(specFunction.apply(value));
+//        }
+//        return spec;
+//    }
+    public static <T, U> Specification<T> addIfNotNull(
+            Specification<T> spec,
+            U value,
+            Function<U, Specification<T>> specFunction) {
+        if (value != null) {
+            return spec.and(specFunction.apply(value));
+        }
+        return spec;
+    }
 }
