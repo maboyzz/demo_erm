@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 
 import java.util.Set;
 
-@FeignClient(name = "uaa-client", url = "${clients.uaa.base-url}",configuration = FeignConfig.class)
+@FeignClient(name = "uaa-client", url = "${clients.uaa.base-url}")
 public interface SystemFeignClient {
     @GetMapping("/api/v1/system/list")
     ApiResponse<ResultPaginationDTO<SystemDTO>> getSystemList(
