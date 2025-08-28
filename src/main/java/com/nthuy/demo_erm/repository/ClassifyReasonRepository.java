@@ -10,4 +10,5 @@ import org.springframework.stereotype.Repository;
 public interface ClassifyReasonRepository extends JpaRepository<ClassifyReasonEntity, Long> , JpaSpecificationExecutor<ClassifyReasonEntity> {
 
     boolean existsByName(String name);
+    boolean existsByNameAndIdNot(String name, Long id);
 }

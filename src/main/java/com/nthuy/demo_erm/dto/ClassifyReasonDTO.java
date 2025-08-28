@@ -1,5 +1,6 @@
 package com.nthuy.demo_erm.dto;
 
+import jakarta.validation.constraints.NotEmpty;
 import lombok.*;
 import java.util.Set;
 
@@ -11,8 +12,9 @@ import java.util.Set;
 public class ClassifyReasonDTO {
     private Long id;
     private String code;
+    @NotEmpty
     private String name;
     private String description;
     private String note;
-    private Set<SystemDTO> systems; // <- thuộc tính mà mapper sẽ map vào
+    private Set<SystemDTO> systems;
 }

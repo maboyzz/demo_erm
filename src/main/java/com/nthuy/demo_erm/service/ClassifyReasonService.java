@@ -6,16 +6,17 @@ import com.nthuy.demo_erm.exception.NameExisted;
 import org.springframework.data.domain.Pageable;
 
 import java.util.List;
+import java.util.Set;
 
 public interface ClassifyReasonService {
 
-    Long handleCreateClassifyReason(ClassifyReasonDTO dto) throws NameExisted;
+    Long create(ClassifyReasonDTO dto) throws NameExisted;
 
-    ClassifyReasonDTO handleGetClassifyReasonById(Long id);
+    ClassifyReasonDTO getClassifyReason(Long id);
 
-    void handleDeleteClassifyReason(Long id);
+    void delete(Long id);
 
-    Long handleUpdateClassifyReason(ClassifyReasonDTO dto) throws NameExisted;
+    Long update(ClassifyReasonDTO dto) throws NameExisted;
 
-    ResultPaginationDTO<ClassifyReasonDTO> handleGetClassifyReason(String code, String name, List<Long> systemIds, Pageable pageable);
+    ResultPaginationDTO<ClassifyReasonDTO> getListClassifyReason(String code, String name, List<Long> systemIds, Pageable pageable);
 }

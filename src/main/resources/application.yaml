@@ -18,3 +18,21 @@ spring:
   liquibase:
     enabled: false
     change-log: classpath:db/changelog/db.changelog-master.yaml
+clients:
+  uaa:
+    base-url: https://uaa-new.dev.apusplatform.com
+
+feign:
+  client:
+    config:
+      default:
+        connectTimeout: 5000
+        readTimeout: 10000
+
+logging:
+  level:
+    com.nthuy.demo_erm: DEBUG   # package FeignClient của bạn
+    feign: DEBUG
+    org.springframework.cloud.openfeign: DEBUG
+    org.hibernate.SQL: DEBUG
+    org.hibernate.type.descriptor.sql.BasicBinder: TRACE

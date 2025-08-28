@@ -1,8 +1,9 @@
 package com.nthuy.demo_erm.config;
 
 import com.nthuy.demo_erm.entity.ClassifyReasonEntity;
-import com.nthuy.demo_erm.entity.SystemEntity;
+import com.nthuy.demo_erm.entity.ClassifyReasonMapEntity;
 import jakarta.persistence.criteria.Join;
+import jakarta.persistence.criteria.Predicate;
 import org.springframework.data.jpa.domain.Specification;
 
 import java.util.List;
@@ -19,16 +20,19 @@ public class ClassifyReasonSpecification {
 
     public static Specification<ClassifyReasonEntity> hasSystemIdIn(List<Long> systemIds) {
         return (root, query, cb) -> {
-            if (systemIds == null || systemIds.isEmpty()) return null;
+            if (systemIds == null || systemIds.isEmpty()) {
+                return null;
+            }
+            // Join với bảng trung gian ClassifyReasonMapEntity
+            Join<ClassifyReasonEntity, ClassifyReasonMapEntity> mapJoin = root.join("classifyReasonMaps");
 
-            // Join với bảng trung gian
-            Join<ClassifyReasonEntity, SystemEntity> systemJoin = root.join("systemEntitiesClassifyReason");
+            // Điều kiện: systemId phải nằm trong danh sách systemIds
+            Predicate systemIdInPredicate = mapJoin.get("systemId").in(systemIds);
 
-            // Tránh duplicate khi join
-            query.groupBy(root.get("id"));
-            query.having(cb.equal(cb.countDistinct(systemJoin.get("id")), systemIds.size()));
+            // Tránh duplicate records do join
+            query.distinct(true);
 
-            return systemJoin.get("id").in(systemIds);
+            return systemIdInPredicate;
         };
     }
 }

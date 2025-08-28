@@ -125,7 +125,10 @@ public class RiskCategoryServiceImpl implements RiskCategoryService {
     @Override
     public ResultPaginationDTO<RiskCategoryDTO> handleGetRiskCategory(String code, String name, List<Long> systemIds, Boolean isActive, Pageable pageable) {
 
-        Specification<RiskCategoryEntity> spec = Specification.where(RiskCategorySpecification.hasCode(code)).and(RiskCategorySpecification.hasName(name)).and(RiskCategorySpecification.hasSystemIdIn(systemIds)).and(RiskCategorySpecification.hasIsActive(isActive));
+        Specification<RiskCategoryEntity> spec = Specification.where(RiskCategorySpecification.hasCode(code)).
+                and(RiskCategorySpecification.hasName(name)).
+                and(RiskCategorySpecification.hasSystemIdIn(systemIds)).
+                and(RiskCategorySpecification.hasIsActive(isActive));
 
         Page<RiskCategoryEntity> pageResult = riskCategoryRepository.findAll(spec, pageable);
 
