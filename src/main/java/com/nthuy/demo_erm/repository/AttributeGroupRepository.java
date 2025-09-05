@@ -10,4 +10,7 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface AttributeGroupRepository extends JpaRepository<AttributeGroupEntity, Long>, JpaSpecificationExecutor<AttributeGroupEntity> {
     boolean existsByName(String name);
+    boolean existsByNameAndIdNot(String name, Long id);
+    boolean existsByCode(String code);
+    boolean existsByCodeAndIdNot(String code, Long id);
 }

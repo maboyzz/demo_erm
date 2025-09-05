@@ -8,13 +8,13 @@ import org.springframework.data.domain.Pageable;
 
 public interface AttributeGroupService {
 
-    Long handleCreateAttributeGroup(AttributeGroupDTO dto) throws NameExisted;
+    Long create(AttributeGroupDTO dto) throws NameExisted;
 
-    AttributeGroupDTO handleGetAttributeGroupById(Long id);
+    AttributeGroupDTO getAttributeGroup(Long id);
 
-    void handleDeleteAttributeGroup(Long id);
+    void delete(Long id);
 
-    Long handleUpdateAttributeGroup(AttributeGroupDTO dto) throws NameExisted;
+    Long update(AttributeGroupDTO dto) throws NameExisted;
 
-    ResultPaginationDTO<AttributeGroupDTO> handleGetAttributeGroup(String code, String name, Boolean isActive, Pageable pageable);
+    ResultPaginationDTO<AttributeGroupDTO> getListAttributeGroup(String code, String name, Boolean isActive, Pageable pageable);
 }

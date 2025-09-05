@@ -1,6 +1,8 @@
 package com.nthuy.demo_erm.controller;
 
 
+import com.nthuy.demo_erm.common.until.PageableUtils;
+import com.nthuy.demo_erm.common.until.ResponseUtils;
 import com.nthuy.demo_erm.dto.AttributeGroupDTO;
 import com.nthuy.demo_erm.common.dto.IdResponse;
 import com.nthuy.demo_erm.dto.ResultPaginationDTO;
@@ -18,71 +20,52 @@ import org.springframework.web.bind.annotation.*;
 
 
 @RestController
+@RequestMapping("/api/v1/attribute-group")
 @RequiredArgsConstructor
 public class AttributeGroupController {
 
     private final AttributeGroupService attributeGroupService;
 
 
-    @PostMapping("/api/v1/attribute-group")
+    @PostMapping
     @ApiMessage("Tạo mới nhóm thuộc tính")
-    public ResponseEntity<IdResponse> createAttributeGroup(
-            @Valid
-            @RequestBody AttributeGroupDTO dto
-    ) throws NameExisted {
-        long newId = attributeGroupService.handleCreateAttributeGroup(dto);
-        IdResponse idResponse = new IdResponse(newId);
-
-        return ResponseEntity.status(HttpStatus.CREATED).body(idResponse);
+    public ResponseEntity<IdResponse> createAttributeGroup(@Valid @RequestBody AttributeGroupDTO dto) throws NameExisted {
+        long newId = attributeGroupService.create(dto);
+        return ResponseUtils.created(new IdResponse(newId));
     }
 
-    @GetMapping(value = "/api/v1/attribute-group", params = "id")
+    @GetMapping
     @ApiMessage("Lấy thông tin nhóm thuộc tính theo id")
-    public ResponseEntity<AttributeGroupDTO> getDetailsAttributeGroup(
-            @RequestParam Long id
-    ) {
-        AttributeGroupDTO dto = attributeGroupService.handleGetAttributeGroupById(id);
-        return ResponseEntity.ok(dto);
+    public ResponseEntity<AttributeGroupDTO> getDetailsAttributeGroup(@RequestParam Long id) {
+        return ResponseUtils.ok(attributeGroupService.getAttributeGroup(id));
     }
 
 
-    @DeleteMapping(value = "/api/v1/attribute-group", params = "id")
+    @DeleteMapping
     @ApiMessage("Xóa nhóm thuộc tính")
-    public ResponseEntity<String> deleteAttributeGroup(
-            @RequestParam Long id
-    ) {
-        this.attributeGroupService.handleDeleteAttributeGroup(id);
-        return ResponseEntity.status(HttpStatus.NO_CONTENT).body("Xoá thành công");
+    public ResponseEntity<Void> deleteAttributeGroup(@RequestParam Long id) {
+        attributeGroupService.delete(id);
+        return ResponseUtils.noContent();
     }
 
-    @PutMapping("/api/v1/attribute-group")
+    @PutMapping
     @ApiMessage("Cập Nhật nhóm thuộc tính")
-    public ResponseEntity<IdResponse> updateAttributeGroup(
-            @Valid
-            @RequestBody AttributeGroupDTO dto
-    ) throws NameExisted {
-        long newId = attributeGroupService.handleUpdateAttributeGroup(dto);
-        IdResponse idResponse = new IdResponse(newId);
-
-        return ResponseEntity.status(HttpStatus.CREATED).body(idResponse);
+    public ResponseEntity<IdResponse> updateAttributeGroup(@Valid @RequestBody AttributeGroupDTO dto) throws NameExisted {
+        long newId = attributeGroupService.update(dto);
+        return ResponseUtils.ok(new IdResponse(newId));
     }
 
-    @GetMapping("/api/v1/attribute-group")
+    @GetMapping("/list")
     public ResponseEntity<ResultPaginationDTO<AttributeGroupDTO>> getAttributeGroups(
             @RequestParam(required = false) String code,
             @RequestParam(required = false) String name,
             @RequestParam(required = false) Boolean isActive,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "20") int size,
-            @RequestParam(defaultValue = "id,desc") String sort
-    ) {
+            @RequestParam(defaultValue = "id,desc") String sort) {
         // Tạo Pageable từ param sort (vd: id,desc)
-        String[] sortParams = sort.split(",");
-        Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.fromString(sortParams[1]), sortParams[0]));
-
-        ResultPaginationDTO<AttributeGroupDTO> result =
-                attributeGroupService.handleGetAttributeGroup(code, name, isActive, pageable);
-        return ResponseEntity.ok(result);
+        Pageable pageable = PageableUtils.from(page, size, sort);
+        return ResponseUtils.ok(attributeGroupService.getListAttributeGroup(code, name, isActive, pageable));
     }
 
 }
