@@ -56,6 +56,7 @@ public class AttributeGroupController {
     }
 
     @GetMapping("/list")
+    @ApiMessage("list nhóm thuộc tính")
     public ResponseEntity<ResultPaginationDTO<AttributeGroupDTO>> getAttributeGroups(
             @RequestParam(required = false) String code,
             @RequestParam(required = false) String name,

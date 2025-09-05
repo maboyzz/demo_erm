@@ -115,3 +115,14 @@ CREATE TABLE attribute_value (
                                  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
                                  updated_by VARCHAR(255)
 );
+CREATE TABLE handling_measure (
+                                  id SERIAL PRIMARY KEY,                        -- Khóa chính, tự động tăng
+                                  code VARCHAR(50) UNIQUE,                            -- Mã biện pháp xử lý
+                                  name VARCHAR(50) UNIQUE,                             -- Tên biện pháp
+                                  description TEXT,                             -- Mô tả chi tiết, text thay vì varchar cho linh hoạt
+                                  is_active BOOLEAN,                            -- Trạng thái hoạt động
+                                  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,  -- Thời gian tạo mặc định
+                                  created_by VARCHAR(255),                      -- Người tạo
+                                  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,  -- Thời gian cập nhật mặc định
+                                  updated_by VARCHAR(255)                       -- Người cập nhật
+);

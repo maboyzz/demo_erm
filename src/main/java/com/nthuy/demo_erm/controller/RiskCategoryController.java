@@ -55,6 +55,7 @@ public class RiskCategoryController {
     }
 
     @GetMapping("/list")
+    @ApiMessage("list danh mục rủi ro")
     public ResponseEntity<ResultPaginationDTO<RiskCategoryDTO>> getListRiskCategory(
             @RequestParam(required = false) String code,
             @RequestParam(required = false) String name,

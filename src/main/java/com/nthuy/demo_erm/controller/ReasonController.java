@@ -55,6 +55,7 @@ public class ReasonController {
     }
 
     @GetMapping("/list")
+    @ApiMessage("list phân loại nguyên nhân")
     public ResponseEntity<ResultPaginationDTO<ReasonDTO>> getReasons(
             @RequestParam(required = false) String code,
             @RequestParam(required = false) String name,

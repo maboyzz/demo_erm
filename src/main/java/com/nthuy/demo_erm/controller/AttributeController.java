@@ -52,6 +52,7 @@ public class AttributeController {
     }
 
     @GetMapping("/list")
+    @ApiMessage("list thuộc tính")
     public ResponseEntity<ResultPaginationDTO<AttributeDTO>> getAttributes(
             @RequestParam(required = false) String code,
             @RequestParam(required = false) String name,

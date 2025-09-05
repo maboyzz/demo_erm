@@ -44,6 +44,7 @@ public class ClassifyReasonController {
     }
 
     @GetMapping("/list")
+    @ApiMessage("list phân loại nguyên nhân")
     public ResponseEntity<ResultPaginationDTO<ClassifyReasonDTO>> getClassifyReasons(
             @RequestParam(required = false) String code,
             @RequestParam(required = false) String name,
