@@ -1,6 +1,6 @@
 package com.nthuy.demo_erm.common.constant;
 
-public enum EnumOriginReason {
+public enum EnumOrigin {
     INTERNALORIGIN("Nội bộ"),
     EXTERNALORIGIN("Bên Ngoài");
 
@@ -8,7 +8,7 @@ public enum EnumOriginReason {
     private final String description;
 
 
-    EnumOriginReason(String description) {
+    EnumOrigin(String description) {
         this.description = description;
     }
 

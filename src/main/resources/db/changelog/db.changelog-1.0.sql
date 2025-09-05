@@ -115,9 +115,10 @@ CREATE TABLE attribute_value (
                                  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
                                  updated_by VARCHAR(255)
 );
+-- Bảng bien pháp phòng ngừa
 CREATE TABLE handling_measure (
                                   id SERIAL PRIMARY KEY,                        -- Khóa chính, tự động tăng
-                                  code VARCHAR(50) UNIQUE,                            -- Mã biện pháp xử lý
+                                  code VARCHAR(50) UNIQUE,                            -- Mã biện pháp
                                   name VARCHAR(50) UNIQUE,                             -- Tên biện pháp
                                   description TEXT,                             -- Mô tả chi tiết, text thay vì varchar cho linh hoạt
                                   is_active BOOLEAN,                            -- Trạng thái hoạt động
@@ -125,4 +126,51 @@ CREATE TABLE handling_measure (
                                   created_by VARCHAR(255),                      -- Người tạo
                                   updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,  -- Thời gian cập nhật mặc định
                                   updated_by VARCHAR(255)                       -- Người cập nhật
+);
+CREATE TABLE risk_type (
+                           id SERIAL PRIMARY KEY,
+                           code VARCHAR(50) UNIQUE ,
+                           name VARCHAR(50) UNIQUE ,
+                           risk_origin VARCHAR(255),
+                           note text,
+                           object VARCHAR(255),
+                           is_active BOOLEAN,
+                           created_at  TIMESTAMP DEFAULT CURRENT_TIMESTAMP, -- Ngày giờ tạo
+                           created_by  VARCHAR(50),                        -- Người tạo
+                           updated_at  TIMESTAMP DEFAULT CURRENT_TIMESTAMP, -- Ngày giờ cập nhật
+                           updated_by  VARCHAR(50)                         -- Người cập nhật
+);
+-- Bảng mapping risk_type với hệ thống ngoài
+CREATE TABLE risk_type_map (
+                                   id          SERIAL PRIMARY KEY,
+                                   risk_type_id   INT NOT NULL,
+                                   system_id   INT NOT NULL,
+                                   created_at  TIMESTAMP DEFAULT CURRENT_TIMESTAMP, -- Ngày giờ tạo
+                                   created_by  VARCHAR(50),                        -- Người tạo
+                                   updated_at  TIMESTAMP DEFAULT CURRENT_TIMESTAMP, -- Ngày giờ cập nhật
+                                   updated_by  VARCHAR(50),                        -- Người cập nhật
+                                   CONSTRAINT fk_risk_type FOREIGN KEY (risk_type_id) REFERENCES risk_type(id) ON DELETE CASCADE
+);
+-- Bảng mapping risk_type với attribute
+CREATE TABLE attribute_risk_type (
+                                     id SERIAL PRIMARY KEY,
+                                     risk_type_id INT NOT NULL,
+                                     attribute_group_id INT NOT NULL,
+                                     attribute_id INT NOT NULL,
+                                     CONSTRAINT fk_risk_type
+                                         FOREIGN KEY (risk_type_id) REFERENCES risk_type(id) ON DELETE CASCADE,
+                                     CONSTRAINT fk_attribute_group
+                                         FOREIGN KEY (attribute_group_id) REFERENCES attribute_group(id) ON DELETE CASCADE,
+                                     CONSTRAINT fk_attribute
+                                         FOREIGN KEY (attribute_id) REFERENCES attribute(id) ON DELETE CASCADE
+);
+--// Giá trị thuộc tính risk_type
+CREATE TABLE attribute_risk_type_value (
+                                           id SERIAL PRIMARY KEY,
+                                           attribute_risk_type_id INT NOT NULL,
+                                           attribute_value_id INT NOT NULL,
+                                           CONSTRAINT fk_attribute_risk_type
+                                               FOREIGN KEY (attribute_risk_type_id) REFERENCES attribute_risk_type(id) ON DELETE CASCADE,
+                                           CONSTRAINT fk_attribute_value
+                                               FOREIGN KEY (attribute_value_id) REFERENCES attribute_value(id) ON DELETE CASCADE
 );

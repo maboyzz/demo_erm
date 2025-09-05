@@ -1,7 +1,5 @@
 package com.nthuy.demo_erm.dto;
 
-import com.nthuy.demo_erm.common.constant.EnumOriginReason;
-import com.nthuy.demo_erm.common.constant.EnumTypeReason;
 import jakarta.validation.constraints.NotEmpty;
 import lombok.*;
 

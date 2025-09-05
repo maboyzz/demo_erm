@@ -1,7 +1,6 @@
 package com.nthuy.demo_erm.dto;
 
-import com.fasterxml.jackson.annotation.JsonSetter;
-import com.nthuy.demo_erm.common.constant.EnumOriginReason;
+import com.nthuy.demo_erm.common.constant.EnumOrigin;
 import com.nthuy.demo_erm.common.constant.EnumTypeReason;
 import com.nthuy.demo_erm.dto.response.ClassifyReasonResponse;
 import jakarta.validation.constraints.NotEmpty;
@@ -21,7 +20,7 @@ public class ReasonDTO {
     @NotEmpty(message = "name không được để trống")
     private String name;
     private EnumTypeReason type;
-    private EnumOriginReason origin;
+    private EnumOrigin origin;
     private String note;
     private boolean active;
     private ClassifyReasonResponse classifyReason;
