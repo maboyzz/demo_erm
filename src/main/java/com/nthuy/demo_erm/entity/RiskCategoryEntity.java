@@ -24,12 +24,4 @@ public class RiskCategoryEntity extends BaseEntity {
     private String description;
     private boolean isActive;
 
-    // Many-to-many với System
-    @ManyToMany(fetch = FetchType.LAZY)
-    @JoinTable(
-            name = "risk_category_map",
-            joinColumns = @JoinColumn(name = "risk_category_id"),
-            inverseJoinColumns = @JoinColumn(name = "system_id")
-    )
-    private Set<SystemEntity> systemEntitiesRiskCategory= new HashSet<>();
 }

@@ -67,13 +67,14 @@ CREATE TABLE risk_category (
 );
 -- Bảng mapping risk_category với hệ thống ngoài
 CREATE TABLE risk_category_map (
-                            risk_category_id INT NOT NULL,
-                            system_id INT NOT NULL,
-                            PRIMARY KEY (risk_category_id, system_id),
-                            CONSTRAINT fk_reason
-                                FOREIGN KEY (risk_category_id) REFERENCES risk_category(id) ON DELETE CASCADE,
-                            CONSTRAINT fk_system
-                                FOREIGN KEY (system_id) REFERENCES system(id) ON DELETE CASCADE
+                                   id          SERIAL PRIMARY KEY,
+                                   risk_category_id   INT NOT NULL,
+                                   system_id   INT NOT NULL,
+                                   created_at  TIMESTAMP DEFAULT CURRENT_TIMESTAMP, -- Ngày giờ tạo
+                                   created_by  VARCHAR(50),                        -- Người tạo
+                                   updated_at  TIMESTAMP DEFAULT CURRENT_TIMESTAMP, -- Ngày giờ cập nhật
+                                   updated_by  VARCHAR(50),                        -- Người cập nhật
+                                   CONSTRAINT fk_risk_category FOREIGN KEY (risk_category_id) REFERENCES risk_category(id) ON DELETE CASCADE
 );
 --bảng Nhóm thuộc tính
 CREATE TABLE attribute_group (

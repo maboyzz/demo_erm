@@ -3,11 +3,8 @@ package com.nthuy.demo_erm.service.impl;
 
 import com.nthuy.demo_erm.common.until.PaginationUtils;
 import com.nthuy.demo_erm.common.until.SpecificationUtils;
-import com.nthuy.demo_erm.config.ClassifyReasonSpecification;
 import com.nthuy.demo_erm.config.ReasonSpecification;
 import com.nthuy.demo_erm.common.constant.EnumTypeReason;
-import com.nthuy.demo_erm.common.dto.Meta;
-import com.nthuy.demo_erm.dto.ClassifyReasonDTO;
 import com.nthuy.demo_erm.dto.ReasonDTO;
 import com.nthuy.demo_erm.dto.ResultPaginationDTO;
 import com.nthuy.demo_erm.dto.SystemDTO;
@@ -21,7 +18,6 @@ import com.nthuy.demo_erm.proxy.SystemProxy;
 import com.nthuy.demo_erm.repository.ClassifyReasonRepository;
 import com.nthuy.demo_erm.repository.ReasonMapRepository;
 import com.nthuy.demo_erm.repository.ReasonRepository;
-import com.nthuy.demo_erm.repository.SystemRepository;
 import com.nthuy.demo_erm.service.ReasonService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -40,7 +36,6 @@ public class ReasonServiceImpl implements ReasonService {
 
     private final ReasonRepository reasonRepository;
     private final ReasonMapper reasonMapper;
-    private final SystemRepository systemRepository;
     private final ReasonMapRepository reasonMapRepository;
     private final SystemProxy systemProxy;
     private final ClassifyReasonRepository classifyReasonRepository;

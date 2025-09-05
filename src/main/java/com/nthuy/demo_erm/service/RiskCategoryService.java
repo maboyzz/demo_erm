@@ -10,13 +10,13 @@ import java.util.List;
 
 public interface RiskCategoryService {
 
-    Long handleCreateRiskCategory(RiskCategoryDTO dto) throws NameExisted;
+    Long create(RiskCategoryDTO dto) throws NameExisted;
 
-    RiskCategoryDTO handleGetRiskCategoryById(Long id);
+    RiskCategoryDTO getRiskCategory(Long id);
 
-    void handleDeleteRiskCategory(Long id);
+    void gelete(Long id);
 
-    Long handleUpdateRiskCategory(RiskCategoryDTO dto) throws NameExisted;
+    Long update(RiskCategoryDTO dto) throws NameExisted;
 
-    ResultPaginationDTO<RiskCategoryDTO> handleGetRiskCategory(String code, String name, List<Long> systemIds, Boolean isActive, Pageable pageable);
+    ResultPaginationDTO<RiskCategoryDTO> getListRiskCategory(String code, String name, List<Long> systemIds, Boolean isActive, Pageable pageable);
 }

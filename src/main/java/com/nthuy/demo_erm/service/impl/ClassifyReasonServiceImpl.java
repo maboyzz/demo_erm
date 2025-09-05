@@ -107,7 +107,7 @@ public class ClassifyReasonServiceImpl implements ClassifyReasonService {
 
         List<ClassifyReasonDTO> dtoList = classifyReasonMapper.toDtoList(pageResult.getContent());
 
-        //Thu thập tất cả systemIds cần thiết từ tất cả reasons
+        //Thu thập tất cả systemIds cần thiết từ tất cả reasxons
         Set<Long> allSystemIds = new HashSet<>();
         List<Long> reasonIds = dtoList.stream().map(ClassifyReasonDTO::getId).collect(Collectors.toList());
 

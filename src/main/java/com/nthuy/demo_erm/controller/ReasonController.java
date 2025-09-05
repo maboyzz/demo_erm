@@ -42,7 +42,7 @@ public class ReasonController {
 
     @DeleteMapping
     @ApiMessage("Xóa nguyên nhân")
-    public ResponseEntity<String> deleteReason(@RequestParam Long id) {
+    public ResponseEntity<Void> deleteReason(@RequestParam Long id) {
         reasonService.delete(id);
         return ResponseUtils.noContent();
     }

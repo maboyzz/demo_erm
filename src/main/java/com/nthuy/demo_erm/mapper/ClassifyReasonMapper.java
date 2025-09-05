@@ -9,7 +9,7 @@ import org.mapstruct.NullValuePropertyMappingStrategy;
 
 import java.util.List;
 
-@Mapper(componentModel = "spring", uses = {SystemMapper.class})
+@Mapper(componentModel = "spring")
 public interface ClassifyReasonMapper {
 
 

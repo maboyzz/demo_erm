@@ -8,17 +8,16 @@ import org.mapstruct.*;
 import java.util.List;
 import java.util.Set;
 
-@Mapper(componentModel = "spring", uses = { SystemMapper.class })
+@Mapper(componentModel = "spring")
 public interface RiskCategoryMapper {
 
-    @Mapping(source = "systemEntitiesRiskCategory", target = "systems")
+
     RiskCategoryDTO toDto(RiskCategoryEntity entity);
 
-    @Mapping(source = "systems", target = "systemEntitiesRiskCategory")
+
     RiskCategoryEntity toEntity(RiskCategoryDTO dto);
 
     @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
-    @Mapping(source = "systems", target = "systemEntitiesRiskCategory")
     void updateEntityFromDto(RiskCategoryDTO dto, @MappingTarget RiskCategoryEntity entity);
 
     // Collections
@@ -29,6 +28,5 @@ public interface RiskCategoryMapper {
     Set<RiskCategoryEntity> toEntitySet(Set<RiskCategoryDTO> dtos);
 
     @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
-    @Mapping(target = "systemEntitiesRiskCategory", ignore = true)
     void updateEntityCoreFields(RiskCategoryDTO dto, @MappingTarget RiskCategoryEntity entity);
 }
