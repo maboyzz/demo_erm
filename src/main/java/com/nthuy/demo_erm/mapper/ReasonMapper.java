@@ -9,36 +9,29 @@ import org.mapstruct.*;
 
 import java.util.List;
 
-
-// Uses SystemMapper to convert nested SystemEntity <-> SystemDTO
 @Mapper(componentModel = "spring")
 public interface ReasonMapper {
 
-
-    @Mapping(target = "classifyReason.id", source = "classifyReasonId")
+    // --- Entity -> DTO ---
+    @Mapping(source = "classifyReasonId", target = "classifyReason")
     ReasonDTO toDto(ReasonEntity entity);
 
-    @Mapping(target = "classifyReasonId", source = "classifyReason.id")
+    // --- DTO -> Entity ---
+    @Mapping(source = "classifyReason.id", target = "classifyReasonId")
     ReasonEntity toEntity(ReasonDTO dto);
 
-    @Mapping(target = "classifyReasonId", source = "classifyReason.id")
+    // --- Collections ---
     List<ReasonDTO> toDtoList(List<ReasonEntity> entities);
-
     List<ReasonEntity> toEntityList(List<ReasonDTO> dtos);
 
-    @Mapping(target = "classifyReasonId", source = "classifyReason.id")
+    // --- Update helper ---
     @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
+    @Mapping(source = "classifyReason.id", target = "classifyReasonId")
     void updateEntityFromDto(ReasonDTO dto, @MappingTarget ReasonEntity entity);
 
-    default void setClassifyReason(ReasonDTO dto, ClassifyReasonEntity classify) {
-        if (classify != null) {
-            dto.setClassifyReason(
-                    new ClassifyReasonResponse(
-                            classify.getId(),
-                            classify.getCode(),
-                            classify.getName()
-                    )
-            );
-        }
+    // --- Custom mapping ---
+    default ClassifyReasonResponse map(Long classifyReasonId) {
+        if (classifyReasonId == null) return null;
+        return new ClassifyReasonResponse(classifyReasonId, null, null);
     }
 }

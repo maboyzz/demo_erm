@@ -55,15 +55,21 @@ public class ReasonServiceImpl implements ReasonService {
 
     @Override
     public ReasonDTO getReason(Long id) {
+        ReasonEntity entity = reasonRepository.findById(id)
+                .orElseThrow(() -> new BadRequestValidationException("Reason ID " + id + " không tồn tại"));
 
-        ReasonEntity reason = this.reasonRepository.findById(id).orElseThrow(() -> new BadRequestValidationException("ID " + id + " không tồn tại"));
-        ReasonDTO dto = reasonMapper.toDto(reason);
-        dto.setSystems(getSystemsByReasonId(id));
+        ReasonDTO dto = reasonMapper.toDto(entity);
 
-        if (reason.getClassifyReasonId() != null) {
-            ClassifyReasonEntity classify = classifyReasonRepository.findById(reason.getClassifyReasonId()).orElseThrow(() -> new BadRequestValidationException("ClassifyReason ID " + reason.getClassifyReasonId() + " không tồn tại"));
-            dto.setClassifyReason(new ClassifyReasonResponse(classify.getId(), classify.getCode(), classify.getName()));
-        }
+        // --- Enrich classify reason ---
+        Optional.ofNullable(entity.getClassifyReasonId())
+                .flatMap(classifyReasonRepository::findById)
+                .ifPresent(classify -> dto.setClassifyReason(
+                        new ClassifyReasonResponse(classify.getId(), classify.getCode(), classify.getName())
+                ));
+
+        // --- Enrich systems ---
+        dto.setSystems(getSystemsByReasonId(entity.getId()));
+
         return dto;
     }
 
@@ -89,9 +95,14 @@ public class ReasonServiceImpl implements ReasonService {
 
         return reason.getId();
     }
-
     @Override
-    public ResultPaginationDTO<ReasonDTO> getListReason(String code, String name, List<Long> systemIds, Boolean isActive, EnumTypeReason type, Pageable pageable) {
+    public ResultPaginationDTO<ReasonDTO> getListReason(
+            String code,
+            String name,
+            List<Long> systemIds,
+            Boolean isActive,
+            EnumTypeReason type,
+            Pageable pageable) {
 
         Specification<ReasonEntity> spec = Specification.where(null);
 
@@ -102,48 +113,48 @@ public class ReasonServiceImpl implements ReasonService {
         spec = SpecificationUtils.addIfNotNull(spec, type, ReasonSpecification::hasType);
 
         Page<ReasonEntity> pageResult = reasonRepository.findAll(spec, pageable);
-        List<ReasonEntity> reasonEntities = pageResult.getContent();
-
-        if (reasonEntities.isEmpty()) {
+        if (pageResult.isEmpty()) {
             return PaginationUtils.buildResult(pageResult, Collections.emptyList(), pageable);
         }
 
-        List<ReasonDTO> dtoList = reasonMapper.toDtoList(reasonEntities);
-        List<Long> reasonIds = reasonEntities.stream().map(ReasonEntity::getId).collect(Collectors.toList());
+        List<ReasonDTO> dtoList = pageResult.getContent().stream().map(entity -> {
+            ReasonDTO dto = reasonMapper.toDto(entity);
 
-        // Batch query cho ClassifyReason
-        Set<Long> classifyReasonIds = reasonEntities.stream()
-                .map(ReasonEntity::getClassifyReasonId)
-                .filter(Objects::nonNull)
-                .collect(Collectors.toSet());
+            // --- Load classifyReason (1-1) ---
+            Optional.ofNullable(entity.getClassifyReasonId())
+                    .flatMap(classifyReasonRepository::findById)
+                    .ifPresent(classify -> dto.setClassifyReason(
+                            new ClassifyReasonResponse(
+                                    classify.getId(),
+                                    classify.getCode(),
+                                    classify.getName()
+                            )
+                    ));
 
-        Map<Long, ClassifyReasonEntity> classifyReasonMap = classifyReasonIds.isEmpty()
-                ? Collections.emptyMap()
-                : classifyReasonRepository.findAllById(classifyReasonIds).stream()
-                .collect(Collectors.toMap(ClassifyReasonEntity::getId, Function.identity()));
+            // --- Load systems (n-n qua reason_map) ---
+            List<ReasonMapEntity> mappings = reasonMapRepository.findByReasonId(entity.getId());
+            if (!mappings.isEmpty()) {
+                Set<Long> sysIds = mappings.stream()
+                        .map(ReasonMapEntity::getSystemId)
+                        .collect(Collectors.toSet());
 
-        // Batch query cho Systems
-        List<ReasonMapEntity> allMappings = reasonMapRepository.findByReasonIdIn(reasonIds);
-        Set<Long> allSystemIds = allMappings.stream()
-                .map(ReasonMapEntity::getSystemId)
-                .collect(Collectors.toSet());
+                if (!sysIds.isEmpty()) {
+                    Map<Long, SystemDTO> systemMap = systemProxy.getSystems(sysIds);
+                    Set<SystemDTO> systems = sysIds.stream()
+                            .map(systemMap::get)
+                            .filter(Objects::nonNull)
+                            .collect(Collectors.toSet());
 
-        Map<Long, SystemDTO> systemDTOMap = allSystemIds.isEmpty()
-                ? Collections.emptyMap()
-                : systemProxy.getSystems(allSystemIds);
+                    dto.setSystems(systems);
+                }
+            }
 
-        // Set data cho DTOs
-        for (ReasonDTO dto : dtoList) {
-
-            Optional.ofNullable(classifyReasonMap.get(dto.getClassifyReason().getId()))
-                    .ifPresent(classify -> reasonMapper.setClassifyReason(dto, classify));
-
-            // Set Systems
-            dto.setSystems(getSystemsByReasonIdOptimized(dto.getId(), allMappings, systemDTOMap));
-        }
+            return dto;
+        }).toList();
 
         return PaginationUtils.buildResult(pageResult, dtoList, pageable);
     }
+
     // ---------------- HELPER METHODS ----------------
     private void saveReasonSystemMap(Long reasonId, Set<Long> systemIds) {
         List<ReasonMapEntity> mapEntities = systemIds.stream().map(systemId -> {

@@ -23,7 +23,6 @@ import java.util.List;
 public class HandlingMeasureController {
     private final HandlingMeasureService handlingMeasureService;
 
-
     @PostMapping
     @ApiMessage("Tạo mới biện pháp phòng ngừa")
     public ResponseEntity<IdResponse> createHandlingMeasure(@Valid @RequestBody HandlingMeasureDTO handlingMeasureDTO) throws NameExisted {
@@ -56,12 +55,12 @@ public class HandlingMeasureController {
     public ResponseEntity<ResultPaginationDTO<HandlingMeasureDTO>> getHandlingMeasures(
             @RequestParam(required = false) String code,
             @RequestParam(required = false) String name,
-            @RequestParam(required = false) List<Long> systemIds,
+            @RequestParam(required = false) Boolean isActive,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "20") int size,
             @RequestParam(defaultValue = "id,desc") String sort) {
 
         Pageable pageable = PageableUtils.from(page, size, sort);
-        return ResponseUtils.ok(handlingMeasureService.getListHandlingMeasure(code, name, pageable));
+        return ResponseUtils.ok(handlingMeasureService.getListHandlingMeasure(code, name, isActive, pageable));
     }
 }

@@ -7,8 +7,7 @@ import jakarta.persistence.criteria.Subquery;
 import org.springframework.data.jpa.domain.Specification;
 
 import java.util.Collection;
-import java.util.Collections;
-import java.util.List;
+
 
 public class ClassifyReasonSpecification {
 
