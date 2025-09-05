@@ -95,8 +95,8 @@ public class ReasonServiceImpl implements ReasonService {
 
         Specification<ReasonEntity> spec = Specification.where(null);
 
-        spec = SpecificationUtils.addIfNotBlank(spec, code, ReasonSpecification::hasCode);
-        spec = SpecificationUtils.addIfNotBlank(spec, name, ReasonSpecification::hasName);
+        spec = SpecificationUtils.addIfHasText(spec, code, ReasonSpecification::hasCode);
+        spec = SpecificationUtils.addIfHasText(spec, name, ReasonSpecification::hasName);
         spec = SpecificationUtils.addIfNotEmpty(spec, systemIds, ReasonSpecification::hasSystemIdIn);
         spec = SpecificationUtils.addIfNotNull(spec, isActive, ReasonSpecification::hasIsActive);
         spec = SpecificationUtils.addIfNotNull(spec, type, ReasonSpecification::hasType);

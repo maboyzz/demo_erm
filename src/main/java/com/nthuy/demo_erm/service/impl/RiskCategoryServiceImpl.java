@@ -104,8 +104,8 @@ public class RiskCategoryServiceImpl implements RiskCategoryService {
 
         Specification<RiskCategoryEntity> spec = Specification.where(null);
 
-        spec = SpecificationUtils.addIfNotBlank(spec, code, RiskCategorySpecification::hasCode);
-        spec = SpecificationUtils.addIfNotBlank(spec, name, RiskCategorySpecification::hasName);
+        spec = SpecificationUtils.addIfHasText(spec, code, RiskCategorySpecification::hasCode);
+        spec = SpecificationUtils.addIfHasText(spec, name, RiskCategorySpecification::hasName);
         spec = SpecificationUtils.addIfNotEmpty(spec, systemIds, RiskCategorySpecification::hasSystemIdIn);
         spec = SpecificationUtils.addIfNotNull(spec, isActive, RiskCategorySpecification::hasIsActive);
 

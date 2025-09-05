@@ -89,8 +89,8 @@ public class AttributeGroupServiceImpl implements AttributeGroupService {
     public ResultPaginationDTO<AttributeGroupDTO> getListAttributeGroup(String code, String name, Boolean isActive, Pageable pageable) {
         Specification<AttributeGroupEntity> spec = Specification.where(null);
 
-        spec = SpecificationUtils.addIfNotBlank(spec, code, AttributeGroupSpecification::hasCode);
-        spec = SpecificationUtils.addIfNotBlank(spec, name, AttributeGroupSpecification::hasName);
+        spec = SpecificationUtils.addIfHasText(spec, code, AttributeGroupSpecification::hasCode);
+        spec = SpecificationUtils.addIfHasText(spec, name, AttributeGroupSpecification::hasName);
         spec = SpecificationUtils.addIfNotNull(spec, isActive, AttributeGroupSpecification::hasIsActive);
 
 

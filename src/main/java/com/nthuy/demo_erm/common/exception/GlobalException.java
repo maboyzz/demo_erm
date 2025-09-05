@@ -52,6 +52,15 @@ public class GlobalException {
         restResponse.setErrorCode(VALIDATION_ERROR);
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(restResponse);
     }
+    @ExceptionHandler(value = IllegalArgumentException.class)
+    public ResponseEntity<RestResponse<Object>> handleIllegalArgumentException(IllegalArgumentException ex) {
+        RestResponse<Object> restResponse = new RestResponse<Object>();
+        restResponse.setStatusCode(HttpStatus.BAD_REQUEST.value());
+        restResponse.setMessage(ex.getMessage());
+        restResponse.setErrorCode(VALIDATION_ERROR);
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(restResponse);
+    }
+
     @ExceptionHandler(value = MethodArgumentNotValidException.class)
     public ResponseEntity<RestResponse<Object>> handleValidationException(MethodArgumentNotValidException methodArgumentNotValidException) {
         BindingResult bindingResult = methodArgumentNotValidException.getBindingResult();

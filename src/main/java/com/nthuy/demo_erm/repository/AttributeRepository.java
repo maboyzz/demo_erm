@@ -9,5 +9,7 @@ import org.springframework.stereotype.Repository;
 public interface AttributeRepository extends JpaRepository<AttributeEntity, Long>, JpaSpecificationExecutor<AttributeEntity> {
 
     boolean existsByName(String name);
-
+    boolean existsByNameAndIdNot(String name, Long id);
+    boolean existsByCode(String code);
+    boolean existsByCodeAndIdNot(String code, Long id);
 }

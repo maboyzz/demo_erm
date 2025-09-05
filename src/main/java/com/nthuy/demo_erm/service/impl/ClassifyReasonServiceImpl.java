@@ -99,8 +99,7 @@ public class ClassifyReasonServiceImpl implements ClassifyReasonService {
 
         Specification<ClassifyReasonEntity> spec = Specification.where(null);
 
-        spec = SpecificationUtils.addIfNotBlank(spec, code, ClassifyReasonSpecification::hasCode);
-        spec = SpecificationUtils.addIfNotBlank(spec, name, ClassifyReasonSpecification::hasName);
+        spec = SpecificationUtils.addIfHasText(spec, name, ClassifyReasonSpecification::hasName);
         spec = SpecificationUtils.addIfNotEmpty(spec, systemIds, ClassifyReasonSpecification::hasSystemIdIn);
 
         Page<ClassifyReasonEntity> pageResult = classifyReasonRepository.findAll(spec, pageable);
