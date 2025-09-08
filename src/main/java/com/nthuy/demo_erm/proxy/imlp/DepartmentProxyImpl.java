@@ -1,10 +1,10 @@
 package com.nthuy.demo_erm.proxy.imlp;
 
-import com.nthuy.demo_erm.FeignClient.SystemFeignClient;
+import com.nthuy.demo_erm.FeignClient.DepartmentFeignClient;
 import com.nthuy.demo_erm.common.dto.ApiResponse;
+import com.nthuy.demo_erm.dto.DepartmentDTO;
 import com.nthuy.demo_erm.dto.ResultPaginationDTO;
-import com.nthuy.demo_erm.dto.SystemDTO;
-import com.nthuy.demo_erm.proxy.SystemProxy;
+import com.nthuy.demo_erm.proxy.DepartmentProxy;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.PageRequest;
@@ -20,24 +20,25 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 @Slf4j
 @Component
-public class SystemProxyImpl implements SystemProxy {
+public class DepartmentProxyImpl implements DepartmentProxy {
 
-    private final SystemFeignClient systemFeignClient;
+    private final DepartmentFeignClient departmentFeignClient;
     Pageable pageable = PageRequest.of(0, 1000);
+
     @Override
-    public Map<Long, SystemDTO> getSystems(Set<Long> systemIds) {
-        if (systemIds == null || systemIds.isEmpty()) {
+    public Map<Long, DepartmentDTO> getDepartment(Set<Long> departmentIds) {
+        if (departmentIds == null || departmentIds.isEmpty()) {
             return Collections.emptyMap();
         }
         try {
-            ApiResponse<ResultPaginationDTO<SystemDTO>> response =
-                    systemFeignClient.getSystemList(systemIds, pageable);
+            ApiResponse<ResultPaginationDTO<DepartmentDTO>> response =
+                    departmentFeignClient.getDepartmentList(departmentIds, pageable);
 
             if (response != null
                     && response.getData() != null
                     && response.getData().getContent() != null) {
                 return response.getData().getContent().stream()
-                        .collect(Collectors.toMap(SystemDTO::getId, Function.identity()));
+                        .collect(Collectors.toMap(DepartmentDTO::getId, Function.identity()));
             }
         } catch (Exception e) {
             log.error("Error fetching systems from FeignClient", e);

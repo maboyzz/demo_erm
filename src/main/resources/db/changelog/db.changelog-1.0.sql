@@ -157,6 +157,10 @@ CREATE TABLE attribute_risk_type (
                                      risk_type_id INT NOT NULL,
                                      attribute_group_id INT NOT NULL,
                                      attribute_id INT NOT NULL,
+                                     created_at  TIMESTAMP DEFAULT CURRENT_TIMESTAMP, -- Ngày giờ tạo
+                                     created_by  VARCHAR(50),                        -- Người tạo
+                                     updated_at  TIMESTAMP DEFAULT CURRENT_TIMESTAMP, -- Ngày giờ cập nhật
+                                     updated_by  VARCHAR(50),
                                      CONSTRAINT fk_risk_type
                                          FOREIGN KEY (risk_type_id) REFERENCES risk_type(id) ON DELETE CASCADE,
                                      CONSTRAINT fk_attribute_group
@@ -169,8 +173,51 @@ CREATE TABLE attribute_risk_type_value (
                                            id SERIAL PRIMARY KEY,
                                            attribute_risk_type_id INT NOT NULL,
                                            attribute_value_id INT NOT NULL,
+                                           created_at  TIMESTAMP DEFAULT CURRENT_TIMESTAMP, -- Ngày giờ tạo
+                                           created_by  VARCHAR(50),                        -- Người tạo
+                                           updated_at  TIMESTAMP DEFAULT CURRENT_TIMESTAMP, -- Ngày giờ cập nhật
+                                           updated_by  VARCHAR(50),
                                            CONSTRAINT fk_attribute_risk_type
                                                FOREIGN KEY (attribute_risk_type_id) REFERENCES attribute_risk_type(id) ON DELETE CASCADE,
                                            CONSTRAINT fk_attribute_value
                                                FOREIGN KEY (attribute_value_id) REFERENCES attribute_value(id) ON DELETE CASCADE
+);
+-- Hành động mẫu
+CREATE TABLE sample_action (
+                               id SERIAL PRIMARY KEY,
+                               code VARCHAR(50) UNIQUE,
+                               name VARCHAR(50) UNIQUE,
+                               risk_type_id INT  REFERENCES risk_type(id) ON DELETE SET NULL,
+                               classify_reason_id INT REFERENCES classify_reason(id) ON DELETE SET NULL,
+                               note text,
+                               is_active BOOLEAN DEFAULT TRUE,
+                               created_at  TIMESTAMP DEFAULT CURRENT_TIMESTAMP, -- Ngày giờ tạo
+                               created_by  VARCHAR(50),                        -- Người tạo
+                               updated_at  TIMESTAMP DEFAULT CURRENT_TIMESTAMP, -- Ngày giờ cập nhật
+                               updated_by  VARCHAR(50)
+);
+
+-- Chi tiết hành động (line)
+CREATE TABLE sample_action_line (
+                                    id SERIAL PRIMARY KEY,
+                                    sample_action_id INT NOT NULL REFERENCES sample_action(id) ON DELETE CASCADE,
+                                    code VARCHAR(255),
+                                    name VARCHAR(255),
+                                    action_type VARCHAR(255),
+                                    department_id INT,
+                                    content VARCHAR(255),
+                                    created_at  TIMESTAMP DEFAULT CURRENT_TIMESTAMP, -- Ngày giờ tạo
+                                    created_by  VARCHAR(50),                        -- Người tạo
+                                    updated_at  TIMESTAMP DEFAULT CURRENT_TIMESTAMP, -- Ngày giờ cập nhật
+                                    updated_by  VARCHAR(50)
+);
+CREATE TABLE sample_action_line_map (
+                               id          SERIAL PRIMARY KEY,
+                               sample_action_line_id   INT NOT NULL,
+                               system_id   INT NOT NULL,
+                               created_at  TIMESTAMP DEFAULT CURRENT_TIMESTAMP, -- Ngày giờ tạo
+                               created_by  VARCHAR(50),                        -- Người tạo
+                               updated_at  TIMESTAMP DEFAULT CURRENT_TIMESTAMP, -- Ngày giờ cập nhật
+                               updated_by  VARCHAR(50),                        -- Người cập nhật
+                               CONSTRAINT fk_sample_action_line FOREIGN KEY (sample_action_line_id) REFERENCES risk_type(id) ON DELETE CASCADE
 );

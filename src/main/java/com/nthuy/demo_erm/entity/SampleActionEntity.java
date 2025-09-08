@@ -1,7 +1,5 @@
 package com.nthuy.demo_erm.entity;
 
-import com.nthuy.demo_erm.common.constant.EnumObject;
-import com.nthuy.demo_erm.common.constant.EnumOrigin;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -10,9 +8,9 @@ import lombok.*;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-@Table(name = "risk_type")
+@Table(name = "sample_action")
 @ToString
-public class RiskTypeEntity extends BaseEntity{
+public class SampleActionEntity extends BaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -20,12 +18,8 @@ public class RiskTypeEntity extends BaseEntity{
     private String code;
     @Column(unique = true, nullable = false)
     private String name;
-    @Enumerated(EnumType.STRING)
-    @Column(name = "risk_origin")
-    private EnumOrigin origin;
+    private Long riskTypeId;
+    private Long classifyReasonId;
     private String note;
-    @Enumerated(EnumType.STRING)
-    private EnumObject object;
     private boolean isActive;
-
 }
