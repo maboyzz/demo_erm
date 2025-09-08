@@ -14,7 +14,7 @@ public interface RiskCategoryService {
 
     RiskCategoryDTO getRiskCategory(Long id);
 
-    void gelete(Long id);
+    void delete(Long id);
 
     Long update(RiskCategoryDTO dto) throws NameExisted;
 

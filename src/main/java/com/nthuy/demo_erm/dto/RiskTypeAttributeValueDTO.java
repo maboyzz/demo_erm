@@ -7,8 +7,7 @@ import lombok.*;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class AttributeValueDTO {
+public class RiskTypeAttributeValueDTO {
     private Long id;
-    private String value;
-    private Long attributeId;
+    private AttributeValueDTO attributeValueDTO;
 }

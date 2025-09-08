@@ -11,7 +11,7 @@ import lombok.*;
 @ToString
 @Table(name = "attribute_risk_type_value",
         uniqueConstraints = @UniqueConstraint(columnNames = {"attribute_risk_type_id","attribute_value_id"}))
-public class RiskTypeAttributeValue {
+public class AttributeRiskTypeValueEntity extends BaseEntity{
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;

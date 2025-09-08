@@ -65,7 +65,7 @@ public class RiskCategoryServiceImpl implements RiskCategoryService {
     }
 
     @Override
-    public void gelete(Long id) {
+    public void delete(Long id) {
         this.validateIdExists(id);
         this.riskCategoryRepository.deleteById(id);
     }
