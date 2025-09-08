@@ -9,6 +9,5 @@ import lombok.*;
 @Builder
 public class DepartmentDTO {
     private Long id;
-    private Long code;
     private String name;
 }

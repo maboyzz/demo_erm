@@ -7,6 +7,6 @@ import java.util.Map;
 import java.util.Set;
 
 public interface DepartmentProxy {
-    Map<Long, DepartmentDTO> getDepartment(Set<Long> departmentIds);
+    Map<Long, DepartmentDTO> getDepartments(Set<Long> departmentIds);
 
 }

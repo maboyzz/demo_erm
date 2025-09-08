@@ -3,13 +3,14 @@ package com.nthuy.demo_erm.service;
 import com.nthuy.demo_erm.common.exception.NameExisted;
 import com.nthuy.demo_erm.dto.ResultPaginationDTO;
 import com.nthuy.demo_erm.dto.SampleActionDTO;
-import com.nthuy.demo_erm.dto.response.RiskTypeRes;
+
+
 import org.springframework.data.domain.Pageable;
 
-import java.util.List;
+
 
 public interface SampleActionService {
-    Long create(SampleActionDTO dto) throws NameExisted;
+    Long create(SampleActionDTO sampleDto) throws NameExisted;
 
     SampleActionDTO getSampleAction(Long id);
 
@@ -17,5 +18,5 @@ public interface SampleActionService {
 
     Long update(SampleActionDTO dto) throws NameExisted;
 
-    ResultPaginationDTO<RiskTypeRes> getListSampleAction(String code, String name, List<Long> systemIds, Boolean isActive, Pageable pageable);
+    ResultPaginationDTO<SampleActionDTO> getListSampleAction(String code, String name, Long riskTypeId, Long classifyReasonId, Boolean isActive, Pageable pageable);
 }

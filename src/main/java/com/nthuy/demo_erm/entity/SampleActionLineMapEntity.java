@@ -11,7 +11,7 @@ import lombok.*;
 @ToString
 @Table(name = "sample_action_line_map",
         uniqueConstraints = @UniqueConstraint(columnNames = {"sample_action_line_id","department_id"}))
-public class SampleActionLineMapEntity {
+public class SampleActionLineMapEntity extends BaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;

@@ -11,7 +11,7 @@ import lombok.*;
 @NoArgsConstructor
 @Table(name = "sample_action_line")
 @ToString
-public class SampleActionLineEntity {
+public class SampleActionLineEntity extends BaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
