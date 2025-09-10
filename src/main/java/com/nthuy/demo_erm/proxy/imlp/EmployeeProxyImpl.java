@@ -1,13 +1,13 @@
 package com.nthuy.demo_erm.proxy.imlp;
 
-import com.nthuy.demo_erm.FeignClient.SystemFeignClient;
+import com.nthuy.demo_erm.FeignClient.EmployeeFeignClient;
 import com.nthuy.demo_erm.common.dto.ApiResponse;
 import com.nthuy.demo_erm.dto.EmployeeDTO;
 import com.nthuy.demo_erm.dto.ResultPaginationDTO;
-import com.nthuy.demo_erm.dto.SystemDTO;
-import com.nthuy.demo_erm.proxy.SystemProxy;
+import com.nthuy.demo_erm.proxy.EmployeeProxy;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Component;
@@ -22,43 +22,48 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 @Slf4j
 @Component
-public class SystemProxyImpl implements SystemProxy {
+public class EmployeeProxyImpl implements EmployeeProxy {
 
-    private final SystemFeignClient systemFeignClient;
+    private final EmployeeFeignClient employeeFeignClient;
+
     Pageable pageable = PageRequest.of(0, 1000);
+    @Value("${clients.resources.bearer-token}")
+    String token;
     @Override
-    public Map<Long, SystemDTO> getSystems(Set<Long> systemIds) {
-        if (systemIds == null || systemIds.isEmpty()) {
+    public Map<Long, EmployeeDTO> getEmployees(Set<Long> employeeIds) {
+        if (employeeIds == null || employeeIds.isEmpty()) {
             return Collections.emptyMap();
         }
         try {
-            ApiResponse<ResultPaginationDTO<SystemDTO>> response =
-                    systemFeignClient.getSystemList(systemIds, pageable);
+            ApiResponse<ResultPaginationDTO<EmployeeDTO>> response =
+                    employeeFeignClient.getEmployeeList(employeeIds, pageable,"apodio.dev.apusplatform.com","Bearer "+token);
 
             if (response != null
                     && response.getData() != null
                     && response.getData().getContent() != null) {
                 return response.getData().getContent().stream()
-                        .collect(Collectors.toMap(SystemDTO::getId, Function.identity()));
+                        .collect(Collectors.toMap(EmployeeDTO::getId, Function.identity()));
             }
         } catch (Exception e) {
-            log.error("Error fetching systems from FeignClient", e);
+            log.error("Error fetching employees from FeignClient", e);
         }
         return Collections.emptyMap();
     }
     @Override
-    public SystemDTO getSystem(Long systemId) {
-        if (systemId == null) {
+    public EmployeeDTO getEmployee(Long employeeId) {
+        if (employeeId == null) {
             return null;
         }
 
         try {
-            Set<Long> systemIds = Set.of(systemId);
+            Set<Long> employeeIds = Set.of(employeeId);
 
-            ApiResponse<ResultPaginationDTO<SystemDTO>> response =
-                    systemFeignClient.getSystemList(
-                            systemIds,
-                            Pageable.unpaged()
+            ApiResponse<ResultPaginationDTO<EmployeeDTO>> response =
+                    employeeFeignClient.getEmployeeList(
+                            employeeIds,
+                            Pageable.unpaged(),  // hoặc truyền pageable khác
+                            "apodio.dev.apusplatform.com",
+                            "Bearer " + token
                     );
 
             if (response != null
@@ -67,12 +72,12 @@ public class SystemProxyImpl implements SystemProxy {
                 return response.getData()
                         .getContent()
                         .stream()
-                        .filter(emp -> emp != null && Objects.equals(emp.getId(), systemId))
+                        .filter(emp -> emp != null && Objects.equals(emp.getId(), employeeId))
                         .findFirst()
                         .orElse(null);
             }
         } catch (Exception e) {
-            log.error("Error fetching system from FeignClient", e);
+            log.error("Error fetching employee from FeignClient", e);
         }
 
         return null;

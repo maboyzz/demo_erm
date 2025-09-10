@@ -73,6 +73,7 @@ public class SampleActionServiceImpl implements SampleActionService {
 
     @Override
     public SampleActionDTO getSampleAction(Long id) {
+        validateIdExists(id);
         // Lấy entity từ repository, nếu không tồn tại thì ném ngoại lệ
         SampleActionEntity entity = sampleActionRepository.findById(id).orElseThrow(() -> new BadRequestValidationException("ID " + id + " không tồn tại"));
 
@@ -127,7 +128,6 @@ public class SampleActionServiceImpl implements SampleActionService {
         sampleActionRepository.save(entity);
 
         // Xử lý sample action lines
-        // --- cách đơn giản: xoá hết rồi insert lại ---
         sampleActionLineRepository.deleteBySampleActionId(entity.getId());
 
         if (dto.getSampleActionLines() != null && !dto.getSampleActionLines().isEmpty()) {

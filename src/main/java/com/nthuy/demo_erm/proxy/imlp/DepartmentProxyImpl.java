@@ -1,6 +1,6 @@
 package com.nthuy.demo_erm.proxy.imlp;
 
-import com.nthuy.demo_erm.FeignClient.DepartmentFeignClient;
+import com.nthuy.demo_erm.FeignClient.ResourcesFeignClient;
 import com.nthuy.demo_erm.common.dto.ApiResponse;
 import com.nthuy.demo_erm.dto.DepartmentDTO;
 import com.nthuy.demo_erm.dto.ResultPaginationDTO;
@@ -23,9 +23,9 @@ import java.util.stream.Collectors;
 @Component
 public class DepartmentProxyImpl implements DepartmentProxy {
 
-    private final DepartmentFeignClient departmentFeignClient;
+    private final ResourcesFeignClient resourcesFeignClient;
     Pageable pageable = PageRequest.of(0, 1000);
-    @Value("${clients.uaa.bearer-token}")
+    @Value("${clients.resources.bearer-token}")
     String token;
 
     @Override
@@ -35,7 +35,7 @@ public class DepartmentProxyImpl implements DepartmentProxy {
         }
         try {
             ApiResponse<ResultPaginationDTO<DepartmentDTO>> response =
-                    departmentFeignClient.getDepartmentList(departmentIds, pageable,"201","Bearer "+token);
+                    resourcesFeignClient.getDepartmentList(departmentIds, pageable,"201","Bearer "+token);
 
             if (response != null
                     && response.getData() != null

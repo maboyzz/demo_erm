@@ -1,0 +1,257 @@
+package com.nthuy.demo_erm.service.impl;
+
+
+import com.nthuy.demo_erm.common.constant.EnumTypeReason;
+import com.nthuy.demo_erm.common.exception.BadRequestValidationException;
+import com.nthuy.demo_erm.common.exception.IdInvalidException;
+import com.nthuy.demo_erm.common.exception.NameExisted;
+import com.nthuy.demo_erm.dto.*;
+import com.nthuy.demo_erm.dto.response.AttributeGroupResponse;
+import com.nthuy.demo_erm.dto.response.AttributeResponse;
+import com.nthuy.demo_erm.dto.response.RiskCategoryResponse;
+import com.nthuy.demo_erm.dto.response.RiskTypeResponse;
+import com.nthuy.demo_erm.entity.*;
+
+import com.nthuy.demo_erm.mapper.RiskFileMapper;
+import com.nthuy.demo_erm.mapper.RiskLineMapper;
+import com.nthuy.demo_erm.mapper.RiskLineValueMapper;
+import com.nthuy.demo_erm.mapper.RiskMapper;
+import com.nthuy.demo_erm.proxy.EmployeeProxy;
+import com.nthuy.demo_erm.proxy.SystemProxy;
+import com.nthuy.demo_erm.repository.*;
+import com.nthuy.demo_erm.service.RiskService;
+import com.nthuy.demo_erm.service.TagService;
+import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.util.*;
+import java.util.function.Function;
+import java.util.stream.Collectors;
+
+@Service
+@RequiredArgsConstructor
+
+public class RiskServiceImpl implements RiskService {
+    private final RiskRepository riskRepository;
+    private final RiskLineRepository riskLineRepository;
+    private final RiskLineValueRepository riskLineValueRepository;
+    private final EmployeeProxy employeeProxy;
+    private final SystemProxy systemProxy;
+    private final RiskMapper riskMapper;
+    private final RiskLineMapper riskLineMapper;
+    private final RiskLineValueMapper riskLineValueMapper;
+    private final RiskTypeRepository riskTypeRepository;
+    private final RiskCategoryRepository riskCategoryRepository;
+    private final AttributeGroupRepository attributeGroupRepository;
+    private final AttributeRepository attributeRepository;
+    private final AttributeValueRepository attributeValueRepository;
+    private final TagService tagService;
+    private final RiskTagRepository riskTagRepository;
+    private final RiskFileRepository riskFileRepository;
+    private final RiskFileMapper riskFileMapper;
+    Pageable pageable = PageRequest.of(0, 1000);
+
+    @Override
+    @Transactional
+    public Long create(RiskDTO dto) throws NameExisted {
+        validateCodeNotExists(dto.getCode(), null);
+        validateNameNotExists(dto.getName(), null);
+
+        RiskEntity entity = riskMapper.toEntity(dto);
+
+        Set<Long> tagIds = (dto.getTags() != null && !dto.getTags().isEmpty()) ? dto.getTags().stream().map(TagDTO::getId).collect(Collectors.toSet()) : Collections.emptySet();
+        riskRepository.saveAndFlush(entity);
+
+        saveRiskTag(entity.getId(), tagIds);
+
+        for (RiskLineDTO riskLineDto : dto.getRiskLine()) {
+            RiskLineEntity riskLineEntity = riskLineMapper.toEntity(riskLineDto);
+            riskLineEntity.setRiskId(entity.getId());
+            // ✅ Lưu trước để lấy id
+            riskLineRepository.saveAndFlush(riskLineEntity);
+            if (riskLineDto.getLineValues() != null) {
+                for (RiskLineValueDTO rlvDto : riskLineDto.getLineValues()) {
+                    RiskLineValueEntity rlvEntity = riskLineValueMapper.toEntity(rlvDto);
+                    rlvEntity.setRiskLineId(riskLineEntity.getId());
+                    riskLineValueRepository.save(rlvEntity);
+                }
+            }
+        }
+        if (dto.getRiskFile() != null) {
+            for (RiskFileDTO riskFileDto : dto.getRiskFile()) {
+                RiskFileEntity rfEntity = riskFileMapper.toEntity(riskFileDto);
+                rfEntity.setRiskId(entity.getId());
+                riskFileRepository.save(rfEntity);
+            }
+        }
+
+        return entity.getId();
+    }
+
+    @Override
+    public RiskDTO getRisk(Long id) {
+        validateIdExists(id);
+        RiskEntity entity = riskRepository.findById(id).orElseThrow(() -> new BadRequestValidationException("ID " + id + " không tồn tại"));
+        RiskDTO dto = riskMapper.toDto(entity);
+
+        // Ánh xạ riskType nếu có
+        Optional.ofNullable(entity.getRiskTypeId()).flatMap(riskTypeRepository::findById).ifPresent(riskType -> dto.setRiskType(new RiskTypeResponse(riskType.getId(), riskType.getCode(), riskType.getName())));
+
+        // Ánh xạ riskCategory nếu có
+        Optional.ofNullable(entity.getRiskCategoryId()).flatMap(riskCategoryRepository::findById).ifPresent(riskCategory -> dto.setRiskCategory(new RiskCategoryResponse(riskCategory.getId(), riskCategory.getCode(), riskCategory.getName())));
+
+        getSystemByRiskId(id).ifPresent(dto::setSystem);
+
+        dto.setTags(getTagsByRiskId(dto.getId()));
+        List<RiskLineEntity> lineEntities = riskLineRepository.findByRiskId(id);
+        List<RiskLineDTO> lineDTOs = new ArrayList<>();
+
+        for (RiskLineEntity lineEntity : lineEntities) {
+            RiskLineDTO lineDTO = riskLineMapper.toDto(lineEntity);
+
+            Optional.ofNullable(lineEntity.getAttributeId()).flatMap(attributeRepository::findById).ifPresent(attribute -> lineDTO.setAttribute(AttributeResponse.builder().id(attribute.getId()).code(attribute.getCode()).name(attribute.getName()).displayType(attribute.getDisplayType()).dataType(attribute.getDataType()).description(attribute.getDescription()).active(attribute.isActive())   // ✅ lấy đúng từ entity
+                    .build()));
+            Optional.ofNullable(lineEntity.getAttributeGroupId()).flatMap(attributeGroupRepository::findById).ifPresent(attributeGroup -> lineDTO.setAttributeGroup(new AttributeGroupResponse(attributeGroup.getId(), attributeGroup.getCode(), attributeGroup.getName())));
+
+            List<RiskLineValueEntity> lineValueEntities = riskLineValueRepository.findByRiskLineId(lineEntity.getId());
+            List<RiskLineValueDTO> lineValueDTOs = new ArrayList<>();
+            for (RiskLineValueEntity lineValueEntity : lineValueEntities) {
+                RiskLineValueDTO lineValueDTO = riskLineValueMapper.toDto(lineValueEntity);
+                Optional.ofNullable(lineValueEntity.getAttributeValueId()).flatMap(attributeValueRepository::findById).ifPresent(attributeValue -> lineValueDTO.setAttributeValue(new AttributeValueDTO(attributeValue.getId(), attributeValue.getValue(), attributeValue.getAttributeId())));
+                lineValueDTOs.add(lineValueDTO);
+            }
+            lineDTO.setLineValues(lineValueDTOs);
+            lineDTOs.add(lineDTO);
+        }
+
+        List<RiskFileEntity> fileEntities = riskFileRepository.findByRiskId(id);
+        List<RiskFileDTO> fileDTOs = new ArrayList<>();
+        for (RiskFileEntity fileEntity : fileEntities) {
+            RiskFileDTO fileDTO = riskFileMapper.toDto(fileEntity);
+            fileDTOs.add(fileDTO);
+        }
+        dto.setRiskFile(fileDTOs);
+
+        dto.setRiskLine(lineDTOs);
+        return dto;
+    }
+
+
+    @Override
+    public void delete(Long id) {
+
+    }
+
+    @Override
+    public Long update(RiskDTO dto) throws NameExisted {
+        return 0L;
+    }
+
+    @Override
+    public ResultPaginationDTO<RiskDTO> getListRisk(String code, String name, List<Long> systemIds, Boolean isActive, EnumTypeReason type, Pageable pageable) {
+        return null;
+    }
+
+    // ----------------- HELPER -----------------
+
+    private Optional<EmployeeDTO> getEmployeeByRiskId(Long riskId) {
+        return riskRepository.findById(riskId).map(risk -> {
+            Long reporterId = risk.getReporterId();
+            if (reporterId == null) {
+                return null;
+            }
+            return employeeProxy.getEmployee(reporterId);
+        });
+    }
+
+    private Optional<SystemDTO> getSystemByRiskId(Long riskId) {
+        return riskRepository.findById(riskId).map(risk -> {
+            Long systemId = risk.getSystemId();
+            if (systemId == null) {
+                return null;
+            }
+            return systemProxy.getSystem(systemId);
+        });
+    }
+
+    // Method tối ưu cho GET list - sử dụng data đã có
+    private Set<TagDTO> getTagsByRiskId(Long riskId) {
+        List<RiskTagEntity> mapEntities = riskTagRepository.findByRiskId(riskId);
+
+        if (mapEntities.isEmpty()) {
+            return Collections.emptySet();
+        }
+
+        Set<Long> tagIds = mapEntities.stream().map(RiskTagEntity::getTagId).collect(Collectors.toSet());
+
+        ResultPaginationDTO<TagDTO> result = tagService.getListTag(tagIds, pageable);
+
+        if (result == null || result.getContent() == null) {
+            return Collections.emptySet();
+        }
+        Map<Long, TagDTO> tagDTOMap = result.getContent().stream().collect(Collectors.toMap(TagDTO::getId, Function.identity()));
+
+        return tagIds.stream().map(tagDTOMap::get).filter(Objects::nonNull).collect(Collectors.toSet());
+    }
+
+    private Map<Long, TagDTO> getTags(Set<Long> tagIds, Pageable pageable) {
+        if (tagIds == null || tagIds.isEmpty()) {
+            return Collections.emptyMap();
+        }
+
+        ResultPaginationDTO<TagDTO> result = tagService.getListTag(tagIds, pageable);
+
+        if (result != null && result.getContent() != null) {
+            return result.getContent().stream().collect(Collectors.toMap(TagDTO::getId, Function.identity()));
+        }
+
+        return Collections.emptyMap();
+    }
+
+    private void saveRiskTag(Long riskId, Set<Long> tagIds) {
+        List<RiskTagEntity> mapEntities = tagIds.stream().map(tagId -> {
+            RiskTagEntity mapEntity = new RiskTagEntity();
+            mapEntity.setRiskId(riskId);
+            mapEntity.setTagId(tagId);
+            return mapEntity;
+        }).collect(Collectors.toList());
+
+        riskTagRepository.saveAll(mapEntities);
+    }
+
+    private void validateNameNotExists(String name, Long excludeId) throws NameExisted {
+        boolean exists;
+        if (excludeId == null) {
+            exists = riskRepository.existsByName(name);
+        } else {
+            exists = riskRepository.existsByNameAndIdNot(name, excludeId);
+        }
+        if (exists) {
+            throw new NameExisted("Name đã tồn tại: " + name);
+        }
+    }
+
+    private void validateCodeNotExists(String code, Long excludeId) throws NameExisted {
+        boolean exists;
+        if (excludeId == null) {
+            exists = riskRepository.existsByCode(code);
+        } else {
+            exists = riskRepository.existsByCodeAndIdNot(code, excludeId);
+        }
+        if (exists) {
+            throw new NameExisted("Code đã tồn tại: " + code);
+        }
+    }
+
+    // Check tồn tại ID
+    private void validateIdExists(Long id) {
+        if (!riskRepository.existsById(id)) {
+            throw new IdInvalidException("Id không tồn tại: " + id);
+        }
+    }
+
+
+}

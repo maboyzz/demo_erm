@@ -221,3 +221,94 @@ CREATE TABLE sample_action_line_map (
                                updated_by  VARCHAR(50),                        -- Người cập nhật
                                CONSTRAINT fk_sample_action_line FOREIGN KEY (sample_action_line_id) REFERENCES risk_type(id) ON DELETE CASCADE
 );
+CREATE TABLE risk (
+                      id SERIAL PRIMARY KEY,
+                      code VARCHAR(50) UNIQUE,
+                      name VARCHAR(50) UNIQUE,
+                      system_id INT NOT NULL,
+                      risk_type_id INT NOT NULL REFERENCES risk_type(id) ON DELETE SET NULL,
+                      risk_category_id INT REFERENCES risk_category(id) ON DELETE SET NULL,
+                      reporter_id INT NOT NULL,
+                      recognition_time TIMESTAMP,
+                      priority_level VARCHAR(100),
+                      description text,
+                      expected_consequences text,
+                      level INT,
+                      point INT,
+                      created_at  TIMESTAMP DEFAULT CURRENT_TIMESTAMP, -- Ngày giờ tạo
+                      created_by  VARCHAR(50),                        -- Người tạo
+                      updated_at  TIMESTAMP DEFAULT CURRENT_TIMESTAMP, -- Ngày giờ cập nhật
+                      updated_by  VARCHAR(50)                        -- Người cập nhật
+);
+CREATE TABLE risk_line (
+                           id SERIAL PRIMARY KEY,
+                           risk_id INT NOT NULL REFERENCES risk(id) ON DELETE CASCADE,
+                           attribute_id INT NOT NULL REFERENCES attribute(id) ON DELETE CASCADE,
+                           attribute_group_id INT REFERENCES attribute_group(id) ON DELETE SET NULL,
+                           created_at  TIMESTAMP DEFAULT CURRENT_TIMESTAMP, -- Ngày giờ tạo
+                           created_by  VARCHAR(50),                        -- Người tạo
+                           updated_at  TIMESTAMP DEFAULT CURRENT_TIMESTAMP, -- Ngày giờ cập nhật
+                           updated_by  VARCHAR(50)                        -- Người cập nhật
+);
+CREATE TABLE risk_line_value (
+                                 id SERIAL PRIMARY KEY,
+                                 risk_line_id INT NOT NULL REFERENCES risk_line(id) ON DELETE CASCADE,
+                                 attribute_value_id INT REFERENCES attribute_value(id) ON DELETE SET NULL,
+                                 text_value text,
+                                 created_at  TIMESTAMP DEFAULT CURRENT_TIMESTAMP, -- Ngày giờ tạo
+                                 created_by  VARCHAR(50),                        -- Người tạo
+                                 updated_at  TIMESTAMP DEFAULT CURRENT_TIMESTAMP, -- Ngày giờ cập nhật
+                                 updated_by  VARCHAR(50)                        -- Người cập nhật
+);
+
+CREATE TABLE risk_file (
+                           id SERIAL PRIMARY KEY,
+                           name VARCHAR(255),
+                           url VARCHAR(255),
+                           risk_id INT NOT NULL REFERENCES risk(id) ON DELETE CASCADE,
+                           created_at  TIMESTAMP DEFAULT CURRENT_TIMESTAMP, -- Ngày giờ tạo
+                           created_by  VARCHAR(50),                        -- Người tạo
+                           updated_at  TIMESTAMP DEFAULT CURRENT_TIMESTAMP, -- Ngày giờ cập nhật
+                           updated_by  VARCHAR(50)                        -- Người cập nhật
+);
+CREATE TABLE tag (
+                     id SERIAL PRIMARY KEY,
+                     name VARCHAR(255) NOT NULL,
+                     color VARCHAR(255),
+                     created_at  TIMESTAMP DEFAULT CURRENT_TIMESTAMP, -- Ngày giờ tạo
+                     created_by  VARCHAR(50),                        -- Người tạo
+                     updated_at  TIMESTAMP DEFAULT CURRENT_TIMESTAMP, -- Ngày giờ cập nhật
+                     updated_by  VARCHAR(50)
+);
+CREATE TABLE risk_tag (
+                          id SERIAL PRIMARY KEY,
+                          tag_id INT NOT NULL REFERENCES tag(id) ON DELETE CASCADE,
+                          risk_id INT NOT NULL REFERENCES risk(id) ON DELETE CASCADE,
+                          created_at  TIMESTAMP DEFAULT CURRENT_TIMESTAMP, -- Ngày giờ tạo
+                          created_by  VARCHAR(50),                        -- Người tạo
+                          updated_at  TIMESTAMP DEFAULT CURRENT_TIMESTAMP, -- Ngày giờ cập nhật
+                          updated_by  VARCHAR(50),
+                          CONSTRAINT uq_risk_tag UNIQUE (tag_id, risk_id)
+);
+CREATE TABLE tracking_reason (
+                                 id SERIAL PRIMARY KEY,
+                                 classify_reason_id INT REFERENCES classify_reason(id) ON DELETE SET NULL,
+                                 reason_id INT NOT NULL REFERENCES reason(id) ON DELETE SET NULL,
+                                 count INT,
+                                 object_applicable_type VARCHAR(255),
+                                 state VARCHAR(255),
+                                 sample_action_id INT REFERENCES sample_action(id) ON DELETE SET NULL,
+                                 created_at  TIMESTAMP DEFAULT CURRENT_TIMESTAMP, -- Ngày giờ tạo
+                                 created_by  VARCHAR(50),                        -- Người tạo
+                                 updated_at  TIMESTAMP DEFAULT CURRENT_TIMESTAMP, -- Ngày giờ cập nhật
+                                 updated_by  VARCHAR(50)
+);
+CREATE TABLE risk_tracking_reason (
+                             id SERIAL PRIMARY KEY,
+                             risk_id INT NOT NULL REFERENCES risk(id) ON DELETE CASCADE,
+                             tracking_reason_id INT NOT NULL REFERENCES  tracking_reason(id) ON DELETE CASCADE,
+                             created_at  TIMESTAMP DEFAULT CURRENT_TIMESTAMP, -- Ngày giờ tạo
+                             created_by  VARCHAR(50),                        -- Người tạo
+                             updated_at  TIMESTAMP DEFAULT CURRENT_TIMESTAMP, -- Ngày giờ cập nhật
+                             updated_by  VARCHAR(50)
+);
