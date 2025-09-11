@@ -15,10 +15,7 @@ public class SampleActionLineEntity extends BaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    @Column(unique = true, nullable = false)
-    private String code;
-    @Column(unique = true, nullable = false)
-    private String name;
+    private Long handlingMeasureId;
     private Long sampleActionId;
     @Enumerated(EnumType.STRING)
     private EnumActionType actionType;

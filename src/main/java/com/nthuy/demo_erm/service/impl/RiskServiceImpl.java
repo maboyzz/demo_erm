@@ -21,6 +21,7 @@ import com.nthuy.demo_erm.proxy.SystemProxy;
 import com.nthuy.demo_erm.repository.*;
 import com.nthuy.demo_erm.service.RiskService;
 import com.nthuy.demo_erm.service.TagService;
+import com.nthuy.demo_erm.service.TrackingReasonService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -52,6 +53,8 @@ public class RiskServiceImpl implements RiskService {
     private final RiskTagRepository riskTagRepository;
     private final RiskFileRepository riskFileRepository;
     private final RiskFileMapper riskFileMapper;
+    private final TrackingReasonService trackingReasonService;
+    private final RiskTrackingReasonRepository riskTrackingReasonRepository;
     Pageable pageable = PageRequest.of(0, 1000);
 
     @Override
@@ -62,16 +65,16 @@ public class RiskServiceImpl implements RiskService {
 
         RiskEntity entity = riskMapper.toEntity(dto);
 
-        Set<Long> tagIds = (dto.getTags() != null && !dto.getTags().isEmpty()) ? dto.getTags().stream().map(TagDTO::getId).collect(Collectors.toSet()) : Collections.emptySet();
-        riskRepository.saveAndFlush(entity);
+        riskRepository.save(entity);
 
+        Set<Long> tagIds = (dto.getTags() != null && !dto.getTags().isEmpty()) ? dto.getTags().stream().map(TagDTO::getId).collect(Collectors.toSet()) : Collections.emptySet();
         saveRiskTag(entity.getId(), tagIds);
 
         for (RiskLineDTO riskLineDto : dto.getRiskLine()) {
             RiskLineEntity riskLineEntity = riskLineMapper.toEntity(riskLineDto);
             riskLineEntity.setRiskId(entity.getId());
             // ✅ Lưu trước để lấy id
-            riskLineRepository.saveAndFlush(riskLineEntity);
+            riskLineRepository.save(riskLineEntity);
             if (riskLineDto.getLineValues() != null) {
                 for (RiskLineValueDTO rlvDto : riskLineDto.getLineValues()) {
                     RiskLineValueEntity rlvEntity = riskLineValueMapper.toEntity(rlvDto);
@@ -87,7 +90,23 @@ public class RiskServiceImpl implements RiskService {
                 riskFileRepository.save(rfEntity);
             }
         }
+        Set<Long> trackingIds = (dto.getTrackingReason() != null && !dto.getTrackingReason().isEmpty())
+                ? dto.getTrackingReason().stream()
+                .map(tr -> {
+                    if (tr.getId() == null) {
+                        // gọi create và lấy id
+                        Long newId = trackingReasonService.create(tr);
+                        tr.setId(newId); // cập nhật lại DTO
+                        return newId;
+                    } else {
+                        return tr.getId();
+                    }
+                })
+                .collect(Collectors.toSet())
+                : Collections.emptySet();
 
+        saveRiskTrackingReason(entity.getId(), trackingIds);
+        
         return entity.getId();
     }
 
@@ -106,13 +125,16 @@ public class RiskServiceImpl implements RiskService {
         getSystemByRiskId(id).ifPresent(dto::setSystem);
 
         dto.setTags(getTagsByRiskId(dto.getId()));
+
+        dto.setTrackingReason(getTrackingReasonByRiskId(dto.getId()));
+
         List<RiskLineEntity> lineEntities = riskLineRepository.findByRiskId(id);
         List<RiskLineDTO> lineDTOs = new ArrayList<>();
 
         for (RiskLineEntity lineEntity : lineEntities) {
             RiskLineDTO lineDTO = riskLineMapper.toDto(lineEntity);
 
-            Optional.ofNullable(lineEntity.getAttributeId()).flatMap(attributeRepository::findById).ifPresent(attribute -> lineDTO.setAttribute(AttributeResponse.builder().id(attribute.getId()).code(attribute.getCode()).name(attribute.getName()).displayType(attribute.getDisplayType()).dataType(attribute.getDataType()).description(attribute.getDescription()).active(attribute.isActive())   // ✅ lấy đúng từ entity
+            Optional.ofNullable(lineEntity.getAttributeId()).flatMap(attributeRepository::findById).ifPresent(attribute -> lineDTO.setAttribute(AttributeResponse.builder().id(attribute.getId()).code(attribute.getCode()).name(attribute.getName()).displayType(attribute.getDisplayType()).dataType(attribute.getDataType()).description(attribute.getDescription()).active(attribute.isActive())
                     .build()));
             Optional.ofNullable(lineEntity.getAttributeGroupId()).flatMap(attributeGroupRepository::findById).ifPresent(attributeGroup -> lineDTO.setAttributeGroup(new AttributeGroupResponse(attributeGroup.getId(), attributeGroup.getCode(), attributeGroup.getName())));
 
@@ -197,6 +219,25 @@ public class RiskServiceImpl implements RiskService {
         return tagIds.stream().map(tagDTOMap::get).filter(Objects::nonNull).collect(Collectors.toSet());
     }
 
+    private Set<TrackingReasonDTO> getTrackingReasonByRiskId(Long riskId) {
+        List<RiskTrackingReasonEntity> mapEntities = riskTrackingReasonRepository.findByRiskId(riskId);
+
+        if (mapEntities.isEmpty()) {
+            return Collections.emptySet();
+        }
+
+        Set<Long> trackingIds = mapEntities.stream().map(RiskTrackingReasonEntity::getTrackingReasonId).collect(Collectors.toSet());
+
+        ResultPaginationDTO<TrackingReasonDTO> result = trackingReasonService.getListTrackingReason(trackingIds, pageable);
+
+        if (result == null || result.getContent() == null) {
+            return Collections.emptySet();
+        }
+        Map<Long, TrackingReasonDTO> TrackingReasonDTOMap = result.getContent().stream().collect(Collectors.toMap(TrackingReasonDTO::getId, Function.identity()));
+
+        return trackingIds.stream().map(TrackingReasonDTOMap::get).filter(Objects::nonNull).collect(Collectors.toSet());
+    }
+
     private Map<Long, TagDTO> getTags(Set<Long> tagIds, Pageable pageable) {
         if (tagIds == null || tagIds.isEmpty()) {
             return Collections.emptyMap();
@@ -220,6 +261,17 @@ public class RiskServiceImpl implements RiskService {
         }).collect(Collectors.toList());
 
         riskTagRepository.saveAll(mapEntities);
+    }
+
+    private void saveRiskTrackingReason(Long riskId, Set<Long> trackingIds) {
+        List<RiskTrackingReasonEntity> mapEntities = trackingIds.stream().map(tagId -> {
+            RiskTrackingReasonEntity mapEntity = new RiskTrackingReasonEntity();
+            mapEntity.setRiskId(riskId);
+            mapEntity.setTrackingReasonId(tagId);
+            return mapEntity;
+        }).collect(Collectors.toList());
+
+        riskTrackingReasonRepository.saveAll(mapEntities);
     }
 
     private void validateNameNotExists(String name, Long excludeId) throws NameExisted {

@@ -43,5 +43,5 @@ public class RiskDTO {
     private List<RiskLineDTO> riskLine;
     private Set<TagDTO> tags;
     private List<RiskFileDTO> riskFile;
-    private List<RiskTrackingReasonDTO> riskTrackingReason;
+    private Set<TrackingReasonDTO> trackingReason;
 }

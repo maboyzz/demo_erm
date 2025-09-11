@@ -36,6 +36,7 @@ public class SampleActionServiceImpl implements SampleActionService {
     private final RiskTypeRepository riskTypeRepository;
     private final SampleActionMapper sampleActionMapper;
     private final SampleActionLineMapper sampleActionLineMapper;
+    private final HandlingMeasureRepository handlingMeasureRepository;
 
     private final DepartmentProxy departmentProxy;
 
@@ -58,7 +59,7 @@ public class SampleActionServiceImpl implements SampleActionService {
                 splEntity.setSampleActionId(entity.getId());
 
                 // ✅ Lưu trước để lấy id
-                splEntity = sampleActionLineRepository.saveAndFlush(splEntity);
+                sampleActionLineRepository.save(splEntity);
 
                 // Lấy danh sách departmentIds
                 Set<Long> departmentIds = (splDto.getDepartments() != null && !splDto.getDepartments().isEmpty()) ? splDto.getDepartments().stream().map(DepartmentDTO::getId).collect(Collectors.toSet()) : Collections.emptySet();
@@ -91,11 +92,13 @@ public class SampleActionServiceImpl implements SampleActionService {
         List<SampleActionLineDTO> lineDtos = new ArrayList<>();
 
         for (SampleActionLineEntity lineEntity : lineEntities) {
+
             SampleActionLineDTO lineDto = sampleActionLineMapper.toDto(lineEntity);
 
             // Dùng ID từ entity để đảm bảo đúng dữ liệu
             Set<DepartmentDTO> departments = getSystemsBySampleActionLineId(lineEntity.getId());
             lineDto.setDepartments(departments);
+            Optional.ofNullable(lineEntity.getHandlingMeasureId()).flatMap(handlingMeasureRepository::findById).ifPresent(handlingMeasure -> lineDto.setHandlingMeasure(new HandlingMeasureResponse(handlingMeasure.getId(), handlingMeasure.getCode(), handlingMeasure.getName())));
 
             lineDtos.add(lineDto);
         }

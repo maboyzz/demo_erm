@@ -16,7 +16,6 @@ public interface RiskMapper {
     @Mapping(source = "riskCategoryId", target = "riskCategory")
     @Mapping(source = "reporterId", target = "reporter")
     @Mapping(source = "systemId", target = "system")
-    @Mapping(source = "systemId", target = "system")
     RiskDTO toDto(RiskEntity entity);
 
     @Mapping(source = "riskType.id", target = "riskTypeId")
