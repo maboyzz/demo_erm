@@ -312,3 +312,26 @@ CREATE TABLE risk_tracking_reason (
                              updated_at  TIMESTAMP DEFAULT CURRENT_TIMESTAMP, -- Ngày giờ cập nhật
                              updated_by  VARCHAR(50)
 );
+CREATE TABLE tracking_action (
+                                 id SERIAL PRIMARY KEY,
+                                 handling_measure_id INT REFERENCES handling_measure(id) ON DELETE CASCADE,
+                                 action_type VARCHAR(255),
+                                 department_id INT,
+                                 content VARCHAR(255),
+                                 completion_time TIMESTAMP,
+                                 created_at  TIMESTAMP DEFAULT CURRENT_TIMESTAMP, -- Ngày giờ tạo
+                                 created_by  VARCHAR(50),                        -- Người tạo
+                                 updated_at  TIMESTAMP DEFAULT CURRENT_TIMESTAMP, -- Ngày giờ cập nhật
+                                 updated_by  VARCHAR(50)
+);
+
+CREATE TABLE risk_tracking_action (
+                                      id SERIAL PRIMARY KEY,
+                                      risk_tracking_reason_id INT NOT NULL REFERENCES tracking_reason(id) ON DELETE CASCADE,
+                                      tracking_action_id INT NOT NULL REFERENCES tracking_action(id) ON DELETE CASCADE,
+                                      created_at  TIMESTAMP DEFAULT CURRENT_TIMESTAMP, -- Ngày giờ tạo
+                                      created_by  VARCHAR(50),                        -- Người tạo
+                                      updated_at  TIMESTAMP DEFAULT CURRENT_TIMESTAMP, -- Ngày giờ cập nhật
+                                      updated_by  VARCHAR(50),
+                                      CONSTRAINT uq_risk_tracking_action UNIQUE (risk_tracking_reason_id, tracking_action_id)
+);

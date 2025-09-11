@@ -18,9 +18,10 @@ public class TrackingReasonEntity extends BaseEntity{
     private Long id;
     private Long classifyReasonId;
     private Long reasonId;
-    private Long sampleActionId;
     private int count;
+    @Enumerated(EnumType.STRING)
     private EnumObjectApplicableType objectApplicableType;
+    @Enumerated(EnumType.STRING)
     private EnumState state;
 }
 

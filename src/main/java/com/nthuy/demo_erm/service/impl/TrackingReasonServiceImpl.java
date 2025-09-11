@@ -12,6 +12,7 @@ import com.nthuy.demo_erm.dto.response.AttributeGroupResponse;
 import com.nthuy.demo_erm.dto.response.ClassifyReasonResponse;
 import com.nthuy.demo_erm.dto.response.ReasonResponse;
 import com.nthuy.demo_erm.entity.TagEntity;
+import com.nthuy.demo_erm.entity.TrackingActionEntity;
 import com.nthuy.demo_erm.entity.TrackingReasonEntity;
 import com.nthuy.demo_erm.mapper.ClassifyReasonMapper;
 import com.nthuy.demo_erm.mapper.ReasonMapper;
@@ -19,6 +20,7 @@ import com.nthuy.demo_erm.mapper.TrackingReasonMapper;
 import com.nthuy.demo_erm.repository.ClassifyReasonRepository;
 import com.nthuy.demo_erm.repository.ReasonRepository;
 import com.nthuy.demo_erm.repository.TrackingReasonRepository;
+import com.nthuy.demo_erm.service.TrackingActionService;
 import com.nthuy.demo_erm.service.TrackingReasonService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -26,7 +28,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
-import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -40,12 +41,12 @@ public class TrackingReasonServiceImpl implements TrackingReasonService {
     private final ReasonRepository reasonRepository;
     private final ReasonMapper reasonMapper;
     private final ClassifyReasonMapper classifyReasonMapper;
+    private final TrackingActionService trackingActionService;
 
     @Override
     public Long create(TrackingReasonDTO dto) {
         TrackingReasonEntity entity = trackingReasonMapper.toEntity(dto);
         return  trackingReasonRepository.save(entity).getId();
-
     }
 
     @Override

@@ -6,21 +6,16 @@ import com.nthuy.demo_erm.common.exception.BadRequestValidationException;
 import com.nthuy.demo_erm.common.exception.IdInvalidException;
 import com.nthuy.demo_erm.common.exception.NameExisted;
 import com.nthuy.demo_erm.dto.*;
-import com.nthuy.demo_erm.dto.response.AttributeGroupResponse;
-import com.nthuy.demo_erm.dto.response.AttributeResponse;
-import com.nthuy.demo_erm.dto.response.RiskCategoryResponse;
-import com.nthuy.demo_erm.dto.response.RiskTypeResponse;
+import com.nthuy.demo_erm.dto.response.*;
 import com.nthuy.demo_erm.entity.*;
 
-import com.nthuy.demo_erm.mapper.RiskFileMapper;
-import com.nthuy.demo_erm.mapper.RiskLineMapper;
-import com.nthuy.demo_erm.mapper.RiskLineValueMapper;
-import com.nthuy.demo_erm.mapper.RiskMapper;
+import com.nthuy.demo_erm.mapper.*;
 import com.nthuy.demo_erm.proxy.EmployeeProxy;
 import com.nthuy.demo_erm.proxy.SystemProxy;
 import com.nthuy.demo_erm.repository.*;
 import com.nthuy.demo_erm.service.RiskService;
 import com.nthuy.demo_erm.service.TagService;
+import com.nthuy.demo_erm.service.TrackingActionService;
 import com.nthuy.demo_erm.service.TrackingReasonService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
@@ -55,6 +50,13 @@ public class RiskServiceImpl implements RiskService {
     private final RiskFileMapper riskFileMapper;
     private final TrackingReasonService trackingReasonService;
     private final RiskTrackingReasonRepository riskTrackingReasonRepository;
+    private final TrackingReasonMapper trackingReasonMapper;
+    private final TrackingReasonRepository trackingReasonRepository;
+    private final TrackingActionService trackingActionService;
+    private final TrackingActionRepository trackingActionRepository;
+    private final TrackingActionMapper trackingActionMapper;
+    private final RiskTrackingReasonMapper riskTrackingReasonMapper;
+    private final HandlingMeasureRepository handlingMeasureRepository;
     Pageable pageable = PageRequest.of(0, 1000);
 
     @Override
@@ -90,23 +92,39 @@ public class RiskServiceImpl implements RiskService {
                 riskFileRepository.save(rfEntity);
             }
         }
-        Set<Long> trackingIds = (dto.getTrackingReason() != null && !dto.getTrackingReason().isEmpty())
-                ? dto.getTrackingReason().stream()
-                .map(tr -> {
-                    if (tr.getId() == null) {
-                        // gọi create và lấy id
-                        Long newId = trackingReasonService.create(tr);
-                        tr.setId(newId); // cập nhật lại DTO
-                        return newId;
-                    } else {
-                        return tr.getId();
-                    }
-                })
-                .collect(Collectors.toSet())
-                : Collections.emptySet();
+        if (dto.getTrackingReason() != null && !dto.getTrackingReason().isEmpty()) {
+            for (TrackingReasonDTO tr : dto.getTrackingReason()) {
+                Long trackingReasonId;
 
-        saveRiskTrackingReason(entity.getId(), trackingIds);
-        
+                if (tr.getId() == null) {
+                    TrackingReasonEntity reasonEntity = trackingReasonMapper.toEntity(tr);
+                    reasonEntity.setCount(1);
+                    trackingReasonRepository.save(reasonEntity);
+                    trackingReasonId = reasonEntity.getId();
+                    tr.setId(trackingReasonId);
+                } else {
+                    TrackingReasonEntity existingEntity = trackingReasonRepository.findById(tr.getId())
+                            .orElseThrow(() -> new BadRequestValidationException("TrackingReason ID " + tr.getId() + " không tồn tại"));
+
+                    int currentCount = existingEntity.getCount();
+                    existingEntity.setCount(currentCount + 1);
+                    trackingReasonRepository.save(existingEntity);
+
+                    trackingReasonId = existingEntity.getId();
+                }
+
+                RiskTrackingReasonEntity mappingEntity = new RiskTrackingReasonEntity();
+                mappingEntity.setRiskId(entity.getId());
+                mappingEntity.setTrackingReasonId(trackingReasonId);
+                riskTrackingReasonRepository.save(mappingEntity);
+
+                Long riskTrackingReasonId = mappingEntity.getId();
+
+                if (tr.getTrackingActions() != null && !tr.getTrackingActions().isEmpty()) {
+                    trackingActionService.create(tr.getTrackingActions(), riskTrackingReasonId);
+                }
+            }
+        }
         return entity.getId();
     }
 
@@ -128,14 +146,47 @@ public class RiskServiceImpl implements RiskService {
 
         dto.setTrackingReason(getTrackingReasonByRiskId(dto.getId()));
 
+
+        //
+        Set<TrackingReasonDTO> trackingReasons = getTrackingReasonByRiskId(dto.getId());
+
+        for (TrackingReasonDTO trackingReasonDTO : trackingReasons) {
+            List<TrackingActionEntity> actionEntities =
+                    trackingActionRepository.findByRiskIdAndTrackingReasonId(dto.getId(), trackingReasonDTO.getId());
+
+            List<TrackingActionDTO> actionDTOs = new ArrayList<>();
+
+            for (TrackingActionEntity actionEntity : actionEntities) {
+                TrackingActionDTO actionDTO = trackingActionMapper.toDto(actionEntity);
+
+                // ✅ set handlingMeasure nếu có
+                Optional.ofNullable(actionEntity.getHandlingMeasureId())
+                        .flatMap(handlingMeasureRepository::findById)
+                        .ifPresent(handlingMeasure -> actionDTO.setHandlingMeasure(
+                                new HandlingMeasureResponse(
+                                        handlingMeasure.getId(),
+                                        handlingMeasure.getCode(),
+                                        handlingMeasure.getName()
+                                )
+                        ));
+
+                actionDTOs.add(actionDTO);
+            }
+
+            // ✅ luôn set, nếu không có thì là list rỗng chứ không phải null
+            trackingReasonDTO.setTrackingActions(actionDTOs);
+        }
+
+        dto.setTrackingReason(trackingReasons);
+
+
         List<RiskLineEntity> lineEntities = riskLineRepository.findByRiskId(id);
         List<RiskLineDTO> lineDTOs = new ArrayList<>();
 
         for (RiskLineEntity lineEntity : lineEntities) {
             RiskLineDTO lineDTO = riskLineMapper.toDto(lineEntity);
 
-            Optional.ofNullable(lineEntity.getAttributeId()).flatMap(attributeRepository::findById).ifPresent(attribute -> lineDTO.setAttribute(AttributeResponse.builder().id(attribute.getId()).code(attribute.getCode()).name(attribute.getName()).displayType(attribute.getDisplayType()).dataType(attribute.getDataType()).description(attribute.getDescription()).active(attribute.isActive())
-                    .build()));
+            Optional.ofNullable(lineEntity.getAttributeId()).flatMap(attributeRepository::findById).ifPresent(attribute -> lineDTO.setAttribute(AttributeResponse.builder().id(attribute.getId()).code(attribute.getCode()).name(attribute.getName()).displayType(attribute.getDisplayType()).dataType(attribute.getDataType()).description(attribute.getDescription()).active(attribute.isActive()).build()));
             Optional.ofNullable(lineEntity.getAttributeGroupId()).flatMap(attributeGroupRepository::findById).ifPresent(attributeGroup -> lineDTO.setAttributeGroup(new AttributeGroupResponse(attributeGroup.getId(), attributeGroup.getCode(), attributeGroup.getName())));
 
             List<RiskLineValueEntity> lineValueEntities = riskLineValueRepository.findByRiskLineId(lineEntity.getId());
@@ -156,8 +207,9 @@ public class RiskServiceImpl implements RiskService {
             fileDTOs.add(fileDTO);
         }
         dto.setRiskFile(fileDTOs);
-
         dto.setRiskLine(lineDTOs);
+
+
         return dto;
     }
 
@@ -236,6 +288,18 @@ public class RiskServiceImpl implements RiskService {
         Map<Long, TrackingReasonDTO> TrackingReasonDTOMap = result.getContent().stream().collect(Collectors.toMap(TrackingReasonDTO::getId, Function.identity()));
 
         return trackingIds.stream().map(TrackingReasonDTOMap::get).filter(Objects::nonNull).collect(Collectors.toSet());
+    }
+
+
+    private Set<RiskTrackingReasonDTO> getRiskTrackingReasonByRiskId(Long riskId) {
+        List<RiskTrackingReasonEntity> entities = riskTrackingReasonRepository.findByRiskId(riskId);
+
+        if (entities == null || entities.isEmpty()) {
+            return Collections.emptySet();
+        }
+
+        return entities.stream().map(riskTrackingReasonMapper::toDto)  // convert sang DTO
+                .collect(Collectors.toSet());
     }
 
     private Map<Long, TagDTO> getTags(Set<Long> tagIds, Pageable pageable) {

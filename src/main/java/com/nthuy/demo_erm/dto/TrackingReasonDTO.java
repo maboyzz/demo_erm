@@ -6,6 +6,8 @@ import com.nthuy.demo_erm.dto.response.ClassifyReasonResponse;
 import com.nthuy.demo_erm.dto.response.ReasonResponse;
 import lombok.*;
 
+import java.util.List;
+
 @Getter
 @Setter
 @NoArgsConstructor
@@ -18,4 +20,5 @@ public class TrackingReasonDTO {
     private EnumObjectApplicableType objectApplicableType;
     private int count;
     private EnumState state;
+    private List<TrackingActionDTO> trackingActions;
 }
