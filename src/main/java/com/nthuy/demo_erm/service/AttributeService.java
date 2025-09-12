@@ -4,7 +4,6 @@ import com.nthuy.demo_erm.dto.AttributeDTO;
 
 import com.nthuy.demo_erm.dto.ResultPaginationDTO;
 import com.nthuy.demo_erm.common.exception.NameExisted;
-import com.nthuy.demo_erm.dto.response.AttributeGroupResponse;
 import com.nthuy.demo_erm.service.dto.SearchAttribute;
 import org.springframework.data.domain.Pageable;
 

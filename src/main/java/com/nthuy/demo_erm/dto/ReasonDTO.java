@@ -2,7 +2,6 @@ package com.nthuy.demo_erm.dto;
 
 import com.nthuy.demo_erm.common.constant.EnumOrigin;
 import com.nthuy.demo_erm.common.constant.EnumTypeReason;
-import com.nthuy.demo_erm.dto.response.ClassifyReasonResponse;
 import com.nthuy.demo_erm.dto.response.IdCodeNameResponse;
 import jakarta.validation.constraints.NotEmpty;
 import lombok.*;

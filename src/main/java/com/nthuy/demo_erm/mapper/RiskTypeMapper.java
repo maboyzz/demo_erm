@@ -1,7 +1,6 @@
 package com.nthuy.demo_erm.mapper;
 
 import com.nthuy.demo_erm.dto.*;
-import com.nthuy.demo_erm.dto.response.AttributeGroupResponse;
 import com.nthuy.demo_erm.dto.response.IdCodeNameResponse;
 import com.nthuy.demo_erm.dto.response.RiskTypeRes;
 import com.nthuy.demo_erm.entity.*;

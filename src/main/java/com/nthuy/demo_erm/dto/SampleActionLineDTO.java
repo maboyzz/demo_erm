@@ -1,7 +1,6 @@
 package com.nthuy.demo_erm.dto;
 
 import com.nthuy.demo_erm.common.constant.EnumActionType;
-import com.nthuy.demo_erm.dto.response.HandlingMeasureResponse;
 import com.nthuy.demo_erm.dto.response.IdCodeNameResponse;
 import jakarta.validation.constraints.NotNull;
 import lombok.*;

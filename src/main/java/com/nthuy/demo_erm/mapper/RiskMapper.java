@@ -1,10 +1,6 @@
 package com.nthuy.demo_erm.mapper;
 
-import com.nthuy.demo_erm.dto.EmployeeDTO;
 import com.nthuy.demo_erm.dto.RiskDTO;
-import com.nthuy.demo_erm.dto.SystemDTO;
-import com.nthuy.demo_erm.dto.response.RiskCategoryResponse;
-import com.nthuy.demo_erm.dto.response.RiskTypeResponse;
 import com.nthuy.demo_erm.entity.RiskEntity;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;

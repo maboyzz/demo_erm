@@ -14,6 +14,7 @@ import com.nthuy.demo_erm.repository.ClassifyReasonRepository;
 import com.nthuy.demo_erm.service.ClassifyReasonService;
 import com.nthuy.demo_erm.common.until.PaginationUtils;
 import com.nthuy.demo_erm.common.until.SpecificationUtils;
+import com.nthuy.demo_erm.service.dto.SearchClassifyReason;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -95,12 +96,13 @@ public class ClassifyReasonServiceImpl implements ClassifyReasonService {
     // ---------------- GET LIST - ĐÃ TỐI ƯU ----------------
     @Override
     @Transactional(readOnly = true)
-    public ResultPaginationDTO<ClassifyReasonDTO> getListClassifyReason(String code, String name, List<Long> systemIds, Pageable pageable) {
+    public ResultPaginationDTO<ClassifyReasonDTO> getListClassifyReason(SearchClassifyReason searchClassifyReason, Pageable pageable) {
 
         Specification<ClassifyReasonEntity> spec = Specification.where(null);
 
-        spec = SpecificationUtils.addIfHasText(spec, name, ClassifyReasonSpecification::hasName);
-        spec = SpecificationUtils.addIfNotEmpty(spec, systemIds, ClassifyReasonSpecification::hasSystemIdIn);
+        spec = SpecificationUtils.addIfHasText(spec, searchClassifyReason.getName(), ClassifyReasonSpecification::hasName);
+        spec = SpecificationUtils.addIfHasText(spec, searchClassifyReason.getCode(), ClassifyReasonSpecification::hasCode);
+        spec = SpecificationUtils.addIfNotEmpty(spec, searchClassifyReason.getSystem(), ClassifyReasonSpecification::hasSystemIdIn);
 
         Page<ClassifyReasonEntity> pageResult = classifyReasonRepository.findAll(spec, pageable);
 
@@ -151,9 +153,9 @@ public class ClassifyReasonServiceImpl implements ClassifyReasonService {
     // Method tối ưu cho GET list - sử dụng data đã có
     private Set<SystemDTO> getSystemsByClassifyReasonIdOptimized(Long classifyReasonId, List<ClassifyReasonMapEntity> allMappings, Map<Long, SystemDTO> systemDTOMap) {
         Set<Long> systemIds = allMappings.stream().filter(mapping -> mapping.getClassifyReasonId().equals(classifyReasonId)).map(ClassifyReasonMapEntity::getSystemId).collect(Collectors.toSet());
-
         return systemIds.stream().map(systemDTOMap::get).filter(Objects::nonNull).collect(Collectors.toSet());
     }
+
     private void validateNameNotExists(String name, Long excludeId) throws NameExisted {
         boolean exists;
         if (excludeId == null) {

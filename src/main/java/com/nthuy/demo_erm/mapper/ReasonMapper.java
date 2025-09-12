@@ -2,8 +2,6 @@ package com.nthuy.demo_erm.mapper;
 
 
 import com.nthuy.demo_erm.dto.ReasonDTO;
-import com.nthuy.demo_erm.dto.response.ClassifyReasonResponse;
-import com.nthuy.demo_erm.entity.ClassifyReasonEntity;
 import com.nthuy.demo_erm.entity.ReasonEntity;
 import org.mapstruct.*;
 

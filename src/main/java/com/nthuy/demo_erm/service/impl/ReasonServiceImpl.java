@@ -8,7 +8,6 @@ import com.nthuy.demo_erm.common.constant.EnumTypeReason;
 import com.nthuy.demo_erm.dto.ReasonDTO;
 import com.nthuy.demo_erm.dto.ResultPaginationDTO;
 import com.nthuy.demo_erm.dto.SystemDTO;
-import com.nthuy.demo_erm.dto.response.ClassifyReasonResponse;
 import com.nthuy.demo_erm.dto.response.IdCodeNameResponse;
 import com.nthuy.demo_erm.entity.*;
 import com.nthuy.demo_erm.common.exception.BadRequestValidationException;
@@ -28,7 +27,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.*;
-import java.util.function.Function;
 import java.util.stream.Collectors;
 
 @Service

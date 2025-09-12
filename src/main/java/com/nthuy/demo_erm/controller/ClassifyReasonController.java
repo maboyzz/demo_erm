@@ -8,6 +8,7 @@ import com.nthuy.demo_erm.service.ClassifyReasonService;
 import com.nthuy.demo_erm.common.until.PageableUtils;
 import com.nthuy.demo_erm.common.until.ResponseUtils;
 import com.nthuy.demo_erm.common.until.annotation.ApiMessage;
+import com.nthuy.demo_erm.service.dto.SearchClassifyReason;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
@@ -48,13 +49,18 @@ public class ClassifyReasonController {
     public ResponseEntity<ResultPaginationDTO<ClassifyReasonDTO>> getClassifyReasons(
             @RequestParam(required = false) String code,
             @RequestParam(required = false) String name,
-            @RequestParam(required = false) List<Long> systemIds,
+            @RequestParam(required = false) List<Long> system,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "20") int size,
             @RequestParam(defaultValue = "id,desc") String sort) {
 
         Pageable pageable = PageableUtils.from(page, size, sort);
-        return ResponseUtils.ok(classifyReasonService.getListClassifyReason(code, name, systemIds, pageable));
+        return ResponseUtils.ok(classifyReasonService.getListClassifyReason(SearchClassifyReason.
+                builder()
+                .code(code)
+                .name(name)
+                .system(system)
+                .build(), pageable));
     }
 
     @PutMapping

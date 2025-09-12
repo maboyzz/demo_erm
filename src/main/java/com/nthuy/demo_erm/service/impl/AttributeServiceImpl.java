@@ -7,7 +7,6 @@ import com.nthuy.demo_erm.config.AttributeSpecification;
 import com.nthuy.demo_erm.dto.AttributeDTO;
 import com.nthuy.demo_erm.dto.AttributeValueDTO;
 import com.nthuy.demo_erm.dto.ResultPaginationDTO;
-import com.nthuy.demo_erm.dto.response.AttributeGroupResponse;
 import com.nthuy.demo_erm.dto.response.IdCodeNameResponse;
 import com.nthuy.demo_erm.entity.AttributeEntity;
 import com.nthuy.demo_erm.entity.AttributeGroupEntity;

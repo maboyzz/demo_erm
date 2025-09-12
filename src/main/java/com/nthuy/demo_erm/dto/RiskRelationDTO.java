@@ -1,7 +1,6 @@
 package com.nthuy.demo_erm.dto;
 
 import com.nthuy.demo_erm.dto.response.IdCodeNameResponse;
-import com.nthuy.demo_erm.dto.response.RiskResponse;
 import lombok.*;
 
 @Getter

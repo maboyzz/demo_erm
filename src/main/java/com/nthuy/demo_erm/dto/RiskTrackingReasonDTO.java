@@ -1,6 +1,5 @@
 package com.nthuy.demo_erm.dto;
 
-import com.nthuy.demo_erm.dto.response.RiskResponse;
 import lombok.*;
 
 import java.util.List;

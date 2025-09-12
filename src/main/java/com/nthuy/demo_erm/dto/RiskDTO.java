@@ -2,8 +2,6 @@ package com.nthuy.demo_erm.dto;
 
 import com.nthuy.demo_erm.common.constant.EnumPriorityLevel;
 import com.nthuy.demo_erm.dto.response.IdCodeNameResponse;
-import com.nthuy.demo_erm.dto.response.RiskCategoryResponse;
-import com.nthuy.demo_erm.dto.response.RiskTypeResponse;
 
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;

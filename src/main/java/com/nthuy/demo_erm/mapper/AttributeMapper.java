@@ -2,7 +2,6 @@ package com.nthuy.demo_erm.mapper;
 
 import com.nthuy.demo_erm.dto.AttributeDTO;
 import com.nthuy.demo_erm.dto.AttributeValueDTO;
-import com.nthuy.demo_erm.dto.response.AttributeGroupResponse;
 import com.nthuy.demo_erm.dto.response.AttributeResponse;
 import com.nthuy.demo_erm.entity.AttributeEntity;
 import com.nthuy.demo_erm.entity.AttributeValueEntity;
