@@ -15,7 +15,8 @@ import java.util.Set;
 public interface AttributeMapper {
 
     // --- Entity -> DTO ---
-    @Mapping(source = "attributeGroupId", target = "attributeGroup")
+
+    @Mapping(source = "attributeGroupId", target = "attributeGroup.id")
     AttributeDTO toDto(AttributeEntity entity);
 
     AttributeResponse toDtoRes(AttributeEntity entity);
@@ -38,9 +39,4 @@ public interface AttributeMapper {
     @Mapping(source = "attributeGroup.id", target = "attributeGroupId")
     void updateEntityFromDto(AttributeDTO dto, @MappingTarget AttributeEntity entity);
 
-    // --- Custom mapping ---
-    default AttributeGroupResponse map(Long attributeGroupId) {
-        if (attributeGroupId == null) return null;
-        return AttributeGroupResponse.builder().id(attributeGroupId).build();
-    }
 }

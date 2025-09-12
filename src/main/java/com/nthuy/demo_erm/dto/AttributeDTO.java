@@ -2,7 +2,7 @@ package com.nthuy.demo_erm.dto;
 
 import com.nthuy.demo_erm.common.constant.EnumAttributeDataType;
 import com.nthuy.demo_erm.common.constant.EnumAttributeDisplayType;
-import com.nthuy.demo_erm.dto.response.AttributeGroupResponse;
+import com.nthuy.demo_erm.dto.response.IdCodeNameResponse;
 import lombok.*;
 
 import java.util.List;
@@ -18,7 +18,7 @@ public class AttributeDTO {
     private String name;
     private EnumAttributeDisplayType displayType;
     private EnumAttributeDataType dataType;
-    private AttributeGroupResponse attributeGroup;
+    private IdCodeNameResponse attributeGroup;
     private String description;
     private boolean active;
 

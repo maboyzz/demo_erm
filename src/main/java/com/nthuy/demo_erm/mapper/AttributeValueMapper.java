@@ -7,6 +7,8 @@ import org.mapstruct.*;
 
 @Mapper(componentModel = "spring")
 public interface AttributeValueMapper {
+
+
     AttributeValueDTO toDto(AttributeValueEntity entity);
     AttributeValueEntity toEntity(AttributeValueDTO dto);
     @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)

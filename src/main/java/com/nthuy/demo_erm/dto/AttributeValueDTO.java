@@ -10,5 +10,4 @@ import lombok.*;
 public class AttributeValueDTO {
     private Long id;
     private String value;
-    private Long attributeId;
 }

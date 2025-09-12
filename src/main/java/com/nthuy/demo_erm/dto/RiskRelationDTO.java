@@ -1,5 +1,6 @@
 package com.nthuy.demo_erm.dto;
 
+import com.nthuy.demo_erm.dto.response.IdCodeNameResponse;
 import com.nthuy.demo_erm.dto.response.RiskResponse;
 import lombok.*;
 
@@ -10,5 +11,5 @@ import lombok.*;
 @Builder
 public class RiskRelationDTO {
     private Long id;
-    private RiskResponse riskRelation;
+    private IdCodeNameResponse riskRelation;
 }

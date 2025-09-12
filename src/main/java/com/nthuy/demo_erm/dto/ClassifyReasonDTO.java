@@ -17,5 +17,5 @@ public class ClassifyReasonDTO {
     private String name;
     private String description;
     private String note;
-    private Set<SystemDTO> systems;
+    private Set<SystemDTO> system;
 }

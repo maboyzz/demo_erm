@@ -1,7 +1,8 @@
 package com.nthuy.demo_erm.dto;
 
-import com.nthuy.demo_erm.dto.response.AttributeGroupResponse;
+
 import com.nthuy.demo_erm.dto.response.AttributeResponse;
+import com.nthuy.demo_erm.dto.response.IdCodeNameResponse;
 import lombok.*;
 
 import java.util.List;
@@ -14,6 +15,6 @@ import java.util.List;
 public class RiskLineDTO {
     private Long id;
     private AttributeResponse attribute;
-    private AttributeGroupResponse attributeGroup;
+    private IdCodeNameResponse attributeGroup;
     private List<RiskLineValueDTO> lineValues;
 }

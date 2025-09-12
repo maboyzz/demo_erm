@@ -3,6 +3,7 @@ package com.nthuy.demo_erm.dto;
 import com.nthuy.demo_erm.common.constant.EnumOrigin;
 import com.nthuy.demo_erm.common.constant.EnumTypeReason;
 import com.nthuy.demo_erm.dto.response.ClassifyReasonResponse;
+import com.nthuy.demo_erm.dto.response.IdCodeNameResponse;
 import jakarta.validation.constraints.NotEmpty;
 import lombok.*;
 
@@ -23,7 +24,7 @@ public class ReasonDTO {
     private EnumOrigin origin;
     private String note;
     private boolean active;
-    private ClassifyReasonResponse classifyReason;
+    private IdCodeNameResponse classifyReason;
     private Set<SystemDTO> systems;
 
 }

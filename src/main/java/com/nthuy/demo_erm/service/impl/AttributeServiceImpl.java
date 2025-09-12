@@ -8,6 +8,7 @@ import com.nthuy.demo_erm.dto.AttributeDTO;
 import com.nthuy.demo_erm.dto.AttributeValueDTO;
 import com.nthuy.demo_erm.dto.ResultPaginationDTO;
 import com.nthuy.demo_erm.dto.response.AttributeGroupResponse;
+import com.nthuy.demo_erm.dto.response.IdCodeNameResponse;
 import com.nthuy.demo_erm.entity.AttributeEntity;
 import com.nthuy.demo_erm.entity.AttributeGroupEntity;
 import com.nthuy.demo_erm.entity.AttributeValueEntity;
@@ -89,7 +90,7 @@ public class AttributeServiceImpl implements AttributeService {
         AttributeDTO dto = attributeMapper.toDto(entity);
 
         // load attribute group (nếu có)
-        Optional.ofNullable(entity.getAttributeGroupId()).flatMap(attributeGroupRepository::findById).ifPresent(group -> dto.setAttributeGroup(new AttributeGroupResponse(group.getId(), group.getCode(), group.getName())));
+        Optional.ofNullable(entity.getAttributeGroupId()).flatMap(attributeGroupRepository::findById).ifPresent(group -> dto.setAttributeGroup(new IdCodeNameResponse(group.getId(), group.getCode(), group.getName())));
 
         // load values (nếu không phải TEXTBOX)
         if (dto.getDisplayType() != EnumAttributeDisplayType.TEXTBOX) {
@@ -204,7 +205,7 @@ public class AttributeServiceImpl implements AttributeService {
         if (Objects.isNull(entity)){
             return;
         }
-        dto.setAttributeGroup(AttributeGroupResponse.builder().id(entity.getId())
+        dto.setAttributeGroup(IdCodeNameResponse.builder().id(entity.getId())
                 .code(entity.getCode()).name(entity.getName()).build());
     }
     private void setAttributeValueToAttribute(AttributeDTO dto,   Map<Long,List<AttributeValueEntity> > attributeValueEntityMapAttribute){

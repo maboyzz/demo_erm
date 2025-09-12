@@ -13,7 +13,7 @@ import java.util.List;
 public interface ReasonMapper {
 
     // --- Entity -> DTO ---
-    @Mapping(source = "classifyReasonId", target = "classifyReason")
+    @Mapping(source = "classifyReasonId", target = "classifyReason.id")
     ReasonDTO toDto(ReasonEntity entity);
 
     // --- DTO -> Entity ---
@@ -29,9 +29,5 @@ public interface ReasonMapper {
     @Mapping(source = "classifyReason.id", target = "classifyReasonId")
     void updateEntityFromDto(ReasonDTO dto, @MappingTarget ReasonEntity entity);
 
-    // --- Custom mapping ---
-    default ClassifyReasonResponse map(Long classifyReasonId) {
-        if (classifyReasonId == null) return null;
-        return new ClassifyReasonResponse(classifyReasonId, null, null);
-    }
+
 }

@@ -12,10 +12,10 @@ import org.mapstruct.Mapping;
 @Mapper(componentModel = "spring")
 public interface RiskMapper {
 
-    @Mapping(source = "riskTypeId", target = "riskType")
-    @Mapping(source = "riskCategoryId", target = "riskCategory")
-    @Mapping(source = "reporterId", target = "reporter")
-    @Mapping(source = "systemId", target = "system")
+    @Mapping(source = "riskTypeId", target = "riskType.id")
+    @Mapping(source = "riskCategoryId", target = "riskCategory.id")
+    @Mapping(source = "reporterId", target = "reporter.id")
+    @Mapping(source = "systemId", target = "system.id")
     RiskDTO toDto(RiskEntity entity);
 
     @Mapping(source = "riskType.id", target = "riskTypeId")
@@ -24,23 +24,5 @@ public interface RiskMapper {
     @Mapping(source = "system.id", target = "systemId")
     RiskEntity toEntity(RiskDTO dto);
 
-    // --- Custom mapping ---
-    default RiskTypeResponse mapRiskType(Long riskTypeId) {
-        if (riskTypeId == null) return null;
-        return new RiskTypeResponse(riskTypeId, null, null);
-    }
 
-    default RiskCategoryResponse mapRiskCategory(Long riskCategoryId) {
-        if (riskCategoryId == null) return null;
-        return new RiskCategoryResponse(riskCategoryId, null, null);
-    }
-
-    default EmployeeDTO mapEmployee(Long reporterId) {
-        if (reporterId == null) return null;
-        return new EmployeeDTO(reporterId, null);
-    }
-    default SystemDTO mapSystem(Long systemId) {
-        if (systemId == null) return null;
-        return new SystemDTO(systemId, null);
-    }
 }

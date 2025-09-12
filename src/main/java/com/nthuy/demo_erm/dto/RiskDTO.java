@@ -1,6 +1,7 @@
 package com.nthuy.demo_erm.dto;
 
 import com.nthuy.demo_erm.common.constant.EnumPriorityLevel;
+import com.nthuy.demo_erm.dto.response.IdCodeNameResponse;
 import com.nthuy.demo_erm.dto.response.RiskCategoryResponse;
 import com.nthuy.demo_erm.dto.response.RiskTypeResponse;
 
@@ -26,8 +27,8 @@ public class RiskDTO {
     @NotNull(message = "system không được để trống")
     private SystemDTO system;
     @NotNull(message = "riskType không được để trống")
-    private RiskTypeResponse riskType;
-    private RiskCategoryResponse riskCategory;
+    private IdCodeNameResponse riskType;
+    private IdCodeNameResponse riskCategory;
     //@NotEmpty(message = "reporter không được để trống")
     private EmployeeDTO reporter;
     private Timestamp recognitionTime;

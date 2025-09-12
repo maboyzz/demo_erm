@@ -9,9 +9,10 @@ import java.util.List;
 
 @Mapper(componentModel = "spring")
 
-public interface TrackingActionMapper
-{
+public interface TrackingActionMapper {
+    @Mapping(source = "handlingMeasureId", target = "handlingMeasure.id")
     TrackingActionDTO toDto(TrackingActionEntity entity);
+
     @Mapping(source = "handlingMeasure.id", target = "handlingMeasureId")
     TrackingActionEntity toEntity(TrackingActionDTO dto);
 

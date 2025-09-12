@@ -10,6 +10,7 @@ import com.nthuy.demo_erm.dto.TagDTO;
 import com.nthuy.demo_erm.dto.TrackingReasonDTO;
 import com.nthuy.demo_erm.dto.response.AttributeGroupResponse;
 import com.nthuy.demo_erm.dto.response.ClassifyReasonResponse;
+import com.nthuy.demo_erm.dto.response.IdCodeNameResponse;
 import com.nthuy.demo_erm.dto.response.ReasonResponse;
 import com.nthuy.demo_erm.entity.TagEntity;
 import com.nthuy.demo_erm.entity.TrackingActionEntity;
@@ -79,11 +80,11 @@ public class TrackingReasonServiceImpl implements TrackingReasonService {
             TrackingReasonDTO dto = trackingReasonMapper.toDto(entity);
 
             // load reason
-                Optional.ofNullable(entity.getReasonId()).flatMap(reasonRepository::findById).ifPresent(reason -> dto.setReason(new ReasonResponse(reason.getId(), reason.getCode(), reason.getName())));
+                Optional.ofNullable(entity.getReasonId()).flatMap(reasonRepository::findById).ifPresent(reason -> dto.setReason(new IdCodeNameResponse(reason.getId(), reason.getCode(), reason.getName())));
 
 
             // load classifyReason
-            Optional.ofNullable(entity.getClassifyReasonId()).flatMap(classifyReasonRepository::findById).ifPresent(classifyReason -> dto.setClassifyReason(new ClassifyReasonResponse(classifyReason.getId(), classifyReason.getCode(), classifyReason.getName())));
+            Optional.ofNullable(entity.getClassifyReasonId()).flatMap(classifyReasonRepository::findById).ifPresent(classifyReason -> dto.setClassifyReason(new IdCodeNameResponse(classifyReason.getId(), classifyReason.getCode(), classifyReason.getName())));
 
             return dto;
         }).toList();

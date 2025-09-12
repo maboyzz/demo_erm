@@ -2,6 +2,7 @@ package com.nthuy.demo_erm.dto;
 
 import com.nthuy.demo_erm.common.constant.EnumActionType;
 import com.nthuy.demo_erm.dto.response.HandlingMeasureResponse;
+import com.nthuy.demo_erm.dto.response.IdCodeNameResponse;
 import jakarta.validation.constraints.NotNull;
 import lombok.*;
 
@@ -15,7 +16,7 @@ import java.util.Set;
 public class SampleActionLineDTO {
     private Long id;
     @NotNull(message ="name không được để trống")
-    private HandlingMeasureResponse handlingMeasure;
+    private IdCodeNameResponse handlingMeasure;
     private EnumActionType actionType;
     private String content;
     private Set<DepartmentDTO> departments;

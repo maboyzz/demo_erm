@@ -9,6 +9,7 @@ import com.nthuy.demo_erm.dto.ReasonDTO;
 import com.nthuy.demo_erm.dto.ResultPaginationDTO;
 import com.nthuy.demo_erm.dto.SystemDTO;
 import com.nthuy.demo_erm.dto.response.ClassifyReasonResponse;
+import com.nthuy.demo_erm.dto.response.IdCodeNameResponse;
 import com.nthuy.demo_erm.entity.*;
 import com.nthuy.demo_erm.common.exception.BadRequestValidationException;
 import com.nthuy.demo_erm.common.exception.IdInvalidException;
@@ -64,7 +65,7 @@ public class ReasonServiceImpl implements ReasonService {
         Optional.ofNullable(entity.getClassifyReasonId())
                 .flatMap(classifyReasonRepository::findById)
                 .ifPresent(classify -> dto.setClassifyReason(
-                        new ClassifyReasonResponse(classify.getId(), classify.getCode(), classify.getName())
+                        new IdCodeNameResponse(classify.getId(), classify.getCode(), classify.getName())
                 ));
 
         // --- Enrich systems ---
@@ -124,7 +125,7 @@ public class ReasonServiceImpl implements ReasonService {
             Optional.ofNullable(entity.getClassifyReasonId())
                     .flatMap(classifyReasonRepository::findById)
                     .ifPresent(classify -> dto.setClassifyReason(
-                            new ClassifyReasonResponse(
+                            new IdCodeNameResponse(
                                     classify.getId(),
                                     classify.getCode(),
                                     classify.getName()

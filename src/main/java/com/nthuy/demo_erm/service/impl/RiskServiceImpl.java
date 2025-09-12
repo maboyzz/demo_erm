@@ -138,10 +138,10 @@ public class RiskServiceImpl implements RiskService {
         RiskDTO dto = riskMapper.toDto(entity);
 
         // Ánh xạ riskType nếu có
-        Optional.ofNullable(entity.getRiskTypeId()).flatMap(riskTypeRepository::findById).ifPresent(riskType -> dto.setRiskType(new RiskTypeResponse(riskType.getId(), riskType.getCode(), riskType.getName())));
+        Optional.ofNullable(entity.getRiskTypeId()).flatMap(riskTypeRepository::findById).ifPresent(riskType -> dto.setRiskType(new IdCodeNameResponse(riskType.getId(), riskType.getCode(), riskType.getName())));
 
         // Ánh xạ riskCategory nếu có
-        Optional.ofNullable(entity.getRiskCategoryId()).flatMap(riskCategoryRepository::findById).ifPresent(riskCategory -> dto.setRiskCategory(new RiskCategoryResponse(riskCategory.getId(), riskCategory.getCode(), riskCategory.getName())));
+        Optional.ofNullable(entity.getRiskCategoryId()).flatMap(riskCategoryRepository::findById).ifPresent(riskCategory -> dto.setRiskCategory(new IdCodeNameResponse(riskCategory.getId(), riskCategory.getCode(), riskCategory.getName())));
 
         getSystemByRiskId(id).ifPresent(dto::setSystem);
 
@@ -162,7 +162,7 @@ public class RiskServiceImpl implements RiskService {
                 TrackingActionDTO actionDTO = trackingActionMapper.toDto(actionEntity);
 
                 // ✅ set handlingMeasure nếu có
-                Optional.ofNullable(actionEntity.getHandlingMeasureId()).flatMap(handlingMeasureRepository::findById).ifPresent(handlingMeasure -> actionDTO.setHandlingMeasure(new HandlingMeasureResponse(handlingMeasure.getId(), handlingMeasure.getCode(), handlingMeasure.getName())));
+                Optional.ofNullable(actionEntity.getHandlingMeasureId()).flatMap(handlingMeasureRepository::findById).ifPresent(handlingMeasure -> actionDTO.setHandlingMeasure(new IdCodeNameResponse(handlingMeasure.getId(), handlingMeasure.getCode(), handlingMeasure.getName())));
                 Set<DepartmentDTO> departments = getDepartmentByTrackingActionId(actionEntity.getId());
                 actionDTO.setDepartments(departments);
                 actionDTOs.add(actionDTO);
@@ -182,13 +182,13 @@ public class RiskServiceImpl implements RiskService {
             RiskLineDTO lineDTO = riskLineMapper.toDto(lineEntity);
 
             Optional.ofNullable(lineEntity.getAttributeId()).flatMap(attributeRepository::findById).ifPresent(attribute -> lineDTO.setAttribute(AttributeResponse.builder().id(attribute.getId()).code(attribute.getCode()).name(attribute.getName()).displayType(attribute.getDisplayType()).dataType(attribute.getDataType()).description(attribute.getDescription()).active(attribute.isActive()).build()));
-            Optional.ofNullable(lineEntity.getAttributeGroupId()).flatMap(attributeGroupRepository::findById).ifPresent(attributeGroup -> lineDTO.setAttributeGroup(new AttributeGroupResponse(attributeGroup.getId(), attributeGroup.getCode(), attributeGroup.getName())));
+            Optional.ofNullable(lineEntity.getAttributeGroupId()).flatMap(attributeGroupRepository::findById).ifPresent(attributeGroup -> lineDTO.setAttributeGroup(new IdCodeNameResponse(attributeGroup.getId(), attributeGroup.getCode(), attributeGroup.getName())));
 
             List<RiskLineValueEntity> lineValueEntities = riskLineValueRepository.findByRiskLineId(lineEntity.getId());
             List<RiskLineValueDTO> lineValueDTOs = new ArrayList<>();
             for (RiskLineValueEntity lineValueEntity : lineValueEntities) {
                 RiskLineValueDTO lineValueDTO = riskLineValueMapper.toDto(lineValueEntity);
-                Optional.ofNullable(lineValueEntity.getAttributeValueId()).flatMap(attributeValueRepository::findById).ifPresent(attributeValue -> lineValueDTO.setAttributeValue(new AttributeValueDTO(attributeValue.getId(), attributeValue.getValue(), attributeValue.getAttributeId())));
+                Optional.ofNullable(lineValueEntity.getAttributeValueId()).flatMap(attributeValueRepository::findById).ifPresent(attributeValue -> lineValueDTO.setAttributeValue(new AttributeValueDTO(attributeValue.getId(), attributeValue.getValue())));
                 lineValueDTOs.add(lineValueDTO);
             }
             lineDTO.setLineValues(lineValueDTOs);

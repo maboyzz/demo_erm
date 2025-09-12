@@ -82,10 +82,10 @@ public class SampleActionServiceImpl implements SampleActionService {
         SampleActionDTO dto = sampleActionMapper.toDto(entity);
 
         // Ánh xạ classifyReason nếu có
-        Optional.ofNullable(entity.getClassifyReasonId()).flatMap(classifyReasonRepository::findById).ifPresent(classify -> dto.setClassifyReason(new ClassifyReasonResponse(classify.getId(), classify.getCode(), classify.getName())));
+        Optional.ofNullable(entity.getClassifyReasonId()).flatMap(classifyReasonRepository::findById).ifPresent(classify -> dto.setClassifyReason(new IdCodeNameResponse(classify.getId(), classify.getCode(), classify.getName())));
 
         // Ánh xạ riskType nếu có
-        Optional.ofNullable(entity.getRiskTypeId()).flatMap(riskTypeRepository::findById).ifPresent(riskType -> dto.setRiskType(new RiskTypeResponse(riskType.getId(), riskType.getCode(), riskType.getName())));
+        Optional.ofNullable(entity.getRiskTypeId()).flatMap(riskTypeRepository::findById).ifPresent(riskType -> dto.setRiskType(new IdCodeNameResponse(riskType.getId(), riskType.getCode(), riskType.getName())));
 
         // Lấy danh sách SampleActionLine và ánh xạ sang DTO
         List<SampleActionLineEntity> lineEntities = sampleActionLineRepository.findBySampleActionId(id);
@@ -98,7 +98,7 @@ public class SampleActionServiceImpl implements SampleActionService {
             // Dùng ID từ entity để đảm bảo đúng dữ liệu
             Set<DepartmentDTO> departments = getSystemsBySampleActionLineId(lineEntity.getId());
             lineDto.setDepartments(departments);
-            Optional.ofNullable(lineEntity.getHandlingMeasureId()).flatMap(handlingMeasureRepository::findById).ifPresent(handlingMeasure -> lineDto.setHandlingMeasure(new HandlingMeasureResponse(handlingMeasure.getId(), handlingMeasure.getCode(), handlingMeasure.getName())));
+            Optional.ofNullable(lineEntity.getHandlingMeasureId()).flatMap(handlingMeasureRepository::findById).ifPresent(handlingMeasure -> lineDto.setHandlingMeasure(new IdCodeNameResponse(handlingMeasure.getId(), handlingMeasure.getCode(), handlingMeasure.getName())));
 
             lineDtos.add(lineDto);
         }
@@ -170,8 +170,8 @@ public class SampleActionServiceImpl implements SampleActionService {
             SampleActionDTO dto = sampleActionMapper.toDto(entity);
 
             // load attribute group
-            Optional.ofNullable(entity.getRiskTypeId()).flatMap(riskTypeRepository::findById).ifPresent(riskType -> dto.setRiskType(new RiskTypeResponse(riskType.getId(), riskType.getCode(), riskType.getName())));
-            Optional.ofNullable(entity.getClassifyReasonId()).flatMap(classifyReasonRepository::findById).ifPresent(classifyReason -> dto.setClassifyReason(new ClassifyReasonResponse(classifyReason.getId(), classifyReason.getCode(), classifyReason.getName())));
+            Optional.ofNullable(entity.getRiskTypeId()).flatMap(riskTypeRepository::findById).ifPresent(riskType -> dto.setRiskType(new IdCodeNameResponse(riskType.getId(), riskType.getCode(), riskType.getName())));
+            Optional.ofNullable(entity.getClassifyReasonId()).flatMap(classifyReasonRepository::findById).ifPresent(classifyReason -> dto.setClassifyReason(new IdCodeNameResponse(classifyReason.getId(), classifyReason.getCode(), classifyReason.getName())));
 
             return dto;
         }).toList();

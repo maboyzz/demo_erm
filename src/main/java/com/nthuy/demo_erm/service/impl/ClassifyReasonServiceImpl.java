@@ -45,7 +45,7 @@ public class ClassifyReasonServiceImpl implements ClassifyReasonService {
         classifyReasonRepository.save(entity);
 
         // xử lý systems
-        Set<Long> systemIds = (dto.getSystems() != null && !dto.getSystems().isEmpty()) ? dto.getSystems().stream().map(SystemDTO::getId).collect(Collectors.toSet()) : new HashSet<>(Arrays.asList(1L, 2L));
+        Set<Long> systemIds = (dto.getSystem() != null && !dto.getSystem().isEmpty()) ? dto.getSystem().stream().map(SystemDTO::getId).collect(Collectors.toSet()) : new HashSet<>(Arrays.asList(1L, 2L));
 
         saveClassifyReasonSystemMap(entity.getId(), systemIds);
 
@@ -60,7 +60,7 @@ public class ClassifyReasonServiceImpl implements ClassifyReasonService {
         ClassifyReasonDTO dto = classifyReasonMapper.toDto(classifyReason);
 
         // Tối ưu: Chỉ lấy systems cho 1 reason này
-        dto.setSystems(getSystemsByClassifyReasonId(id));
+        dto.setSystem(getSystemsByClassifyReasonId(id));
 
         return dto;
     }
@@ -84,7 +84,7 @@ public class ClassifyReasonServiceImpl implements ClassifyReasonService {
         classifyReasonMapper.updateEntityFromDto(dto, classifyReason);
         classifyReasonRepository.save(classifyReason);
 
-        Set<Long> systemIds = (dto.getSystems() != null && !dto.getSystems().isEmpty()) ? dto.getSystems().stream().map(SystemDTO::getId).collect(Collectors.toSet()) : new HashSet<>(Arrays.asList(1L, 2L));
+        Set<Long> systemIds = (dto.getSystem() != null && !dto.getSystem().isEmpty()) ? dto.getSystem().stream().map(SystemDTO::getId).collect(Collectors.toSet()) : new HashSet<>(Arrays.asList(1L, 2L));
 
         classifyReasonMapRepository.deleteByClassifyReasonId(classifyReason.getId());
         saveClassifyReasonSystemMap(classifyReason.getId(), systemIds);
@@ -118,7 +118,7 @@ public class ClassifyReasonServiceImpl implements ClassifyReasonService {
         Map<Long, SystemDTO> systemDTOMap = systemProxy.getSystems(allSystemIds);
         // Gán systems cho từng reason
         for (ClassifyReasonDTO dto : dtoList) {
-            dto.setSystems(getSystemsByClassifyReasonIdOptimized(dto.getId(), allMappings, systemDTOMap));
+            dto.setSystem(getSystemsByClassifyReasonIdOptimized(dto.getId(), allMappings, systemDTOMap));
         }
 
         return PaginationUtils.buildResult(pageResult, dtoList, pageable);
