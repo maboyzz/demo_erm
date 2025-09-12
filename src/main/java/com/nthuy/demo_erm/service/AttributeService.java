@@ -5,6 +5,7 @@ import com.nthuy.demo_erm.dto.AttributeDTO;
 import com.nthuy.demo_erm.dto.ResultPaginationDTO;
 import com.nthuy.demo_erm.common.exception.NameExisted;
 import com.nthuy.demo_erm.dto.response.AttributeGroupResponse;
+import com.nthuy.demo_erm.service.dto.SearchAttribute;
 import org.springframework.data.domain.Pageable;
 
 
@@ -17,6 +18,6 @@ public interface AttributeService {
 
     Long update(AttributeDTO dto) throws NameExisted;
 
-    ResultPaginationDTO<AttributeDTO> getListAttribute(String code, String name, Boolean isActive, Long attributeGroupId, Pageable pageable);
+    ResultPaginationDTO<AttributeDTO> getListAttribute(SearchAttribute searchAttribute, Pageable pageable);
 
 }

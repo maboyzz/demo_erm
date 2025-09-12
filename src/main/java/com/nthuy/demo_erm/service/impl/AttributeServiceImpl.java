@@ -9,6 +9,7 @@ import com.nthuy.demo_erm.dto.AttributeValueDTO;
 import com.nthuy.demo_erm.dto.ResultPaginationDTO;
 import com.nthuy.demo_erm.dto.response.AttributeGroupResponse;
 import com.nthuy.demo_erm.entity.AttributeEntity;
+import com.nthuy.demo_erm.entity.AttributeGroupEntity;
 import com.nthuy.demo_erm.entity.AttributeValueEntity;
 import com.nthuy.demo_erm.common.exception.BadRequestValidationException;
 import com.nthuy.demo_erm.common.exception.IdInvalidException;
@@ -19,6 +20,8 @@ import com.nthuy.demo_erm.repository.AttributeGroupRepository;
 import com.nthuy.demo_erm.repository.AttributeRepository;
 import com.nthuy.demo_erm.repository.AttributeValueRepository;
 import com.nthuy.demo_erm.service.AttributeService;
+import com.nthuy.demo_erm.service.dto.AttributeData;
+import com.nthuy.demo_erm.service.dto.SearchAttribute;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -27,6 +30,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.*;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 
 @Service
@@ -50,13 +55,14 @@ public class AttributeServiceImpl implements AttributeService {
         EnumAttributeDisplayType displayType = getDisplayTypeOrDefault(dto.getDisplayType());
 
         AttributeEntity attribute = attributeMapper.toEntity(dto);
+
         attribute.setDisplayType(displayType);
+        attribute.setDataType(null);
+
 
         // TEXTBOX giữ dataType, các loại khác bỏ dataType
         if (EnumAttributeDisplayType.TEXTBOX.equals(displayType)) {
             attribute.setDataType(dto.getDataType());
-        } else {
-            attribute.setDataType(null);
         }
 
         attributeRepository.save(attribute);
@@ -77,6 +83,7 @@ public class AttributeServiceImpl implements AttributeService {
 
     @Override
     public AttributeDTO getAttribute(Long id) {
+
         AttributeEntity entity = attributeRepository.findById(id).orElseThrow(() -> new BadRequestValidationException("Thuộc tính với ID " + id + " không tồn tại"));
 
         AttributeDTO dto = attributeMapper.toDto(entity);
@@ -113,17 +120,17 @@ public class AttributeServiceImpl implements AttributeService {
         EnumAttributeDisplayType newDisplayType = getDisplayTypeOrDefault(dto.getDisplayType());
         entity.setDisplayType(newDisplayType);
 
+        attributeValueRepository.deleteByAttributeId(entity.getId());
+
         if (EnumAttributeDisplayType.TEXTBOX.equals(newDisplayType)) {
             // --- TEXTBOX: giữ dataType, xóa values ---
             entity.setDataType(dto.getDataType());
-            attributeValueRepository.deleteByAttributeId(entity.getId());
 
         } else {
             // --- SELECTBOX hoặc loại khác ---
             entity.setDataType(null);
 
             // Xóa values cũ trước
-            attributeValueRepository.deleteByAttributeId(entity.getId());
 
             // Thêm values mới nếu DTO có
             if (dto.getValues() != null && !dto.getValues().isEmpty()) {
@@ -142,36 +149,77 @@ public class AttributeServiceImpl implements AttributeService {
     }
 
     @Override
-    public ResultPaginationDTO<AttributeDTO> getListAttribute(String code, String name, Boolean isActive, Long attributeGroupId, Pageable pageable) {
+    public ResultPaginationDTO<AttributeDTO> getListAttribute(SearchAttribute searchAttribute, Pageable pageable) {
 
         Specification<AttributeEntity> spec = Specification.where(null);
 
-        spec = SpecificationUtils.addIfHasText(spec, code, AttributeSpecification::hasCode);
-        spec = SpecificationUtils.addIfHasText(spec, name, AttributeSpecification::hasName);
-        spec = SpecificationUtils.addIfNotNull(spec, isActive, AttributeSpecification::hasIsActive);
-        spec = SpecificationUtils.addIfNotNull(spec, attributeGroupId, AttributeSpecification::hasAttributeGroup);
+        spec = SpecificationUtils.addIfHasText(spec, searchAttribute.getCode(), AttributeSpecification::hasCode);
+        spec = SpecificationUtils.addIfHasText(spec, searchAttribute.getName(), AttributeSpecification::hasName);
+        spec = SpecificationUtils.addIfNotNull(spec, searchAttribute.getIsActive(), AttributeSpecification::hasIsActive);
+        spec = SpecificationUtils.addIfNotNull(spec, searchAttribute.getAttributeGroupId(), AttributeSpecification::hasAttributeGroup);
 
         Page<AttributeEntity> pageResult = attributeRepository.findAll(spec, pageable);
         if (pageResult.isEmpty()) {
             return PaginationUtils.buildResult(pageResult, Collections.emptyList(), pageable);
         }
+
+        AttributeData data =getAttributeData(pageResult);
+
         List<AttributeDTO> dtoList = pageResult.getContent().stream().map(entity -> {
             AttributeDTO dto = attributeMapper.toDto(entity);
-
-            // load attribute group
-            Optional.ofNullable(entity.getAttributeGroupId()).flatMap(attributeGroupRepository::findById).ifPresent(group -> dto.setAttributeGroup(new AttributeGroupResponse(group.getId(), group.getCode(), group.getName())));
-            // load values nếu không phải TEXTBOX
-            if (dto.getDisplayType() != EnumAttributeDisplayType.TEXTBOX) {
-                List<AttributeValueDTO> values = attributeValueRepository.findByAttributeId(entity.getId()).stream().map(attributeValueMapper::toDto).toList();
-                dto.setValues(values);
-            }
+            AttributeGroupEntity attributeGroupEntity = data.getAttributeGroupEntityMap().get(entity.getAttributeGroupId());
+            setAttributeGroupToAttribute(attributeGroupEntity, dto);
+            setAttributeValueToAttribute(dto,data.getAttributeValueEntityMapAttribute());
             return dto;
         }).toList();
+
 
         return PaginationUtils.buildResult(pageResult, dtoList, pageable);
     }
 
     // ----------------- HELPER -----------------
+
+    private AttributeData getAttributeData( Page<AttributeEntity> pageResult ){
+        Set<Long> attributeGroupIds = new HashSet<>();
+        Set<Long> attributeIds = new HashSet<>();
+
+        pageResult.forEach(attribute -> {
+            attributeGroupIds.add(attribute.getAttributeGroupId());
+            attributeIds.add(attribute.getId());
+        });
+
+        List<AttributeGroupEntity> listAttributeGroup =  attributeGroupRepository.findByIdIn(attributeGroupIds);
+        Map<Long, AttributeGroupEntity> attributeGroupEntityMap = listAttributeGroup.stream().collect(Collectors.toMap(AttributeGroupEntity::getId, Function.identity()));
+
+        List<AttributeValueEntity> listAttributeValue = attributeValueRepository.findByAttributeIdIn(attributeIds);
+
+        Map<Long,List<AttributeValueEntity> > attributeValueEntityMapAttribute = listAttributeValue.stream().collect(Collectors
+                .groupingBy(AttributeValueEntity::getAttributeId));
+    return AttributeData.builder().attributeGroupEntityMap(attributeGroupEntityMap)
+            .attributeValueEntityMapAttribute(attributeValueEntityMapAttribute).build();
+
+    }
+
+    private void setAttributeGroupToAttribute(AttributeGroupEntity entity, AttributeDTO dto ){
+        if (Objects.isNull(entity)){
+            return;
+        }
+        dto.setAttributeGroup(AttributeGroupResponse.builder().id(entity.getId())
+                .code(entity.getCode()).name(entity.getName()).build());
+    }
+    private void setAttributeValueToAttribute(AttributeDTO dto,   Map<Long,List<AttributeValueEntity> > attributeValueEntityMapAttribute){
+        if (dto.getDisplayType() == EnumAttributeDisplayType.TEXTBOX) {
+            return;
+        }
+        List<AttributeValueEntity> attributeValues = attributeValueEntityMapAttribute.get(dto.getId());
+        if (Objects.isNull(attributeValues)){
+            return;
+        }
+        List<AttributeValueDTO> attributeValueDtos = attributeValues.stream().map(attributeValue -> {
+            return AttributeValueDTO.builder().id(attributeValue.getId()).value(attributeValue.getValue()).build();
+        }).toList();
+        dto.setValues(attributeValueDtos);
+    }
     private void validateNameNotExists(String name, Long excludeId) throws NameExisted {
         boolean exists;
         if (excludeId == null) {
@@ -210,6 +258,7 @@ public class AttributeServiceImpl implements AttributeService {
     private void validateAttribute(AttributeDTO dto) {
 
         if (dto == null) throw new IllegalArgumentException("Payload không được null");
+
         EnumAttributeDisplayType displayType = getDisplayTypeOrDefault(dto.getDisplayType());
 
         if (EnumAttributeDisplayType.TEXTBOX.equals(displayType)) {

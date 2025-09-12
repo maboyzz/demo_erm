@@ -335,3 +335,24 @@ CREATE TABLE risk_tracking_action (
                                       updated_by  VARCHAR(50),
                                       CONSTRAINT uq_risk_tracking_action UNIQUE (risk_tracking_reason_id, tracking_action_id)
 );
+CREATE TABLE risk_relation (
+                               id SERIAL PRIMARY KEY,
+                               risk_id INT NOT NULL,
+                               risk_relation_id INT NOT NULL,
+                               CONSTRAINT fk_risk FOREIGN KEY (risk_id) REFERENCES risk(id) ON DELETE CASCADE,
+                               CONSTRAINT fk_risk_related FOREIGN KEY (risk_relation_id) REFERENCES risk(id) ON DELETE CASCADE,
+                               created_at  TIMESTAMP DEFAULT CURRENT_TIMESTAMP, -- Ngày giờ tạo
+                               created_by  VARCHAR(50),                        -- Người tạo
+                               updated_at  TIMESTAMP DEFAULT CURRENT_TIMESTAMP, -- Ngày giờ cập nhật
+                               updated_by  VARCHAR(50)
+);
+CREATE TABLE tracking_action_map (
+                                        id          SERIAL PRIMARY KEY,
+                                        tracking_action_id   INT NOT NULL,
+                                        department_id   INT NOT NULL,
+                                        created_at  TIMESTAMP DEFAULT CURRENT_TIMESTAMP, -- Ngày giờ tạo
+                                        created_by  VARCHAR(50),                        -- Người tạo
+                                        updated_at  TIMESTAMP DEFAULT CURRENT_TIMESTAMP, -- Ngày giờ cập nhật
+                                        updated_by  VARCHAR(50),                        -- Người cập nhật
+                                        CONSTRAINT fk_tracking_action FOREIGN KEY (tracking_action_id) REFERENCES tracking_action(id) ON DELETE CASCADE
+);

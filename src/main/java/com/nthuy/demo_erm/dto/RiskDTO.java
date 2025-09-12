@@ -3,9 +3,7 @@ package com.nthuy.demo_erm.dto;
 import com.nthuy.demo_erm.common.constant.EnumPriorityLevel;
 import com.nthuy.demo_erm.dto.response.RiskCategoryResponse;
 import com.nthuy.demo_erm.dto.response.RiskTypeResponse;
-import jakarta.persistence.Column;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
+
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 import lombok.*;
@@ -44,4 +42,5 @@ public class RiskDTO {
     private Set<TagDTO> tags;
     private List<RiskFileDTO> riskFile;
     private Set<TrackingReasonDTO> trackingReason;
+    private Set<RiskRelationDTO> relations;
 }

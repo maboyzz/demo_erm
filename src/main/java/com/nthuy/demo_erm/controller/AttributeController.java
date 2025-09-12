@@ -10,6 +10,7 @@ import com.nthuy.demo_erm.dto.ResultPaginationDTO;
 import com.nthuy.demo_erm.dto.response.AttributeGroupResponse;
 import com.nthuy.demo_erm.service.AttributeService;
 import com.nthuy.demo_erm.common.until.annotation.ApiMessage;
+import com.nthuy.demo_erm.service.dto.SearchAttribute;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
@@ -62,8 +63,14 @@ public class AttributeController {
             @RequestParam(defaultValue = "20") int size,
             @RequestParam(defaultValue = "id,desc") String sort) {
         // Tạo Pageable từ param sort (vd: id,desc)
+
         Pageable pageable = PageableUtils.from(page, size, sort);
-        return ResponseUtils.ok(attributeService.getListAttribute(code, name, isActive,attributeGroupId, pageable));
+        return ResponseUtils.ok(attributeService.getListAttribute(SearchAttribute.builder()
+                .code(code)
+                .name(name)
+                .isActive(isActive)
+                .attributeGroupId(attributeGroupId)
+                .build(), pageable));
     }
 
 }
