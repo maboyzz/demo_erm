@@ -21,7 +21,7 @@ import com.nthuy.demo_erm.repository.AttributeRepository;
 import com.nthuy.demo_erm.repository.AttributeValueRepository;
 import com.nthuy.demo_erm.service.AttributeService;
 import com.nthuy.demo_erm.service.dto.AttributeData;
-import com.nthuy.demo_erm.service.dto.SearchAttribute;
+import com.nthuy.demo_erm.service.dto.SearchRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -149,14 +149,14 @@ public class AttributeServiceImpl implements AttributeService {
     }
 
     @Override
-    public ResultPaginationDTO<AttributeDTO> getListAttribute(SearchAttribute searchAttribute, Pageable pageable) {
+    public ResultPaginationDTO<AttributeDTO> getListAttribute(SearchRequest searchRequest, Pageable pageable) {
 
         Specification<AttributeEntity> spec = Specification.where(null);
 
-        spec = SpecificationUtils.addIfHasText(spec, searchAttribute.getCode(), AttributeSpecification::hasCode);
-        spec = SpecificationUtils.addIfHasText(spec, searchAttribute.getName(), AttributeSpecification::hasName);
-        spec = SpecificationUtils.addIfNotNull(spec, searchAttribute.getIsActive(), AttributeSpecification::hasIsActive);
-        spec = SpecificationUtils.addIfNotNull(spec, searchAttribute.getAttributeGroupId(), AttributeSpecification::hasAttributeGroup);
+        spec = SpecificationUtils.addIfHasText(spec, searchRequest.getCode(), AttributeSpecification::hasCode);
+        spec = SpecificationUtils.addIfHasText(spec, searchRequest.getName(), AttributeSpecification::hasName);
+        spec = SpecificationUtils.addIfNotNull(spec, searchRequest.getIsActive(), AttributeSpecification::hasIsActive);
+        spec = SpecificationUtils.addIfNotNull(spec, searchRequest.getAttributeGroupId(), AttributeSpecification::hasAttributeGroup);
 
         Page<AttributeEntity> pageResult = attributeRepository.findAll(spec, pageable);
         if (pageResult.isEmpty()) {

@@ -19,6 +19,7 @@ import com.nthuy.demo_erm.repository.ClassifyReasonRepository;
 import com.nthuy.demo_erm.repository.ReasonMapRepository;
 import com.nthuy.demo_erm.repository.ReasonRepository;
 import com.nthuy.demo_erm.service.ReasonService;
+import com.nthuy.demo_erm.service.dto.SearchRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -54,17 +55,12 @@ public class ReasonServiceImpl implements ReasonService {
 
     @Override
     public ReasonDTO getReason(Long id) {
-        ReasonEntity entity = reasonRepository.findById(id)
-                .orElseThrow(() -> new BadRequestValidationException("Reason ID " + id + " không tồn tại"));
+        ReasonEntity entity = reasonRepository.findById(id).orElseThrow(() -> new BadRequestValidationException("Reason ID " + id + " không tồn tại"));
 
         ReasonDTO dto = reasonMapper.toDto(entity);
 
         // --- Enrich classify reason ---
-        Optional.ofNullable(entity.getClassifyReasonId())
-                .flatMap(classifyReasonRepository::findById)
-                .ifPresent(classify -> dto.setClassifyReason(
-                        new IdCodeNameResponse(classify.getId(), classify.getCode(), classify.getName())
-                ));
+        Optional.ofNullable(entity.getClassifyReasonId()).flatMap(classifyReasonRepository::findById).ifPresent(classify -> dto.setClassifyReason(new IdCodeNameResponse(classify.getId(), classify.getCode(), classify.getName())));
 
         // --- Enrich systems ---
         dto.setSystems(getSystemsByReasonId(entity.getId()));
@@ -94,22 +90,17 @@ public class ReasonServiceImpl implements ReasonService {
 
         return reason.getId();
     }
+
     @Override
-    public ResultPaginationDTO<ReasonDTO> getListReason(
-            String code,
-            String name,
-            List<Long> systemIds,
-            Boolean isActive,
-            EnumTypeReason type,
-            Pageable pageable) {
+    public ResultPaginationDTO<ReasonDTO> getListReason(SearchRequest searchRequest, Pageable pageable) {
 
         Specification<ReasonEntity> spec = Specification.where(null);
 
-        spec = SpecificationUtils.addIfHasText(spec, code, ReasonSpecification::hasCode);
-        spec = SpecificationUtils.addIfHasText(spec, name, ReasonSpecification::hasName);
-        spec = SpecificationUtils.addIfNotEmpty(spec, systemIds, ReasonSpecification::hasSystemIdIn);
-        spec = SpecificationUtils.addIfNotNull(spec, isActive, ReasonSpecification::hasIsActive);
-        spec = SpecificationUtils.addIfNotNull(spec, type, ReasonSpecification::hasType);
+        spec = SpecificationUtils.addIfHasText(spec, searchRequest.getCode(), ReasonSpecification::hasCode);
+        spec = SpecificationUtils.addIfHasText(spec, searchRequest.getName(), ReasonSpecification::hasName);
+        spec = SpecificationUtils.addIfNotEmpty(spec, searchRequest.getSystem(), ReasonSpecification::hasSystemIdIn);
+        spec = SpecificationUtils.addIfNotNull(spec, searchRequest.getIsActive(), ReasonSpecification::hasIsActive);
+        spec = SpecificationUtils.addIfNotNull(spec, searchRequest.getType(), ReasonSpecification::hasType);
 
         Page<ReasonEntity> pageResult = reasonRepository.findAll(spec, pageable);
         if (pageResult.isEmpty()) {
@@ -120,29 +111,16 @@ public class ReasonServiceImpl implements ReasonService {
             ReasonDTO dto = reasonMapper.toDto(entity);
 
             // --- Load classifyReason (1-1) ---
-            Optional.ofNullable(entity.getClassifyReasonId())
-                    .flatMap(classifyReasonRepository::findById)
-                    .ifPresent(classify -> dto.setClassifyReason(
-                            new IdCodeNameResponse(
-                                    classify.getId(),
-                                    classify.getCode(),
-                                    classify.getName()
-                            )
-                    ));
+            Optional.ofNullable(entity.getClassifyReasonId()).flatMap(classifyReasonRepository::findById).ifPresent(classify -> dto.setClassifyReason(new IdCodeNameResponse(classify.getId(), classify.getCode(), classify.getName())));
 
             // --- Load systems (n-n qua reason_map) ---
             List<ReasonMapEntity> mappings = reasonMapRepository.findByReasonId(entity.getId());
             if (!mappings.isEmpty()) {
-                Set<Long> sysIds = mappings.stream()
-                        .map(ReasonMapEntity::getSystemId)
-                        .collect(Collectors.toSet());
+                Set<Long> sysIds = mappings.stream().map(ReasonMapEntity::getSystemId).collect(Collectors.toSet());
 
                 if (!sysIds.isEmpty()) {
                     Map<Long, SystemDTO> systemMap = systemProxy.getSystems(sysIds);
-                    Set<SystemDTO> systems = sysIds.stream()
-                            .map(systemMap::get)
-                            .filter(Objects::nonNull)
-                            .collect(Collectors.toSet());
+                    Set<SystemDTO> systems = sysIds.stream().map(systemMap::get).filter(Objects::nonNull).collect(Collectors.toSet());
 
                     dto.setSystems(systems);
                 }

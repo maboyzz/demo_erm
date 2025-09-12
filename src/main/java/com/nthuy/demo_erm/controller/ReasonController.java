@@ -10,6 +10,7 @@ import com.nthuy.demo_erm.dto.ResultPaginationDTO;
 import com.nthuy.demo_erm.common.exception.NameExisted;
 import com.nthuy.demo_erm.service.ReasonService;
 import com.nthuy.demo_erm.common.until.annotation.ApiMessage;
+import com.nthuy.demo_erm.service.dto.SearchRequest;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
@@ -59,7 +60,7 @@ public class ReasonController {
     public ResponseEntity<ResultPaginationDTO<ReasonDTO>> getReasons(
             @RequestParam(required = false) String code,
             @RequestParam(required = false) String name,
-            @RequestParam(required = false) List<Long> systemIds,
+            @RequestParam(required = false) List<Long> systems,
             @RequestParam(required = false) Boolean isActive,
             @RequestParam(required = false) EnumTypeReason type,
             @RequestParam(defaultValue = "0") int page,
@@ -67,7 +68,12 @@ public class ReasonController {
             @RequestParam(defaultValue = "id,desc") String sort) {
 
         Pageable pageable = PageableUtils.from(page, size, sort);
-        return ResponseUtils.ok(reasonService.getListReason(code, name, systemIds, isActive, type, pageable));
+        return ResponseUtils.ok(reasonService.getListReason(SearchRequest.builder().code(code)
+                .name(name)
+                .system(systems)
+                .isActive(isActive)
+                .type(type)
+                .build(), pageable));
 
 
     }

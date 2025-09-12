@@ -8,7 +8,7 @@ import com.nthuy.demo_erm.service.ClassifyReasonService;
 import com.nthuy.demo_erm.common.until.PageableUtils;
 import com.nthuy.demo_erm.common.until.ResponseUtils;
 import com.nthuy.demo_erm.common.until.annotation.ApiMessage;
-import com.nthuy.demo_erm.service.dto.SearchClassifyReason;
+import com.nthuy.demo_erm.service.dto.SearchRequest;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
@@ -55,7 +55,7 @@ public class ClassifyReasonController {
             @RequestParam(defaultValue = "id,desc") String sort) {
 
         Pageable pageable = PageableUtils.from(page, size, sort);
-        return ResponseUtils.ok(classifyReasonService.getListClassifyReason(SearchClassifyReason.
+        return ResponseUtils.ok(classifyReasonService.getListClassifyReason(SearchRequest.
                 builder()
                 .code(code)
                 .name(name)

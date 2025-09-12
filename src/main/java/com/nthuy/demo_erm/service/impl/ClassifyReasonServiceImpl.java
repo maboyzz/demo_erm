@@ -14,7 +14,7 @@ import com.nthuy.demo_erm.repository.ClassifyReasonRepository;
 import com.nthuy.demo_erm.service.ClassifyReasonService;
 import com.nthuy.demo_erm.common.until.PaginationUtils;
 import com.nthuy.demo_erm.common.until.SpecificationUtils;
-import com.nthuy.demo_erm.service.dto.SearchClassifyReason;
+import com.nthuy.demo_erm.service.dto.SearchRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -96,13 +96,13 @@ public class ClassifyReasonServiceImpl implements ClassifyReasonService {
     // ---------------- GET LIST - ĐÃ TỐI ƯU ----------------
     @Override
     @Transactional(readOnly = true)
-    public ResultPaginationDTO<ClassifyReasonDTO> getListClassifyReason(SearchClassifyReason searchClassifyReason, Pageable pageable) {
+    public ResultPaginationDTO<ClassifyReasonDTO> getListClassifyReason(SearchRequest searchRequest, Pageable pageable) {
 
         Specification<ClassifyReasonEntity> spec = Specification.where(null);
 
-        spec = SpecificationUtils.addIfHasText(spec, searchClassifyReason.getName(), ClassifyReasonSpecification::hasName);
-        spec = SpecificationUtils.addIfHasText(spec, searchClassifyReason.getCode(), ClassifyReasonSpecification::hasCode);
-        spec = SpecificationUtils.addIfNotEmpty(spec, searchClassifyReason.getSystem(), ClassifyReasonSpecification::hasSystemIdIn);
+        spec = SpecificationUtils.addIfHasText(spec, searchRequest.getName(), ClassifyReasonSpecification::hasName);
+        spec = SpecificationUtils.addIfHasText(spec, searchRequest.getCode(), ClassifyReasonSpecification::hasCode);
+        spec = SpecificationUtils.addIfNotEmpty(spec, searchRequest.getSystem(), ClassifyReasonSpecification::hasSystemIdIn);
 
         Page<ClassifyReasonEntity> pageResult = classifyReasonRepository.findAll(spec, pageable);
 
