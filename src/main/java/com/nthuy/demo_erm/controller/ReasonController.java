@@ -1,6 +1,5 @@
 package com.nthuy.demo_erm.controller;
 
-
 import com.nthuy.demo_erm.common.constant.EnumTypeReason;
 import com.nthuy.demo_erm.common.dto.IdResponse;
 import com.nthuy.demo_erm.common.until.PageableUtils;
@@ -24,9 +23,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class ReasonController {
 
-
     private final ReasonService reasonService;
-
 
     @PostMapping
     @ApiMessage("Tạo mới nguyên nhân")
@@ -74,7 +71,6 @@ public class ReasonController {
                 .isActive(isActive)
                 .type(type)
                 .build(), pageable));
-
 
     }
 }

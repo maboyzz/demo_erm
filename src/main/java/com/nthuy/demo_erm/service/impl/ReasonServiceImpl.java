@@ -1,24 +1,26 @@
 package com.nthuy.demo_erm.service.impl;
 
 
+import com.nthuy.demo_erm.common.exception.BadRequestValidationException;
+import com.nthuy.demo_erm.common.exception.IdInvalidException;
+import com.nthuy.demo_erm.common.exception.NameExisted;
 import com.nthuy.demo_erm.common.until.PaginationUtils;
 import com.nthuy.demo_erm.common.until.SpecificationUtils;
 import com.nthuy.demo_erm.config.ReasonSpecification;
-import com.nthuy.demo_erm.common.constant.EnumTypeReason;
 import com.nthuy.demo_erm.dto.ReasonDTO;
 import com.nthuy.demo_erm.dto.ResultPaginationDTO;
 import com.nthuy.demo_erm.dto.SystemDTO;
 import com.nthuy.demo_erm.dto.response.IdCodeNameResponse;
-import com.nthuy.demo_erm.entity.*;
-import com.nthuy.demo_erm.common.exception.BadRequestValidationException;
-import com.nthuy.demo_erm.common.exception.IdInvalidException;
-import com.nthuy.demo_erm.common.exception.NameExisted;
+import com.nthuy.demo_erm.entity.ClassifyReasonEntity;
+import com.nthuy.demo_erm.entity.ReasonEntity;
+import com.nthuy.demo_erm.entity.ReasonMapEntity;
 import com.nthuy.demo_erm.mapper.ReasonMapper;
 import com.nthuy.demo_erm.proxy.SystemProxy;
 import com.nthuy.demo_erm.repository.ClassifyReasonRepository;
 import com.nthuy.demo_erm.repository.ReasonMapRepository;
 import com.nthuy.demo_erm.repository.ReasonRepository;
 import com.nthuy.demo_erm.service.ReasonService;
+import com.nthuy.demo_erm.service.dto.ReasonData;
 import com.nthuy.demo_erm.service.dto.SearchRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -28,6 +30,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.*;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 @Service
@@ -48,19 +51,25 @@ public class ReasonServiceImpl implements ReasonService {
         ReasonEntity entity = reasonMapper.toEntity(dto);
         reasonRepository.save(entity);
 
-        Set<Long> systemIds = (dto.getSystems() != null && !dto.getSystems().isEmpty()) ? dto.getSystems().stream().map(SystemDTO::getId).collect(Collectors.toSet()) : new HashSet<>(Arrays.asList(1L, 2L));
+        Set<Long> systemIds = (dto.getSystems() != null && !dto.getSystems().isEmpty()) ? dto.getSystems()
+                .stream()
+                .map(SystemDTO::getId)
+                .collect(Collectors.toSet()) : new HashSet<>(Arrays.asList(1L, 2L));
         saveReasonSystemMap(entity.getId(), systemIds);
         return entity.getId();
     }
 
     @Override
     public ReasonDTO getReason(Long id) {
-        ReasonEntity entity = reasonRepository.findById(id).orElseThrow(() -> new BadRequestValidationException("Reason ID " + id + " không tồn tại"));
+        ReasonEntity entity = reasonRepository.findById(id)
+                .orElseThrow(() -> new BadRequestValidationException("Reason ID " + id + " không tồn tại"));
 
         ReasonDTO dto = reasonMapper.toDto(entity);
 
         // --- Enrich classify reason ---
-        Optional.ofNullable(entity.getClassifyReasonId()).flatMap(classifyReasonRepository::findById).ifPresent(classify -> dto.setClassifyReason(new IdCodeNameResponse(classify.getId(), classify.getCode(), classify.getName())));
+        Optional.ofNullable(entity.getClassifyReasonId())
+                .flatMap(classifyReasonRepository::findById)
+                .ifPresent(classify -> dto.setClassifyReason(new IdCodeNameResponse(classify.getId(), classify.getCode(), classify.getName())));
 
         // --- Enrich systems ---
         dto.setSystems(getSystemsByReasonId(entity.getId()));
@@ -80,11 +89,15 @@ public class ReasonServiceImpl implements ReasonService {
         this.validateNameNotExists(dto.getName(), dto.getId());
         this.validateCodeNotExists(dto.getCode(), dto.getId());
 
-        ReasonEntity reason = reasonRepository.findById(dto.getId()).orElseThrow(() -> new BadRequestValidationException("Nguyên nhân với ID " + dto.getId() + " không tồn tại"));
+        ReasonEntity reason = reasonRepository.findById(dto.getId())
+                .orElseThrow(() -> new BadRequestValidationException("Nguyên nhân với ID " + dto.getId() + " không tồn tại"));
         reasonMapper.updateEntityFromDto(dto, reason);
         reasonRepository.save(reason);
 
-        Set<Long> systemIds = (dto.getSystems() != null && !dto.getSystems().isEmpty()) ? dto.getSystems().stream().map(SystemDTO::getId).collect(Collectors.toSet()) : new HashSet<>(Arrays.asList(1L, 2L));
+        Set<Long> systemIds = (dto.getSystems() != null && !dto.getSystems().isEmpty()) ? dto.getSystems()
+                .stream()
+                .map(SystemDTO::getId)
+                .collect(Collectors.toSet()) : new HashSet<>(Arrays.asList(1L, 2L));
         reasonMapRepository.deleteByReasonId(reason.getId());
         saveReasonSystemMap(reason.getId(), systemIds);
 
@@ -92,7 +105,8 @@ public class ReasonServiceImpl implements ReasonService {
     }
 
     @Override
-    public ResultPaginationDTO<ReasonDTO> getListReason(SearchRequest searchRequest, Pageable pageable) {
+    public ResultPaginationDTO<ReasonDTO> getListReason(SearchRequest searchRequest,
+                                                        Pageable pageable) {
 
         Specification<ReasonEntity> spec = Specification.where(null);
 
@@ -106,26 +120,14 @@ public class ReasonServiceImpl implements ReasonService {
         if (pageResult.isEmpty()) {
             return PaginationUtils.buildResult(pageResult, Collections.emptyList(), pageable);
         }
-
+        ReasonData data = getReasonData(pageResult);
         List<ReasonDTO> dtoList = pageResult.getContent().stream().map(entity -> {
             ReasonDTO dto = reasonMapper.toDto(entity);
-
-            // --- Load classifyReason (1-1) ---
-            Optional.ofNullable(entity.getClassifyReasonId()).flatMap(classifyReasonRepository::findById).ifPresent(classify -> dto.setClassifyReason(new IdCodeNameResponse(classify.getId(), classify.getCode(), classify.getName())));
-
-            // --- Load systems (n-n qua reason_map) ---
-            List<ReasonMapEntity> mappings = reasonMapRepository.findByReasonId(entity.getId());
-            if (!mappings.isEmpty()) {
-                Set<Long> sysIds = mappings.stream().map(ReasonMapEntity::getSystemId).collect(Collectors.toSet());
-
-                if (!sysIds.isEmpty()) {
-                    Map<Long, SystemDTO> systemMap = systemProxy.getSystems(sysIds);
-                    Set<SystemDTO> systems = sysIds.stream().map(systemMap::get).filter(Objects::nonNull).collect(Collectors.toSet());
-
-                    dto.setSystems(systems);
-                }
-            }
-
+            ClassifyReasonEntity classifyReasonEntity = data.getClassifyReasonEntityMap()
+                    .get(entity.getClassifyReasonId());
+            setClassifyReasonToReason(classifyReasonEntity, dto);
+            Set<SystemDTO> systems = data.getReasonSystemsMap().get(entity.getId());
+            dto.setSystems(systems);
             return dto;
         }).toList();
 
@@ -133,7 +135,57 @@ public class ReasonServiceImpl implements ReasonService {
     }
 
     // ---------------- HELPER METHODS ----------------
-    private void saveReasonSystemMap(Long reasonId, Set<Long> systemIds) {
+
+    private ReasonData getReasonData(Page<ReasonEntity> pageResult) {
+        Set<Long> classifyReasonIds = new HashSet<>();
+        Set<Long> reasonIds = new HashSet<>();
+        Set<Long> systemIds = new HashSet<>();
+
+        // Thu thập các id từ pageResult
+        pageResult.forEach(reason -> {
+            classifyReasonIds.add(reason.getClassifyReasonId());
+            reasonIds.add(reason.getId());
+        });
+
+        List<ReasonMapEntity> allMappings = reasonMapRepository.findByReasonIdIn(reasonIds);
+        allMappings.forEach(mapping -> systemIds.add(mapping.getSystemId()));
+
+
+        // Lấy map classifyReason
+        List<ClassifyReasonEntity> classifyReasons = classifyReasonRepository.findByIdIn(classifyReasonIds);
+        Map<Long, ClassifyReasonEntity> classifyReasonEntityMap = classifyReasons.stream()
+                .collect(Collectors.toMap(ClassifyReasonEntity::getId, Function.identity()));
+
+        // Lấy systemDTOMap
+        Map<Long, SystemDTO> systemDTOMap = systemProxy.getSystems(systemIds);
+
+        // Tạo map reasonId -> systems
+        Map<Long, Set<SystemDTO>> reasonSystemsMap = new HashMap<>();
+        pageResult.forEach(reason -> {
+            Set<SystemDTO> systems = getSystemsByReasonIdOptimized(reason.getId(), allMappings, systemDTOMap);
+            reasonSystemsMap.put(reason.getId(), systems);
+        });
+
+        return ReasonData.builder()
+                .classifyReasonEntityMap(classifyReasonEntityMap)
+                .reasonSystemsMap(reasonSystemsMap)
+                .build();
+    }
+
+    private void setClassifyReasonToReason(ClassifyReasonEntity entity,
+                                           ReasonDTO dto) {
+        if (Objects.isNull(entity)) {
+            return;
+        }
+        dto.setClassifyReason(IdCodeNameResponse.builder()
+                .id(entity.getId())
+                .code(entity.getCode())
+                .name(entity.getName())
+                .build());
+    }
+
+    private void saveReasonSystemMap(Long reasonId,
+                                     Set<Long> systemIds) {
         List<ReasonMapEntity> mapEntities = systemIds.stream().map(systemId -> {
             ReasonMapEntity mapEntity = new ReasonMapEntity();
             mapEntity.setReasonId(reasonId);
@@ -157,13 +209,18 @@ public class ReasonServiceImpl implements ReasonService {
     }
 
     // Method tối ưu cho GET list - sử dụng data đã có
-    private Set<SystemDTO> getSystemsByReasonIdOptimized(Long reasonId, List<ReasonMapEntity> allMappings, Map<Long, SystemDTO> systemDTOMap) {
-        Set<Long> systemIds = allMappings.stream().filter(mapping -> mapping.getReasonId().equals(reasonId)).map(ReasonMapEntity::getSystemId).collect(Collectors.toSet());
-
+    private Set<SystemDTO> getSystemsByReasonIdOptimized(Long reasonId,
+                                                         List<ReasonMapEntity> allMappings,
+                                                         Map<Long, SystemDTO> systemDTOMap) {
+        Set<Long> systemIds = allMappings.stream()
+                .filter(mapping -> mapping.getReasonId().equals(reasonId))
+                .map(ReasonMapEntity::getSystemId)
+                .collect(Collectors.toSet());
         return systemIds.stream().map(systemDTOMap::get).filter(Objects::nonNull).collect(Collectors.toSet());
     }
 
-    private void validateNameNotExists(String name, Long excludeId) throws NameExisted {
+    private void validateNameNotExists(String name,
+                                       Long excludeId) throws NameExisted {
         boolean exists;
         if (excludeId == null) {
             exists = reasonRepository.existsByName(name);
@@ -175,7 +232,8 @@ public class ReasonServiceImpl implements ReasonService {
         }
     }
 
-    private void validateCodeNotExists(String code, Long excludeId) throws NameExisted {
+    private void validateCodeNotExists(String code,
+                                       Long excludeId) throws NameExisted {
         boolean exists;
         if (excludeId == null) {
             exists = reasonRepository.existsByCode(code);

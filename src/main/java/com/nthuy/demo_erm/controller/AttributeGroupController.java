@@ -1,6 +1,5 @@
 package com.nthuy.demo_erm.controller;
 
-
 import com.nthuy.demo_erm.common.until.PageableUtils;
 import com.nthuy.demo_erm.common.until.ResponseUtils;
 import com.nthuy.demo_erm.dto.AttributeGroupDTO;
@@ -9,15 +8,12 @@ import com.nthuy.demo_erm.dto.ResultPaginationDTO;
 import com.nthuy.demo_erm.common.exception.NameExisted;
 import com.nthuy.demo_erm.service.AttributeGroupService;
 import com.nthuy.demo_erm.common.until.annotation.ApiMessage;
+import com.nthuy.demo_erm.service.dto.SearchRequest;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
 
 @RestController
 @RequestMapping("/api/v1/attribute-group")
@@ -25,7 +21,6 @@ import org.springframework.web.bind.annotation.*;
 public class AttributeGroupController {
 
     private final AttributeGroupService attributeGroupService;
-
 
     @PostMapping
     @ApiMessage("Tạo mới nhóm thuộc tính")
@@ -39,7 +34,6 @@ public class AttributeGroupController {
     public ResponseEntity<AttributeGroupDTO> getDetailsAttributeGroup(@RequestParam Long id) {
         return ResponseUtils.ok(attributeGroupService.getAttributeGroup(id));
     }
-
 
     @DeleteMapping
     @ApiMessage("Xóa nhóm thuộc tính")
@@ -66,7 +60,10 @@ public class AttributeGroupController {
             @RequestParam(defaultValue = "id,desc") String sort) {
         // Tạo Pageable từ param sort (vd: id,desc)
         Pageable pageable = PageableUtils.from(page, size, sort);
-        return ResponseUtils.ok(attributeGroupService.getListAttributeGroup(code, name, isActive, pageable));
+        return ResponseUtils.ok(attributeGroupService.getListAttributeGroup(SearchRequest.builder()
+                .code(code)
+                .name(name)
+                .isActive(isActive)
+                .build(), pageable));
     }
-
 }

@@ -1,30 +1,29 @@
 package com.nthuy.demo_erm.service.impl;
 
-import com.nthuy.demo_erm.common.dto.Meta;
-import com.nthuy.demo_erm.common.until.PaginationUtils;
-import com.nthuy.demo_erm.common.until.SpecificationUtils;
-import com.nthuy.demo_erm.config.AttributeGroupSpecification;
 import com.nthuy.demo_erm.common.constant.EnumTypeAttributeGroup;
-import com.nthuy.demo_erm.config.ReasonSpecification;
-import com.nthuy.demo_erm.dto.*;
-import com.nthuy.demo_erm.entity.AttributeGroupEntity;
 import com.nthuy.demo_erm.common.exception.BadRequestValidationException;
 import com.nthuy.demo_erm.common.exception.IdInvalidException;
 import com.nthuy.demo_erm.common.exception.NameExisted;
 import com.nthuy.demo_erm.common.exception.TypeAttributeGroupValidException;
-import com.nthuy.demo_erm.entity.ReasonEntity;
+import com.nthuy.demo_erm.common.until.PaginationUtils;
+import com.nthuy.demo_erm.common.until.SpecificationUtils;
+import com.nthuy.demo_erm.config.AttributeGroupSpecification;
+import com.nthuy.demo_erm.dto.AttributeGroupDTO;
+import com.nthuy.demo_erm.dto.ResultPaginationDTO;
+import com.nthuy.demo_erm.entity.AttributeGroupEntity;
 import com.nthuy.demo_erm.mapper.AttributeGroupMapper;
 import com.nthuy.demo_erm.repository.AttributeGroupRepository;
 import com.nthuy.demo_erm.service.AttributeGroupService;
+import com.nthuy.demo_erm.service.dto.SearchRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
-
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 
 
 @Service
@@ -41,20 +40,20 @@ public class AttributeGroupServiceImpl implements AttributeGroupService {
         validateNameNotExists(dto.getName(), null);
 
         AttributeGroupEntity entity = attributeGroupMapper.toEntity(dto);
-        if (entity.getType() != null) {
-            AttributeGroupEntity savedEntity = attributeGroupRepository.save(entity);
-            return savedEntity.getId();
-        } else {
-            entity.setType(EnumTypeAttributeGroup.BUSINESS);
+        if (Objects.nonNull(entity.getType())) {
             AttributeGroupEntity savedEntity = attributeGroupRepository.save(entity);
             return savedEntity.getId();
         }
+        entity.setType(EnumTypeAttributeGroup.BUSINESS);
+        AttributeGroupEntity savedEntity = attributeGroupRepository.save(entity);
+        return savedEntity.getId();
     }
 
 
     @Override
     public AttributeGroupDTO getAttributeGroup(Long id) {
-        AttributeGroupEntity entity = this.attributeGroupRepository.findById(id).orElseThrow(() -> new BadRequestValidationException(id + " không tồn tại"));
+        AttributeGroupEntity entity = this.attributeGroupRepository.findById(id)
+                .orElseThrow(() -> new BadRequestValidationException(id + " không tồn tại"));
         return attributeGroupMapper.toDto(entity);
 
     }
@@ -77,7 +76,8 @@ public class AttributeGroupServiceImpl implements AttributeGroupService {
         this.validateNameNotExists(dto.getName(), dto.getId());
         this.validateCodeNotExists(dto.getCode(), dto.getId());
 
-        AttributeGroupEntity entity = attributeGroupRepository.findById(dto.getId()).orElseThrow(() -> new BadRequestValidationException("Nhóm thuộc tính với ID " + dto.getId() + " không tồn tại"));
+        AttributeGroupEntity entity = attributeGroupRepository.findById(dto.getId())
+                .orElseThrow(() -> new BadRequestValidationException("Nhóm thuộc tính với ID " + dto.getId() + " không tồn tại"));
         if (EnumTypeAttributeGroup.SYSTEM.equals(entity.getType())) {
             throw new TypeAttributeGroupValidException("SYSTEM không thể chỉnh sửa");
         }
@@ -86,12 +86,13 @@ public class AttributeGroupServiceImpl implements AttributeGroupService {
     }
 
     @Override
-    public ResultPaginationDTO<AttributeGroupDTO> getListAttributeGroup(String code, String name, Boolean isActive, Pageable pageable) {
+    public ResultPaginationDTO<AttributeGroupDTO> getListAttributeGroup(SearchRequest searchRequest,
+                                                                        Pageable pageable) {
         Specification<AttributeGroupEntity> spec = Specification.where(null);
 
-        spec = SpecificationUtils.addIfHasText(spec, code, AttributeGroupSpecification::hasCode);
-        spec = SpecificationUtils.addIfHasText(spec, name, AttributeGroupSpecification::hasName);
-        spec = SpecificationUtils.addIfNotNull(spec, isActive, AttributeGroupSpecification::hasIsActive);
+        spec = SpecificationUtils.addIfHasText(spec, searchRequest.getCode(), AttributeGroupSpecification::hasCode);
+        spec = SpecificationUtils.addIfHasText(spec, searchRequest.getName(), AttributeGroupSpecification::hasName);
+        spec = SpecificationUtils.addIfNotNull(spec, searchRequest.getIsActive(), AttributeGroupSpecification::hasIsActive);
 
 
         Page<AttributeGroupEntity> pageResult = attributeGroupRepository.findAll(spec, pageable);
@@ -108,7 +109,9 @@ public class AttributeGroupServiceImpl implements AttributeGroupService {
 
     // ---------------- HELPER METHODS ----------------
 
-    private void validateNameNotExists(String name, Long excludeId) throws NameExisted {
+
+    private void validateNameNotExists(String name,
+                                       Long excludeId) throws NameExisted {
         boolean exists;
         if (excludeId == null) {
             exists = attributeGroupRepository.existsByName(name);
@@ -120,7 +123,8 @@ public class AttributeGroupServiceImpl implements AttributeGroupService {
         }
     }
 
-    private void validateCodeNotExists(String code, Long excludeId) throws NameExisted {
+    private void validateCodeNotExists(String code,
+                                       Long excludeId) throws NameExisted {
         boolean exists;
         if (excludeId == null) {
             exists = attributeGroupRepository.existsByCode(code);

@@ -1,6 +1,9 @@
 package com.nthuy.demo_erm.service.impl;
 
 import com.nthuy.demo_erm.common.constant.EnumAttributeDisplayType;
+import com.nthuy.demo_erm.common.exception.BadRequestValidationException;
+import com.nthuy.demo_erm.common.exception.IdInvalidException;
+import com.nthuy.demo_erm.common.exception.NameExisted;
 import com.nthuy.demo_erm.common.until.PaginationUtils;
 import com.nthuy.demo_erm.common.until.SpecificationUtils;
 import com.nthuy.demo_erm.config.AttributeSpecification;
@@ -11,9 +14,6 @@ import com.nthuy.demo_erm.dto.response.IdCodeNameResponse;
 import com.nthuy.demo_erm.entity.AttributeEntity;
 import com.nthuy.demo_erm.entity.AttributeGroupEntity;
 import com.nthuy.demo_erm.entity.AttributeValueEntity;
-import com.nthuy.demo_erm.common.exception.BadRequestValidationException;
-import com.nthuy.demo_erm.common.exception.IdInvalidException;
-import com.nthuy.demo_erm.common.exception.NameExisted;
 import com.nthuy.demo_erm.mapper.AttributeMapper;
 import com.nthuy.demo_erm.mapper.AttributeValueMapper;
 import com.nthuy.demo_erm.repository.AttributeGroupRepository;
@@ -68,7 +68,8 @@ public class AttributeServiceImpl implements AttributeService {
         attributeRepository.save(attribute);
 
         // Nếu là SELECT hoặc kiểu khác TEXTBOX thì lưu values
-        if (!EnumAttributeDisplayType.TEXTBOX.equals(displayType) && dto.getValues() != null && !dto.getValues().isEmpty()) {
+        if (!EnumAttributeDisplayType.TEXTBOX.equals(displayType) && dto.getValues() != null && !dto.getValues()
+                .isEmpty()) {
 
             dto.getValues().stream().map(v -> {
                 AttributeValueEntity av = attributeValueMapper.toEntity(v);
@@ -84,16 +85,22 @@ public class AttributeServiceImpl implements AttributeService {
     @Override
     public AttributeDTO getAttribute(Long id) {
 
-        AttributeEntity entity = attributeRepository.findById(id).orElseThrow(() -> new BadRequestValidationException("Thuộc tính với ID " + id + " không tồn tại"));
+        AttributeEntity entity = attributeRepository.findById(id)
+                .orElseThrow(() -> new BadRequestValidationException("Thuộc tính với ID " + id + " không tồn tại"));
 
         AttributeDTO dto = attributeMapper.toDto(entity);
 
         // load attribute group (nếu có)
-        Optional.ofNullable(entity.getAttributeGroupId()).flatMap(attributeGroupRepository::findById).ifPresent(group -> dto.setAttributeGroup(new IdCodeNameResponse(group.getId(), group.getCode(), group.getName())));
+        Optional.ofNullable(entity.getAttributeGroupId())
+                .flatMap(attributeGroupRepository::findById)
+                .ifPresent(group -> dto.setAttributeGroup(new IdCodeNameResponse(group.getId(), group.getCode(), group.getName())));
 
         // load values (nếu không phải TEXTBOX)
         if (dto.getDisplayType() != EnumAttributeDisplayType.TEXTBOX) {
-            List<AttributeValueDTO> values = attributeValueRepository.findByAttributeId(id).stream().map(attributeValueMapper::toDto).toList();
+            List<AttributeValueDTO> values = attributeValueRepository.findByAttributeId(id)
+                    .stream()
+                    .map(attributeValueMapper::toDto)
+                    .toList();
             dto.setValues(values);
         }
         return dto;
@@ -108,7 +115,8 @@ public class AttributeServiceImpl implements AttributeService {
     @Override
     @Transactional
     public Long update(AttributeDTO dto) throws NameExisted {
-        AttributeEntity entity = attributeRepository.findById(dto.getId()).orElseThrow(() -> new BadRequestValidationException("Thuộc tính với ID " + dto.getId() + " không tồn tại"));
+        AttributeEntity entity = attributeRepository.findById(dto.getId())
+                .orElseThrow(() -> new BadRequestValidationException("Thuộc tính với ID " + dto.getId() + " không tồn tại"));
 
         validateNameNotExists(dto.getName(), dto.getId());
         validateCodeNotExists(dto.getCode(), dto.getId());
@@ -149,7 +157,8 @@ public class AttributeServiceImpl implements AttributeService {
     }
 
     @Override
-    public ResultPaginationDTO<AttributeDTO> getListAttribute(SearchRequest searchRequest, Pageable pageable) {
+    public ResultPaginationDTO<AttributeDTO> getListAttribute(SearchRequest searchRequest,
+                                                              Pageable pageable) {
 
         Specification<AttributeEntity> spec = Specification.where(null);
 
@@ -163,13 +172,14 @@ public class AttributeServiceImpl implements AttributeService {
             return PaginationUtils.buildResult(pageResult, Collections.emptyList(), pageable);
         }
 
-        AttributeData data =getAttributeData(pageResult);
+        AttributeData data = getAttributeData(pageResult);
 
         List<AttributeDTO> dtoList = pageResult.getContent().stream().map(entity -> {
             AttributeDTO dto = attributeMapper.toDto(entity);
-            AttributeGroupEntity attributeGroupEntity = data.getAttributeGroupEntityMap().get(entity.getAttributeGroupId());
+            AttributeGroupEntity attributeGroupEntity = data.getAttributeGroupEntityMap()
+                    .get(entity.getAttributeGroupId());
             setAttributeGroupToAttribute(attributeGroupEntity, dto);
-            setAttributeValueToAttribute(dto,data.getAttributeValueEntityMapAttribute());
+            setAttributeValueToAttribute(dto, data.getAttributeValueEntityMapAttribute());
             return dto;
         }).toList();
 
@@ -179,7 +189,7 @@ public class AttributeServiceImpl implements AttributeService {
 
     // ----------------- HELPER -----------------
 
-    private AttributeData getAttributeData( Page<AttributeEntity> pageResult ){
+    private AttributeData getAttributeData(Page<AttributeEntity> pageResult) {
         Set<Long> attributeGroupIds = new HashSet<>();
         Set<Long> attributeIds = new HashSet<>();
 
@@ -188,31 +198,36 @@ public class AttributeServiceImpl implements AttributeService {
             attributeIds.add(attribute.getId());
         });
 
-        List<AttributeGroupEntity> listAttributeGroup =  attributeGroupRepository.findByIdIn(attributeGroupIds);
-        Map<Long, AttributeGroupEntity> attributeGroupEntityMap = listAttributeGroup.stream().collect(Collectors.toMap(AttributeGroupEntity::getId, Function.identity()));
+        List<AttributeGroupEntity> listAttributeGroup = attributeGroupRepository.findByIdIn(attributeGroupIds);
+        Map<Long, AttributeGroupEntity> attributeGroupEntityMap = listAttributeGroup.stream()
+                .collect(Collectors.toMap(AttributeGroupEntity::getId, Function.identity()));
 
         List<AttributeValueEntity> listAttributeValue = attributeValueRepository.findByAttributeIdIn(attributeIds);
 
-        Map<Long,List<AttributeValueEntity> > attributeValueEntityMapAttribute = listAttributeValue.stream().collect(Collectors
-                .groupingBy(AttributeValueEntity::getAttributeId));
-    return AttributeData.builder().attributeGroupEntityMap(attributeGroupEntityMap)
-            .attributeValueEntityMapAttribute(attributeValueEntityMapAttribute).build();
+        Map<Long, List<AttributeValueEntity>> attributeValueEntityMapAttribute = listAttributeValue.stream()
+                .collect(Collectors
+                        .groupingBy(AttributeValueEntity::getAttributeId));
+        return AttributeData.builder().attributeGroupEntityMap(attributeGroupEntityMap)
+                .attributeValueEntityMapAttribute(attributeValueEntityMapAttribute).build();
 
     }
 
-    private void setAttributeGroupToAttribute(AttributeGroupEntity entity, AttributeDTO dto ){
-        if (Objects.isNull(entity)){
+    private void setAttributeGroupToAttribute(AttributeGroupEntity entity,
+                                              AttributeDTO dto) {
+        if (Objects.isNull(entity)) {
             return;
         }
         dto.setAttributeGroup(IdCodeNameResponse.builder().id(entity.getId())
                 .code(entity.getCode()).name(entity.getName()).build());
     }
-    private void setAttributeValueToAttribute(AttributeDTO dto,   Map<Long,List<AttributeValueEntity> > attributeValueEntityMapAttribute){
+
+    private void setAttributeValueToAttribute(AttributeDTO dto,
+                                              Map<Long, List<AttributeValueEntity>> attributeValueEntityMapAttribute) {
         if (dto.getDisplayType() == EnumAttributeDisplayType.TEXTBOX) {
             return;
         }
         List<AttributeValueEntity> attributeValues = attributeValueEntityMapAttribute.get(dto.getId());
-        if (Objects.isNull(attributeValues)){
+        if (Objects.isNull(attributeValues)) {
             return;
         }
         List<AttributeValueDTO> attributeValueDtos = attributeValues.stream().map(attributeValue -> {
@@ -220,7 +235,9 @@ public class AttributeServiceImpl implements AttributeService {
         }).toList();
         dto.setValues(attributeValueDtos);
     }
-    private void validateNameNotExists(String name, Long excludeId) throws NameExisted {
+
+    private void validateNameNotExists(String name,
+                                       Long excludeId) throws NameExisted {
         boolean exists;
         if (excludeId == null) {
             exists = attributeRepository.existsByName(name);
@@ -232,7 +249,8 @@ public class AttributeServiceImpl implements AttributeService {
         }
     }
 
-    private void validateCodeNotExists(String code, Long excludeId) throws NameExisted {
+    private void validateCodeNotExists(String code,
+                                       Long excludeId) throws NameExisted {
         boolean exists;
         if (excludeId == null) {
             exists = attributeRepository.existsByCode(code);

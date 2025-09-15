@@ -23,7 +23,6 @@ import java.util.List;
 public class RiskController {
     private final RiskService riskService;
 
-
     @PostMapping
     @ApiMessage("Tạo mới ")
     public ResponseEntity<IdResponse> createRisk(@Valid @RequestBody RiskDTO riskDTO) throws NameExisted {
@@ -65,7 +64,6 @@ public class RiskController {
 
         Pageable pageable = PageableUtils.from(page, size, sort);
         return ResponseUtils.ok(riskService.getListRisk(code, name, systemIds, isActive, type, pageable));
-
 
     }
 }
